@@ -26,6 +26,7 @@ describe('CropStatus transitions', () => {
   });
 
   it('CropStatusError.name est correctement fixé', () => {
+    expect.assertions(1);
     try {
       assertCanTransition(CropStatus.DRAFT, CropStatus.ARCHIVED);
     } catch (err) {

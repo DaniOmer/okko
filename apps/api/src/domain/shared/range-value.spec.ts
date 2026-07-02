@@ -25,6 +25,7 @@ describe('RangeValue', () => {
   });
 
   it('RangeValueError.name est correctement fixé', () => {
+    expect.assertions(1);
     try {
       RangeValue.create({ min: 7, optimal: 6, max: 8, unit: 'pH' });
     } catch (err) {

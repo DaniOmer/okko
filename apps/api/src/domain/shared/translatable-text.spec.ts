@@ -17,6 +17,7 @@ describe('TranslatableText', () => {
   });
 
   it('TranslatableTextError.name est correctement fixé', () => {
+    expect.assertions(1);
     try {
       TranslatableText.create({ en: 'Carrot' }, 'fr');
     } catch (err) {
