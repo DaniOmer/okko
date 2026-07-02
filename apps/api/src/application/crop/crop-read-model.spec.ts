@@ -26,4 +26,14 @@ describe('toCropDocument', () => {
     expect(doc.serializedText).toContain('Daucus carota');
     expect(doc.serializedText).toContain('SEASONAL_ANNUAL');
   });
+
+  it('mappe correctement tous les champs CropDocument', () => {
+    const doc = toCropDocument(snap, 'fr');
+    expect(doc.id).toBe('c1');
+    expect(doc.family).toBe('Apiaceae');
+    expect(doc.cycleType).toBe(CycleType.SEASONAL_ANNUAL);
+    expect(doc.status).toBe(CropStatus.PUBLISHED);
+    expect(doc.version).toBe(3);
+    expect(doc.metadata).toEqual({ rusticite: 'élevée' });
+  });
 });
