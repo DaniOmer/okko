@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+.next/
+build/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Prisma local
+apps/api/prisma/*.db
+
+# Logs / OS
+*.log
+.DS_Store
+
+# Claude Code local settings
+.claude/settings.local.json
