@@ -1,4 +1,9 @@
-export class CropStatusError extends Error {}
+export class CropStatusError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = 'CropStatusError';
+  }
+}
 
 export enum CropStatus {
   DRAFT = 'DRAFT',

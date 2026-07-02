@@ -3,7 +3,12 @@ import { CropRepository } from './crop.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
 
-export class CropNotFoundError extends Error {}
+export class CropNotFoundError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = 'CropNotFoundError';
+  }
+}
 
 export class PublishCropUseCase {
   constructor(

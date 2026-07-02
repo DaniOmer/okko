@@ -23,4 +23,12 @@ describe('RangeValue', () => {
     const r = RangeValue.create({ min: 400, optimal: 800, max: 1200, unit: 'mm' });
     expect(r.toJSON()).toEqual({ min: 400, optimal: 800, max: 1200, unit: 'mm' });
   });
+
+  it('RangeValueError.name est correctement fixé', () => {
+    try {
+      RangeValue.create({ min: 7, optimal: 6, max: 8, unit: 'pH' });
+    } catch (err) {
+      expect((err as Error).name).toBe('RangeValueError');
+    }
+  });
 });

@@ -1,4 +1,9 @@
-export class RangeValueError extends Error {}
+export class RangeValueError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = 'RangeValueError';
+  }
+}
 
 interface RangeValueProps {
   min: number;

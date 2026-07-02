@@ -15,4 +15,12 @@ describe('TranslatableText', () => {
     expect(() => TranslatableText.create({ en: 'Carrot' }, 'fr'))
       .toThrow(TranslatableTextError);
   });
+
+  it('TranslatableTextError.name est correctement fixé', () => {
+    try {
+      TranslatableText.create({ en: 'Carrot' }, 'fr');
+    } catch (err) {
+      expect((err as Error).name).toBe('TranslatableTextError');
+    }
+  });
 });
