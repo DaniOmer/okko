@@ -29,6 +29,10 @@ export class Provenance {
     return new Provenance({ source: ProvenanceSource.EXTERNAL, ...props });
   }
 
+  static fromJSON(props: ProvenanceProps): Provenance {
+    return new Provenance({ ...props });
+  }
+
   get source(): ProvenanceSource { return this.props.source; }
   get sourceRef(): string | undefined { return this.props.sourceRef; }
   get validatedBy(): string | undefined { return this.props.validatedBy; }
