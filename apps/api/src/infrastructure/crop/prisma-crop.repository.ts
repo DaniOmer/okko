@@ -1,0 +1,42 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CropRepository } from '../../application/crop/crop.repository';
+import { CropSnapshot, Crop } from '../../domain/crop/crop';
+import { CropStatus } from '../../domain/crop/crop-status';
+import { CycleType } from '../../domain/crop/cycle-type';
+
+@Injectable()
+export class PrismaCropRepository implements CropRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async save(s: CropSnapshot): Promise<void> {
+    await this.prisma.crop.upsert({
+      where: { id: s.id },
+      create: { ...s, commonNames: s.commonNames as any, metadata: s.metadata as any },
+      update: { ...s, commonNames: s.commonNames as any, metadata: s.metadata as any },
+    });
+  }
+
+  async findById(id: string): Promise<CropSnapshot | null> {
+    const row = await this.prisma.crop.findUnique({ where: { id } });
+    return row ? this.toSnapshot(row) : null;
+  }
+
+  async list(): Promise<CropSnapshot[]> {
+    const rows = await this.prisma.crop.findMany({ orderBy: { createdAt: 'desc' } });
+    return rows.map((r) => this.toSnapshot(r));
+  }
+
+  private toSnapshot(row: any): CropSnapshot {
+    return {
+      id: row.id,
+      commonNames: row.commonNames as Record<string, string>,
+      scientificName: row.scientificName,
+      family: row.family,
+      cycleType: row.cycleType as CycleType,
+      status: row.status as CropStatus,
+      version: row.version,
+      metadata: row.metadata as Record<string, unknown>,
+    };
+  }
+}
