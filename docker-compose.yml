@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: okko
+      POSTGRES_PASSWORD: okko
+      POSTGRES_DB: okko
+    ports:
+      - "5432:5432"
+    volumes:
+      - okko_pgdata:/var/lib/postgresql/data
+volumes:
+  okko_pgdata:
