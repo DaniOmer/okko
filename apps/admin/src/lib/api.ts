@@ -7,6 +7,7 @@ export interface CropDocument {
 
 export async function listCrops(): Promise<CropDocument[]> {
   const res = await fetch(`${BASE}/crops`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
 }
 
@@ -16,9 +17,11 @@ export async function createCrop(input: {
   const res = await fetch(`${BASE}/crops`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
   });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
 }
 
 export async function publishCrop(id: string): Promise<void> {
-  await fetch(`${BASE}/crops/${id}/publish`, { method: 'POST' });
+  const res = await fetch(`${BASE}/crops/${id}/publish`, { method: 'POST' });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
 }
