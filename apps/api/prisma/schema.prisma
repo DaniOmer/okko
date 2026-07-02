@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Crop {
+  id             String   @id
+  commonNames    Json
+  scientificName String
+  family         String
+  cycleType      String
+  status         String
+  version        Int
+  metadata       Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  actor      String
+  at         DateTime
+  changes    Json
+}
