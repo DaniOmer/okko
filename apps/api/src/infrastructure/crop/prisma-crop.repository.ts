@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CropRepository } from '../../application/crop/crop.repository';
-import { CropSnapshot, Crop } from '../../domain/crop/crop';
+import { CropSnapshot } from '../../domain/crop/crop';
 import { CropStatus } from '../../domain/crop/crop-status';
 import { CycleType } from '../../domain/crop/cycle-type';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaCropRepository implements CropRepository {
@@ -12,8 +13,8 @@ export class PrismaCropRepository implements CropRepository {
   async save(s: CropSnapshot): Promise<void> {
     await this.prisma.crop.upsert({
       where: { id: s.id },
-      create: { ...s, commonNames: s.commonNames as any, metadata: s.metadata as any },
-      update: { ...s, commonNames: s.commonNames as any, metadata: s.metadata as any },
+      create: { ...s, commonNames: s.commonNames as Prisma.InputJsonValue, metadata: s.metadata as Prisma.InputJsonValue },
+      update: { ...s, commonNames: s.commonNames as Prisma.InputJsonValue, metadata: s.metadata as Prisma.InputJsonValue },
     });
   }
 

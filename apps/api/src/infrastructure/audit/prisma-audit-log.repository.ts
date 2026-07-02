@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditEntry, AuditLogRepository } from '../../application/audit/audit-log.repository';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaAuditLogRepository implements AuditLogRepository {
@@ -13,7 +14,7 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
         entityId: entry.entityId,
         actor: entry.actor,
         at: new Date(entry.at),
-        changes: entry.changes,
+        changes: entry.changes as Prisma.InputJsonValue,
       },
     });
   }
