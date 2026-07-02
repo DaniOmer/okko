@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post, NotFoundException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
 import { PublishCropUseCase, CropNotFoundError } from '../../application/crop/publish-crop.use-case';
+import { CropStatusError } from '../../domain/crop/crop-status';
 import { CROP_REPOSITORY, CropRepository } from '../../application/crop/crop.repository';
 import { toCropDocument } from '../../application/crop/crop-read-model';
 import { CycleType } from '../../domain/crop/cycle-type';
@@ -54,6 +55,7 @@ export class CropController {
       return toCropDocument(snap);
     } catch (e) {
       if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      if (e instanceof CropStatusError) throw new ConflictException(e.message);
       throw e;
     }
   }

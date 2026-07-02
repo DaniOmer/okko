@@ -29,5 +29,8 @@ describe('Crop e2e', () => {
     const got = await request(app.getHttpServer()).get(`/crops/${id}`).expect(200);
     expect(got.body.status).toBe('PUBLISHED');
     expect(got.body.name).toBe('Ananas');
+
+    // Publishing an already-PUBLISHED crop must return 409 Conflict
+    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(409);
   });
 });

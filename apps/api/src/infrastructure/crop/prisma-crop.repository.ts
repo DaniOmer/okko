@@ -5,11 +5,13 @@ import { CropSnapshot } from '../../domain/crop/crop';
 import { CropStatus } from '../../domain/crop/crop-status';
 import { CycleType } from '../../domain/crop/cycle-type';
 import { Prisma } from '@prisma/client';
+import type { Crop as PrismaCrop } from '@prisma/client';
 
 @Injectable()
 export class PrismaCropRepository implements CropRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  // NOTE (Plan 1): last-writer-wins. Optimistic concurrency (a version-guarded update) is deferred — the v1 back-office has a single admin role. Revisit when multi-editor support lands (see spec §6.1).
   async save(s: CropSnapshot): Promise<void> {
     await this.prisma.crop.upsert({
       where: { id: s.id },
@@ -28,7 +30,7 @@ export class PrismaCropRepository implements CropRepository {
     return rows.map((r) => this.toSnapshot(r));
   }
 
-  private toSnapshot(row: any): CropSnapshot {
+  private toSnapshot(row: PrismaCrop): CropSnapshot {
     return {
       id: row.id,
       commonNames: row.commonNames as Record<string, string>,
