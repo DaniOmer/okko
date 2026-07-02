@@ -2,6 +2,9 @@ import { Crop } from './crop';
 import { TranslatableText } from '../shared/translatable-text';
 import { CycleType } from './cycle-type';
 import { CropStatus, CropStatusError } from './crop-status';
+import { ClimaticRequirements } from '../shared/climatic-requirements';
+import { EdaphicRequirements } from '../shared/edaphic-requirements';
+import { RangeValue } from '../shared/range-value';
 
 const base = () => Crop.create({
   id: 'crop-1',
@@ -50,5 +53,38 @@ describe('Crop', () => {
     const restored = Crop.fromSnapshot(c.toSnapshot());
     expect(restored.status).toBe(CropStatus.PUBLISHED);
     expect(restored.scientificName).toBe('Daucus carota');
+  });
+});
+
+describe('Crop requirements', () => {
+  const base = () => Crop.create({
+    id: 'crop-req',
+    commonNames: TranslatableText.create({ fr: 'Maïs' }),
+    scientificName: 'Zea mays',
+    family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL,
+  });
+
+  it('sets climatic requirements, bumps version, and survives snapshot round-trip', () => {
+    const c = base();
+    c.setClimaticRequirements(ClimaticRequirements.create({
+      temperature: RangeValue.create({ min: 18, optimal: 25, max: 32, unit: '°C' }),
+    }));
+    expect(c.version).toBe(2);
+    expect(c.climatic?.temperature?.optimal).toBe(25);
+    const restored = Crop.fromSnapshot(c.toSnapshot());
+    expect(restored.climatic?.temperature?.optimal).toBe(25);
+  });
+
+  it('sets edaphic requirements and round-trips', () => {
+    const c = base();
+    c.setEdaphicRequirements(EdaphicRequirements.create({
+      ph: RangeValue.create({ min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' }),
+      texture: 'argilo-limoneux',
+    }));
+    expect(c.version).toBe(2);
+    const restored = Crop.fromSnapshot(c.toSnapshot());
+    expect(restored.edaphic?.ph?.optimal).toBe(6.5);
+    expect(restored.edaphic?.texture).toBe('argilo-limoneux');
   });
 });

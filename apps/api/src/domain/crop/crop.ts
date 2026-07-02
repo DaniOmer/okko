@@ -1,6 +1,8 @@
 import { TranslatableText } from '../shared/translatable-text';
 import { CycleType } from './cycle-type';
 import { CropStatus, assertCanTransition } from './crop-status';
+import { ClimaticRequirements, ClimaticRequirementsJSON } from '../shared/climatic-requirements';
+import { EdaphicRequirements, EdaphicRequirementsJSON } from '../shared/edaphic-requirements';
 
 export interface CropSnapshot {
   id: string;
@@ -11,6 +13,8 @@ export interface CropSnapshot {
   status: CropStatus;
   version: number;
   metadata: Record<string, unknown>;
+  climatic?: ClimaticRequirementsJSON;
+  edaphic?: EdaphicRequirementsJSON;
 }
 
 interface CreateCropProps {
@@ -31,12 +35,14 @@ export class Crop {
     private _status: CropStatus,
     private _version: number,
     private _metadata: Record<string, unknown>,
+    private _climatic: ClimaticRequirements | undefined,
+    private _edaphic: EdaphicRequirements | undefined,
   ) {}
 
   static create(props: CreateCropProps): Crop {
     return new Crop(
       props.id, props.commonNames, props.scientificName, props.family,
-      props.cycleType, CropStatus.DRAFT, 1, {},
+      props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined,
     );
   }
 
@@ -48,6 +54,18 @@ export class Crop {
   get status(): CropStatus { return this._status; }
   get version(): number { return this._version; }
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
+  get climatic(): ClimaticRequirements | undefined { return this._climatic; }
+  get edaphic(): EdaphicRequirements | undefined { return this._edaphic; }
+
+  setClimaticRequirements(c: ClimaticRequirements): void {
+    this._climatic = c;
+    this._version += 1;
+  }
+
+  setEdaphicRequirements(e: EdaphicRequirements): void {
+    this._edaphic = e;
+    this._version += 1;
+  }
 
   rename(commonNames: TranslatableText): void {
     this._commonNames = commonNames;
@@ -79,6 +97,8 @@ export class Crop {
       status: this._status,
       version: this._version,
       metadata: { ...this._metadata },
+      climatic: this._climatic?.toJSON(),
+      edaphic: this._edaphic?.toJSON(),
     };
   }
 
@@ -86,6 +106,8 @@ export class Crop {
     return new Crop(
       s.id, TranslatableText.create(s.commonNames), s.scientificName, s.family,
       s.cycleType, s.status, s.version, { ...s.metadata },
+      s.climatic ? ClimaticRequirements.fromJSON(s.climatic) : undefined,
+      s.edaphic ? EdaphicRequirements.fromJSON(s.edaphic) : undefined,
     );
   }
 }
