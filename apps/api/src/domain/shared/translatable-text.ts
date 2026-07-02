@@ -1,4 +1,9 @@
-export class TranslatableTextError extends Error {}
+export class TranslatableTextError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = 'TranslatableTextError';
+  }
+}
 
 export class TranslatableText {
   private constructor(

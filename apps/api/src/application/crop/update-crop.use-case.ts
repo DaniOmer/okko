@@ -29,12 +29,15 @@ export class UpdateCropUseCase {
     }
     const next = crop.toSnapshot();
     await this.crops.save(next);
+    const changes: Record<string, { from: unknown; to: unknown }> = {};
+    if (input.commonNames) changes.commonNames = { from: snap.commonNames, to: next.commonNames };
+    if (input.metadata !== undefined) changes.metadata = { from: snap.metadata, to: next.metadata };
     await this.audit.record({
       entityType: 'Crop',
       entityId: crop.id,
       actor: input.actor,
       at: this.clock.nowIso(),
-      changes: { updated: input },
+      changes,
     });
     return next;
   }

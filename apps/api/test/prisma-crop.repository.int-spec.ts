@@ -10,19 +10,26 @@ describe('PrismaCropRepository (integration)', () => {
   beforeAll(async () => { await prisma.$connect(); });
   afterAll(async () => { await prisma.crop.deleteMany(); await prisma.$disconnect(); });
 
-  it('sauvegarde puis relit un snapshot', async () => {
-    await repo.save({
+  it('sauvegarde puis relit un snapshot avec tous les champs', async () => {
+    const saved = {
       id: 'itest-1',
-      commonNames: { fr: 'Coton' },
+      commonNames: { fr: 'Coton', en: 'Cotton' },
       scientificName: 'Gossypium',
       family: 'Malvaceae',
       cycleType: CycleType.SEASONAL_ANNUAL,
-      status: CropStatus.DRAFT,
-      version: 1,
-      metadata: {},
-    });
+      status: CropStatus.PUBLISHED,
+      version: 2,
+      metadata: { rusticite: 'élevée' },
+    };
+    await repo.save(saved);
     const found = await repo.findById('itest-1');
+    expect(found?.id).toBe('itest-1');
+    expect(found?.commonNames).toEqual({ fr: 'Coton', en: 'Cotton' });
     expect(found?.scientificName).toBe('Gossypium');
-    expect(found?.commonNames.fr).toBe('Coton');
+    expect(found?.family).toBe('Malvaceae');
+    expect(found?.cycleType).toBe(CycleType.SEASONAL_ANNUAL);
+    expect(found?.status).toBe(CropStatus.PUBLISHED);
+    expect(found?.version).toBe(2);
+    expect(found?.metadata).toEqual({ rusticite: 'élevée' });
   });
 });

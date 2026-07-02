@@ -11,16 +11,23 @@ export default function NewCropPage() {
   const [scientificName, setSci] = useState('');
   const [family, setFamily] = useState('');
   const [cycleType, setCycle] = useState(CYCLE_TYPES[0]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    await createCrop({ commonNames: { fr }, scientificName, family, cycleType });
-    router.push('/crops');
+    setErrorMsg(null);
+    try {
+      await createCrop({ commonNames: { fr }, scientificName, family, cycleType });
+      router.push('/crops');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Une erreur est survenue');
+    }
   }
 
   return (
     <main className="p-8 max-w-lg">
       <h1 className="text-2xl font-bold mb-6">Nouvelle culture</h1>
+      {errorMsg && <p className="mb-4 text-red-600">{errorMsg}</p>}
       <form onSubmit={submit} className="space-y-4">
         <input className="w-full border p-2" placeholder="Nom (fr)" value={fr} onChange={(e) => setFr(e.target.value)} required />
         <input className="w-full border p-2" placeholder="Nom scientifique" value={scientificName} onChange={(e) => setSci(e.target.value)} required />

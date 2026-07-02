@@ -34,12 +34,14 @@ describe('Crop', () => {
     const c = base();
     c.rename(TranslatableText.create({ fr: 'Carotte potagère' }));
     expect(c.version).toBe(2);
+    expect(c.commonNames.getOrDefault('fr')).toBe('Carotte potagère');
   });
 
   it("stocke des specificites dans metadata sans schema", () => {
     const c = base();
     c.setMetadata('rusticite', 'élevée');
     expect(c.metadata.rusticite).toBe('élevée');
+    expect(c.version).toBe(2);
   });
 
   it("fait un aller-retour snapshot sans perte", () => {
