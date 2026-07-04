@@ -1,11 +1,12 @@
-import { getCrop } from '../../../lib/api';
+import { getCrop, getCropHistory } from '../../../lib/api';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
-  const crop = await getCrop(params.id);
+  const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
   return (
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
       <p className="text-sm">{crop.cycleType} · {crop.status} (v{crop.version})</p>
+      <p className="text-sm">Complétude : <strong>{crop.completeness.percent}%</strong> ({crop.completeness.filled}/{crop.completeness.total} catégories)</p>
 
       <section>
         <h2 className="font-semibold mb-2">Exigences climatiques</h2>
@@ -99,6 +100,14 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         <ul className="list-disc pl-5">
           {crop.prices.map((p) => (
             <li key={p.id}>{p.date} — {p.price} {p.unit} @ {p.market}</li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <h2 className="font-semibold mb-2">Historique ({history.length})</h2>
+        <ul className="divide-y text-sm">
+          {history.map((h) => (
+            <li key={h.id} className="py-2">{h.at} — {h.actor} — {Object.keys(h.changes).join(', ')}</li>
           ))}
         </ul>
       </section>

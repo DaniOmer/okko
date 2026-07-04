@@ -34,6 +34,7 @@ import { AddPricePointUseCase } from '../../application/price/add-price-point.us
 import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.use-case';
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
+import { GetCropHistoryUseCase } from '../../application/crop/get-crop-history.use-case';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -59,6 +60,7 @@ export class CropController {
     private readonly setYields: SetCropYieldsUseCase,
     private readonly addPrice: AddPricePointUseCase,
     private readonly listPrices: ListCropPricesUseCase,
+    private readonly getHistory: GetCropHistoryUseCase,
   ) {}
 
   @Post()
@@ -243,6 +245,16 @@ export class CropController {
   @Get(':id/prices')
   async getPrices(@Param('id') id: string) {
     return this.listPrices.execute({ cropId: id });
+  }
+
+  @Get(':id/history')
+  async history(@Param('id') id: string) {
+    try {
+      return await this.getHistory.execute({ cropId: id });
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
   }
 
   private async composeCropDocument(id: string, snap: CropSnapshot) {

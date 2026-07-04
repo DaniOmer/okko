@@ -166,3 +166,19 @@ describe('toCropDocument with nutrition, yields and prices', () => {
     expect(doc.prices).toEqual([]);
   });
 });
+
+describe('toCropDocument completeness', () => {
+  const snap = {
+    id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 9, metadata: {},
+    climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } },
+  };
+
+  it('includes a completeness report reflecting filled categories', () => {
+    const doc = toCropDocument(snap);
+    expect(doc.completeness.total).toBe(10);
+    expect(doc.completeness.categories.climatic).toBe(true);
+    expect(doc.completeness.categories.varieties).toBe(false);
+    expect(doc.completeness.filled).toBe(1); // only climatic
+  });
+});

@@ -9,7 +9,7 @@ import { PrismaCropZoneSuitabilityRepository } from './infrastructure/zone/prism
 import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-cropping-window.repository';
 import { UuidIdGenerator } from './infrastructure/uuid-id-generator';
 import { CROP_REPOSITORY } from './application/crop/crop.repository';
-import { AUDIT_LOG_REPOSITORY } from './application/audit/audit-log.repository';
+import { AUDIT_LOG_REPOSITORY, AUDIT_LOG_READER } from './application/audit/audit-log.repository';
 import { CLOCK } from './application/shared/clock';
 import { VARIETY_REPOSITORY } from './application/crop/variety.repository';
 import { ZONE_REPOSITORY } from './application/zone/zone.repository';
@@ -45,6 +45,7 @@ import { SetCropNutritionUseCase } from './application/crop/set-crop-nutrition.u
 import { SetCropYieldsUseCase } from './application/crop/set-crop-yields.use-case';
 import { AddPricePointUseCase } from './application/price/add-price-point.use-case';
 import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-case';
+import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-case';
 
 @Module({
   controllers: [CropController, ZoneController, PestController],
@@ -53,6 +54,7 @@ import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-
     { provide: CLOCK, useClass: SystemClock },
     { provide: CROP_REPOSITORY, useClass: PrismaCropRepository },
     { provide: AUDIT_LOG_REPOSITORY, useClass: PrismaAuditLogRepository },
+    { provide: AUDIT_LOG_READER, useClass: PrismaAuditLogRepository },
     { provide: VARIETY_REPOSITORY, useClass: PrismaVarietyRepository },
     UuidIdGenerator,
     {
@@ -165,6 +167,11 @@ import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-
       provide: ListCropPricesUseCase,
       useFactory: (pr) => new ListCropPricesUseCase(pr),
       inject: [PRICE_POINT_REPOSITORY],
+    },
+    {
+      provide: GetCropHistoryUseCase,
+      useFactory: (cr, reader) => new GetCropHistoryUseCase(cr, reader),
+      inject: [CROP_REPOSITORY, AUDIT_LOG_READER],
     },
   ],
 })
