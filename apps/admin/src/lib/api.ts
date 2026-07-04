@@ -119,3 +119,55 @@ export async function getCropHistory(id: string): Promise<AuditRecord[]> {
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
 }
+
+async function mutate(path: string, method: string, body: unknown): Promise<unknown> {
+  const res = await fetch(`${BASE}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.json().catch(() => undefined);
+}
+
+export function setRequirements(cropId: string, body: {
+  climatic?: { temperature?: { min: number; optimal: number; max: number; unit: string };
+               rainfall?: { min: number; optimal: number; max: number; unit: string } };
+  edaphic?: { ph?: { min: number; optimal: number; max: number; unit: string }; texture?: string; drainage?: string };
+}): Promise<unknown> {
+  return mutate(`/crops/${cropId}/requirements`, 'PATCH', body);
+}
+
+export function setPhenology(cropId: string, stages: { name: Record<string, string>; startDay: number; endDay: number; order: number }[]): Promise<unknown> {
+  return mutate(`/crops/${cropId}/phenology`, 'PATCH', { stages });
+}
+
+export function setNutrition(cropId: string, requirements: { nutrient: string; amount: number; unit: string; basis: string; stage?: string }[]): Promise<unknown> {
+  return mutate(`/crops/${cropId}/nutrition`, 'PATCH', { requirements });
+}
+
+export function setYields(cropId: string, yieldsList: { inputLevel: string; min: number; average: number; potential: number; unit: string; zoneId?: string }[]): Promise<unknown> {
+  return mutate(`/crops/${cropId}/yields`, 'PATCH', { yields: yieldsList });
+}
+
+export function addWindow(cropId: string, body: {
+  zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean;
+  operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string }[]; notes?: string;
+}): Promise<unknown> {
+  return mutate(`/crops/${cropId}/windows`, 'POST', body);
+}
+
+export function addPrice(cropId: string, body: { market: string; date: string; price: number; unit: string; currency: string }): Promise<unknown> {
+  return mutate(`/crops/${cropId}/prices`, 'POST', body);
+}
+
+export function setZoneSuitability(cropId: string, zoneId: string, body: { rating: string; justification?: string }): Promise<unknown> {
+  return mutate(`/crops/${cropId}/zones/${zoneId}`, 'PUT', body);
+}
+
+export function setPestControl(cropId: string, pestId: string, body: {
+  susceptibility: string; sensitiveStages?: string[]; threshold?: string;
+  controlMethods?: { category: string; description: Record<string, string>; inputs: string[] }[];
+}): Promise<unknown> {
+  return mutate(`/crops/${cropId}/pests/${pestId}`, 'PUT', body);
+}
