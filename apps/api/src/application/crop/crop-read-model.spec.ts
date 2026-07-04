@@ -1,6 +1,7 @@
 import { toCropDocument } from './crop-read-model';
 import { CropStatus } from '../../domain/crop/crop-status';
 import { CycleType } from '../../domain/crop/cycle-type';
+import { VarietySnapshot } from '../../domain/crop/variety';
 
 const snap = {
   id: 'c1', commonNames: { fr: 'Carotte', en: 'Carrot' },
@@ -35,5 +36,32 @@ describe('toCropDocument', () => {
     expect(doc.status).toBe(CropStatus.PUBLISHED);
     expect(doc.version).toBe(3);
     expect(doc.metadata).toEqual({ rusticite: 'élevée' });
+  });
+});
+
+describe('toCropDocument with requirements and varieties', () => {
+  const snap = {
+    id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 4, metadata: {},
+    climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } },
+    edaphic: { ph: { min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' } },
+  };
+  const varieties: VarietySnapshot[] = [
+    { id: 'v1', cropId: 'c1', name: { fr: 'Obatanpa' }, traits: [] },
+  ];
+
+  it('includes requirements and varieties in the document and serialized text', () => {
+    const doc = toCropDocument(snap, 'fr', varieties);
+    expect(doc.climatic?.temperature?.optimal).toBe(25);
+    expect(doc.edaphic?.ph?.optimal).toBe(6.5);
+    expect(doc.varieties).toHaveLength(1);
+    expect(doc.serializedText).toContain('Obatanpa');
+    expect(doc.serializedText).toContain('25');
+    expect(doc.serializedText).toContain('6.5');
+  });
+
+  it('defaults varieties to an empty array', () => {
+    const doc = toCropDocument(snap, 'fr');
+    expect(doc.varieties).toEqual([]);
   });
 });

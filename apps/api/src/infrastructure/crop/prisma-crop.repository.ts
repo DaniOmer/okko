@@ -13,10 +13,17 @@ export class PrismaCropRepository implements CropRepository {
 
   // NOTE (Plan 1): last-writer-wins. Optimistic concurrency (a version-guarded update) is deferred — the v1 back-office has a single admin role. Revisit when multi-editor support lands (see spec §6.1).
   async save(s: CropSnapshot): Promise<void> {
+    const payload = {
+      ...s,
+      commonNames: s.commonNames as Prisma.InputJsonValue,
+      metadata: s.metadata as Prisma.InputJsonValue,
+      climatic: (s.climatic ?? undefined) as Prisma.InputJsonValue | undefined,
+      edaphic: (s.edaphic ?? undefined) as Prisma.InputJsonValue | undefined,
+    };
     await this.prisma.crop.upsert({
       where: { id: s.id },
-      create: { ...s, commonNames: s.commonNames as Prisma.InputJsonValue, metadata: s.metadata as Prisma.InputJsonValue },
-      update: { ...s, commonNames: s.commonNames as Prisma.InputJsonValue, metadata: s.metadata as Prisma.InputJsonValue },
+      create: payload,
+      update: payload,
     });
   }
 
@@ -40,6 +47,8 @@ export class PrismaCropRepository implements CropRepository {
       status: row.status as CropStatus,
       version: row.version,
       metadata: row.metadata as Record<string, unknown>,
+      climatic: (row.climatic ?? undefined) as CropSnapshot['climatic'],
+      edaphic: (row.edaphic ?? undefined) as CropSnapshot['edaphic'],
     };
   }
 }

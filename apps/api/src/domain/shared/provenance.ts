@@ -5,7 +5,7 @@ export enum ProvenanceSource {
 
 type Confidence = 'low' | 'medium' | 'high';
 
-interface ProvenanceProps {
+export interface ProvenanceProps {
   source: ProvenanceSource;
   sourceRef?: string;
   capturedAt: string;
@@ -27,6 +27,10 @@ export class Provenance {
 
   static external(props: { sourceRef: string; capturedAt: string; confidence?: Confidence }): Provenance {
     return new Provenance({ source: ProvenanceSource.EXTERNAL, ...props });
+  }
+
+  static fromJSON(props: ProvenanceProps): Provenance {
+    return new Provenance({ ...props });
   }
 
   get source(): ProvenanceSource { return this.props.source; }
