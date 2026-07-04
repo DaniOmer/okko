@@ -1,5 +1,6 @@
 import { CropZoneSuitability, CropZoneSuitabilitySnapshot } from '../../domain/zone/crop-zone-suitability';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
+import { Provenance, ProvenanceProps } from '../../domain/shared/provenance';
 import { CropRepository } from '../crop/crop.repository';
 import { ZoneRepository } from './zone.repository';
 import { CropZoneSuitabilityRepository } from './crop-zone-suitability.repository';
@@ -20,6 +21,7 @@ export interface SetCropZoneSuitabilityInput {
   rating: SuitabilityRating;
   justification?: string;
   actor: string;
+  provenance?: ProvenanceProps;
 }
 
 export class SetCropZoneSuitabilityUseCase {
@@ -34,8 +36,12 @@ export class SetCropZoneSuitabilityUseCase {
   async execute(input: SetCropZoneSuitabilityInput): Promise<CropZoneSuitabilitySnapshot> {
     if (!(await this.crops.findById(input.cropId))) throw new CropNotFoundError(input.cropId);
     if (!(await this.zones.findById(input.zoneId))) throw new ZoneNotFoundError(input.zoneId);
+    const provenance = input.provenance
+      ? Provenance.fromJSON(input.provenance)
+      : Provenance.manual(input.actor, this.clock.nowIso());
     const suitability = CropZoneSuitability.create({
       cropId: input.cropId, zoneId: input.zoneId, rating: input.rating, justification: input.justification,
+      provenance,
     });
     const snap = suitability.toSnapshot();
     await this.suitabilities.save(snap);

@@ -17,6 +17,7 @@ import { RangeValue } from '../../domain/shared/range-value';
 import { SetCropZoneSuitabilityUseCase, ZoneNotFoundError } from '../../application/zone/set-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from '../../application/zone/list-crop-zones.use-case';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
+import { ProvenanceProps } from '../../domain/shared/provenance';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -115,7 +116,7 @@ export class CropController {
   async setZone(
     @Param('id') id: string,
     @Param('zoneId') zoneId: string,
-    @Body() body: { rating: SuitabilityRating; justification?: string },
+    @Body() body: { rating: SuitabilityRating; justification?: string; provenance?: ProvenanceProps },
   ) {
     try {
       return await this.setSuitability.execute({ cropId: id, zoneId, actor: ACTOR, ...body });

@@ -8,6 +8,7 @@ import { InMemoryZoneRepository } from './in-memory-zone.repository';
 import { InMemoryCropZoneSuitabilityRepository } from './in-memory-crop-zone-suitability.repository';
 import { CycleType } from '../../domain/crop/cycle-type';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
+import { ProvenanceSource } from '../../domain/shared/provenance';
 
 const clock = { nowIso: () => '2026-07-04T00:00:00.000Z' };
 let seq = 0;
@@ -34,6 +35,7 @@ describe('SetCropZoneSuitabilityUseCase', () => {
     const uc = new SetCropZoneSuitabilityUseCase(crops, zones, suit, audit, clock);
     const out = await uc.execute({ cropId: 'c1', zoneId, rating: SuitabilityRating.SUITABLE, justification: 'ok', actor: 'a' });
     expect(out.rating).toBe(SuitabilityRating.SUITABLE);
+    expect(out.provenance?.source).toBe(ProvenanceSource.MANUAL);
     expect(audit.record).toHaveBeenCalled();
 
     const list = await new ListCropZonesUseCase(suit, zones).execute({ cropId: 'c1' });
