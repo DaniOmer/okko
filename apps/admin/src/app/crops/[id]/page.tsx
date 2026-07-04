@@ -1,4 +1,4 @@
-import { getCrop, getCropHistory } from '../../../lib/api';
+import { getCrop, getCropHistory, listZones } from '../../../lib/api';
 import { PublishButton } from './editors/PublishButton';
 import { RequirementsEditor } from './editors/RequirementsEditor';
 import { PhenologyEditor } from './editors/PhenologyEditor';
@@ -6,9 +6,10 @@ import { NutritionEditor } from './editors/NutritionEditor';
 import { YieldsEditor } from './editors/YieldsEditor';
 import { VarietyEditor } from './editors/VarietyEditor';
 import { PriceEditor } from './editors/PriceEditor';
+import { WindowEditor } from './editors/WindowEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
-  const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
+  const [crop, history, zones] = await Promise.all([getCrop(params.id), getCropHistory(params.id), listZones()]);
   return (
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
@@ -74,6 +75,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             </ul>
           </div>
         ))}
+        <WindowEditor cropId={params.id} zones={zones} />
       </section>
 
       <section>
