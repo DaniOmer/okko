@@ -11,6 +11,8 @@ let idSeq = 0;
 const ids = { next: () => `var-${++idSeq}` };
 
 describe('AddVarietyUseCase', () => {
+  beforeEach(() => { idSeq = 0; });
+
   it('adds a variety to an existing crop and lists it', async () => {
     const crops = new InMemoryCropRepository();
     const varieties = new InMemoryVarietyRepository();

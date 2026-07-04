@@ -5,7 +5,7 @@ export enum ProvenanceSource {
 
 type Confidence = 'low' | 'medium' | 'high';
 
-interface ProvenanceProps {
+export interface ProvenanceProps {
   source: ProvenanceSource;
   sourceRef?: string;
   capturedAt: string;
