@@ -68,3 +68,18 @@ model CropZoneSuitability {
   @@id([cropId, zoneId])
   @@index([zoneId])
 }
+
+model CroppingWindow {
+  id                 String   @id
+  cropId             String
+  zoneId             String
+  season             String
+  sowingStart        String?
+  sowingEnd          String?
+  irrigationRequired Boolean
+  operations         Json
+  notes              String?
+  createdAt          DateTime @default(now())
+
+  @@index([cropId])
+}
