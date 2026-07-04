@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { listCrops, listZones, listPests } from '../lib/api';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default async function DashboardPage() {
   // Résilient : un endpoint indisponible dégrade sa carte à zéro plutôt que
@@ -40,13 +42,13 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
-          <Link
-            key={s.label}
-            href={s.href}
-            className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary"
-          >
-            <div className="text-2xl font-bold text-foreground">{s.value}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
+          <Link key={s.label} href={s.href} className="transition-colors hover:border-primary rounded-lg">
+            <Card className="h-full">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold">{s.value}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
+              </CardContent>
+            </Card>
           </Link>
         ))}
       </div>
@@ -62,24 +64,30 @@ export default async function DashboardPage() {
             <Link href="/crops/new" className="text-primary hover:underline">En créer une</Link>.
           </div>
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
-            {recent.map((c) => (
-              <li key={c.id} className="flex items-center justify-between p-4">
-                <div className="min-w-0">
-                  <Link href={`/crops/${c.id}`} className="font-medium text-foreground hover:text-primary hover:underline">
-                    {c.name}
-                  </Link>
-                  <span className="ml-2 text-sm italic text-muted-foreground">{c.scientificName}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className={c.status === 'PUBLISHED' ? 'text-primary' : 'text-muted-foreground'}>{c.status}</span>
-                  <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                    {c.completeness?.percent ?? '—'}%
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <Card>
+            <CardContent className="p-0">
+              <ul className="divide-y divide-border">
+                {recent.map((c) => (
+                  <li key={c.id} className="flex items-center justify-between p-4">
+                    <div className="min-w-0">
+                      <Link href={`/crops/${c.id}`} className="font-medium hover:text-primary hover:underline">
+                        {c.name}
+                      </Link>
+                      <span className="ml-2 text-sm italic text-muted-foreground">{c.scientificName}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Badge variant={c.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                        {c.status}
+                      </Badge>
+                      <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                        {c.completeness?.percent ?? '—'}%
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         )}
       </section>
     </main>
