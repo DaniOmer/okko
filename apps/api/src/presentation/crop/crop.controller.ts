@@ -7,6 +7,13 @@ import { CropStatusError } from '../../domain/crop/crop-status';
 import { CROP_REPOSITORY, CropRepository } from '../../application/crop/crop.repository';
 import { toCropDocument } from '../../application/crop/crop-read-model';
 import { CycleType } from '../../domain/crop/cycle-type';
+import { SetCropRequirementsUseCase } from '../../application/crop/set-crop-requirements.use-case';
+import { AddVarietyUseCase } from '../../application/crop/add-variety.use-case';
+import { ListVarietiesUseCase } from '../../application/crop/list-varieties.use-case';
+import { VARIETY_REPOSITORY, VarietyRepository } from '../../application/crop/variety.repository';
+import { ClimaticRequirementsJSON } from '../../domain/shared/climatic-requirements';
+import { EdaphicRequirementsJSON } from '../../domain/shared/edaphic-requirements';
+import { RangeValue } from '../../domain/shared/range-value';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -17,6 +24,10 @@ export class CropController {
     private readonly updateCrop: UpdateCropUseCase,
     private readonly publishCrop: PublishCropUseCase,
     @Inject(CROP_REPOSITORY) private readonly crops: CropRepository,
+    private readonly setRequirements: SetCropRequirementsUseCase,
+    private readonly addVariety: AddVarietyUseCase,
+    private readonly listVarieties: ListVarietiesUseCase,
+    @Inject(VARIETY_REPOSITORY) private readonly varieties: VarietyRepository,
   ) {}
 
   @Post()
@@ -34,7 +45,8 @@ export class CropController {
   async get(@Param('id') id: string) {
     const snap = await this.crops.findById(id);
     if (!snap) throw new NotFoundException(id);
-    return toCropDocument(snap);
+    const vars = await this.varieties.listByCrop(id);
+    return toCropDocument(snap, 'fr', vars);
   }
 
   @Patch(':id')
@@ -58,5 +70,38 @@ export class CropController {
       if (e instanceof CropStatusError) throw new ConflictException(e.message);
       throw e;
     }
+  }
+
+  @Patch(':id/requirements')
+  async requirements(
+    @Param('id') id: string,
+    @Body() body: { climatic?: ClimaticRequirementsJSON; edaphic?: EdaphicRequirementsJSON },
+  ) {
+    try {
+      const snap = await this.setRequirements.execute({ id, actor: ACTOR, ...body });
+      const vars = await this.varieties.listByCrop(id);
+      return toCropDocument(snap, 'fr', vars);
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Post(':id/varieties')
+  async createVariety(
+    @Param('id') id: string,
+    @Body() body: { name: Record<string, string>; maturityDays?: number; yieldPotential?: ReturnType<RangeValue['toJSON']>; traits?: string[] },
+  ) {
+    try {
+      return await this.addVariety.execute({ cropId: id, actor: ACTOR, ...body });
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Get(':id/varieties')
+  async getVarieties(@Param('id') id: string) {
+    return this.listVarieties.execute({ cropId: id });
   }
 }
