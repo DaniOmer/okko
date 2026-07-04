@@ -1,0 +1,6 @@
+export enum ControlCategory {
+  PREVENTION = 'PREVENTION',
+  BIOLOGICAL = 'BIOLOGICAL',
+  INTEGRATED = 'INTEGRATED',
+  CHEMICAL = 'CHEMICAL',
+}
