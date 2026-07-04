@@ -1,6 +1,9 @@
 import { getCrop, getCropHistory } from '../../../lib/api';
 import { PublishButton } from './editors/PublishButton';
 import { RequirementsEditor } from './editors/RequirementsEditor';
+import { PhenologyEditor } from './editors/PhenologyEditor';
+import { NutritionEditor } from './editors/NutritionEditor';
+import { YieldsEditor } from './editors/YieldsEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
   const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
@@ -53,6 +56,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={p.order}>{p.name.fr} — J{p.startDay} à J{p.endDay}</li>
           ))}
         </ul>
+        <PhenologyEditor cropId={params.id} current={crop.phenology} />
       </section>
 
       <section>
@@ -90,6 +94,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</li>
           ))}
         </ul>
+        <NutritionEditor cropId={params.id} current={crop.nutrition} />
       </section>
 
       <section>
@@ -99,6 +104,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={i}>{y.inputLevel} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
           ))}
         </ul>
+        <YieldsEditor cropId={params.id} current={crop.yields} />
       </section>
 
       <section>
