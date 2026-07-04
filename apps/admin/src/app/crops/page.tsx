@@ -14,7 +14,7 @@ export default async function CropsPage() {
           <li key={c.id} className="py-3 flex justify-between">
             <Link href={`/crops/${c.id}`} className="text-green-800 underline">{c.name}</Link> — <em>{c.scientificName}</em> · {c.cycleType}
             <span className="text-sm">{c.status} (v{c.version})</span>
-            <span className="ml-2 text-xs rounded bg-gray-100 px-2 py-0.5">{c.completeness.percent}%</span>
+            <span className="ml-2 text-xs rounded bg-gray-100 px-2 py-0.5">{c.completeness?.percent ?? '—'}%</span>
           </li>
         ))}
       </ul>

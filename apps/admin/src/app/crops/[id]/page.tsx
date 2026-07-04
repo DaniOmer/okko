@@ -6,7 +6,9 @@ export default async function CropDetailPage({ params }: { params: { id: string 
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
       <p className="text-sm">{crop.cycleType} · {crop.status} (v{crop.version})</p>
-      <p className="text-sm">Complétude : <strong>{crop.completeness.percent}%</strong> ({crop.completeness.filled}/{crop.completeness.total} catégories)</p>
+      {crop.completeness && (
+        <p className="text-sm">Complétude : <strong>{crop.completeness.percent}%</strong> ({crop.completeness.filled}/{crop.completeness.total} catégories)</p>
+      )}
 
       <section>
         <h2 className="font-semibold mb-2">Exigences climatiques</h2>
