@@ -1,6 +1,8 @@
 import { CropSnapshot } from '../../domain/crop/crop';
 import { VarietySnapshot } from '../../domain/crop/variety';
 import { CropZoneView } from '../zone/list-crop-zones.use-case';
+import { CroppingWindowSnapshot } from '../../domain/window/cropping-window';
+import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
 
 export interface CropDocument {
   id: string;
@@ -15,6 +17,8 @@ export interface CropDocument {
   edaphic?: CropSnapshot['edaphic'];
   varieties: VarietySnapshot[];
   zones: CropZoneView[];
+  phenology: PhenologicalStageJSON[];
+  croppingWindows: CroppingWindowSnapshot[];
   serializedText: string;
 }
 
@@ -23,8 +27,10 @@ export function toCropDocument(
   locale = 'fr',
   varieties: VarietySnapshot[] = [],
   zones: CropZoneView[] = [],
+  windows: CroppingWindowSnapshot[] = [],
 ): CropDocument {
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
+  const phenology = s.phenology ?? [];
   const lines = [
     `# ${name} (${s.scientificName})`,
     `Famille : ${s.family}`,
@@ -49,10 +55,16 @@ export function toCropDocument(
   if (zones.length > 0) {
     lines.push(`Zones : ${zones.map((z) => `${z.zoneName[locale] ?? z.zoneName['fr']} (${z.rating})`).join(', ')}`);
   }
+  if (phenology.length > 0) {
+    lines.push(`Phénologie : ${phenology.map((p) => `${p.name[locale] ?? p.name['fr']} (J${p.startDay}-${p.endDay})`).join(', ')}`);
+  }
+  if (windows.length > 0) {
+    lines.push(`Fenêtres : ${windows.map((w) => w.season).join(', ')}`);
+  }
   return {
     id: s.id, name, scientificName: s.scientificName, family: s.family,
     cycleType: s.cycleType, status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, zones, serializedText: lines.join('\n'),
+    varieties, zones, phenology, croppingWindows: windows, serializedText: lines.join('\n'),
   };
 }

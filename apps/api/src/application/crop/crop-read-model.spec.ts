@@ -87,3 +87,28 @@ describe('toCropDocument with zones', () => {
     expect(toCropDocument(snap, 'fr').zones).toEqual([]);
   });
 });
+
+describe('toCropDocument with phenology and windows', () => {
+  const snap = {
+    id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 6, metadata: {},
+    phenology: [{ name: { fr: 'Levée' }, startDay: 5, endDay: 12, order: 1 }],
+  };
+  const windows = [
+    { id: 'w1', cropId: 'c1', zoneId: 'z1', season: 'Saison sèche', irrigationRequired: true, operations: [] },
+  ];
+
+  it('includes phenology and windows in the document and serialized text', () => {
+    const doc = toCropDocument(snap, 'fr', [], [], windows);
+    expect(doc.phenology).toHaveLength(1);
+    expect(doc.croppingWindows).toHaveLength(1);
+    expect(doc.serializedText).toContain('Levée');
+    expect(doc.serializedText).toContain('Saison sèche');
+  });
+
+  it('defaults phenology and windows to empty arrays', () => {
+    const doc = toCropDocument({ ...snap, phenology: undefined }, 'fr');
+    expect(doc.phenology).toEqual([]);
+    expect(doc.croppingWindows).toEqual([]);
+  });
+});
