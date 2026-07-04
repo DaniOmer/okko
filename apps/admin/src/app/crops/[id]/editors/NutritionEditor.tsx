@@ -1,6 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { setNutrition } from '../../../../lib/api';
 import type { NutrientRequirement } from '../../../../lib/api';
 
@@ -21,15 +24,20 @@ export function NutritionEditor({ cropId, current }: { cropId: string; current: 
           className="space-y-2 text-sm"
         >
           <div className="flex gap-1">
-            <input className="w-20 border p-1" placeholder="N / P2O5…" value={nutrient} onChange={(e)=>setNutrient(e.target.value)} required />
-            <input className="w-20 border p-1" placeholder="quantité" value={amount} onChange={(e)=>setAmount(e.target.value)} required />
-            <input className="w-20 border p-1" placeholder="unité" value={unit} onChange={(e)=>setUnit(e.target.value)} />
-            <select className="border p-1" value={basis} onChange={(e)=>setBasis(e.target.value)}>{BASES.map((b)=><option key={b} value={b}>{b}</option>)}</select>
+            <Input className="w-20" placeholder="N / P2O5…" value={nutrient} onChange={(e) => setNutrient(e.target.value)} required />
+            <Input className="w-20" placeholder="quantité" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+            <Input className="w-20" placeholder="unité" value={unit} onChange={(e) => setUnit(e.target.value)} />
+            <Select value={basis} onValueChange={setBasis}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {BASES.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
-          <input className="w-full border p-1" placeholder="stade (optionnel)" value={stage} onChange={(e)=>setStage(e.target.value)} />
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Ajouter</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <Input placeholder="stade (optionnel)" value={stage} onChange={(e) => setStage(e.target.value)} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
           </div>
         </form>
       )}

@@ -1,6 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { setYields } from '../../../../lib/api';
 import type { YieldReference } from '../../../../lib/api';
 
@@ -21,15 +24,20 @@ export function YieldsEditor({ cropId, current }: { cropId: string; current: Yie
           className="space-y-2 text-sm"
         >
           <div className="flex gap-1 items-center">
-            <select className="border p-1" value={level} onChange={(e)=>setLevel(e.target.value)}>{LEVELS.map((l)=><option key={l} value={l}>{l}</option>)}</select>
-            <input className="w-16 border p-1" placeholder="min" value={min} onChange={(e)=>setMin(e.target.value)} required />
-            <input className="w-16 border p-1" placeholder="moyen" value={avg} onChange={(e)=>setAvg(e.target.value)} required />
-            <input className="w-16 border p-1" placeholder="potentiel" value={pot} onChange={(e)=>setPot(e.target.value)} required />
-            <input className="w-16 border p-1" placeholder="unité" value={unit} onChange={(e)=>setUnit(e.target.value)} />
+            <Select value={level} onValueChange={setLevel}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {LEVELS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Input className="w-16" placeholder="min" value={min} onChange={(e) => setMin(e.target.value)} required />
+            <Input className="w-16" placeholder="moyen" value={avg} onChange={(e) => setAvg(e.target.value)} required />
+            <Input className="w-16" placeholder="potentiel" value={pot} onChange={(e) => setPot(e.target.value)} required />
+            <Input className="w-16" placeholder="unité" value={unit} onChange={(e) => setUnit(e.target.value)} />
           </div>
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Ajouter</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
           </div>
         </form>
       )}

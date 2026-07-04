@@ -1,6 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { setPestControl } from '../../../../lib/api';
 
 const LEVELS = ['LOW', 'MEDIUM', 'HIGH'];
@@ -9,7 +12,7 @@ export function PestControlEditor({ cropId, pests }: { cropId: string; pests: { 
   const [pestId, setPestId] = useState(''); const [susceptibility, setSusceptibility] = useState(LEVELS[1]);
   const [threshold, setThreshold] = useState(''); const [stages, setStages] = useState('');
   if (pests.length === 0) {
-    return <p className="text-sm text-gray-500">Créez d&apos;abord un <a href="/pests" className="underline">ravageur</a> pour le rattacher.</p>;
+    return <p className="text-sm text-muted-foreground">Créez d&apos;abord un <a href="/pests" className="underline">ravageur</a> pour le rattacher.</p>;
   }
   return (
     <EditorShell label="+ Rattacher un ravageur / une maladie">
@@ -17,24 +20,32 @@ export function PestControlEditor({ cropId, pests }: { cropId: string; pests: { 
         <form
           onSubmit={(e) => {
             e.preventDefault();
+            if (!pestId) return;
             submit(() => setPestControl(cropId, pestId, {
               susceptibility,
               threshold: threshold || undefined,
-              sensitiveStages: stages ? stages.split(',').map((s)=>s.trim()).filter(Boolean) : undefined,
+              sensitiveStages: stages ? stages.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
             }));
           }}
           className="space-y-2 text-sm"
         >
-          <select className="w-full border p-1" value={pestId} onChange={(e)=>setPestId(e.target.value)} required>
-            <option value="">— Ravageur / maladie —</option>
-            {pests.map((p)=><option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-          <select className="w-full border p-1" value={susceptibility} onChange={(e)=>setSusceptibility(e.target.value)}>{LEVELS.map((l)=><option key={l} value={l}>{l}</option>)}</select>
-          <input className="w-full border p-1" placeholder="seuil de nuisibilité (optionnel)" value={threshold} onChange={(e)=>setThreshold(e.target.value)} />
-          <input className="w-full border p-1" placeholder="stades sensibles (virgules, optionnel)" value={stages} onChange={(e)=>setStages(e.target.value)} />
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Rattacher</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <Select value={pestId} onValueChange={setPestId}>
+            <SelectTrigger><SelectValue placeholder="— Ravageur / maladie —" /></SelectTrigger>
+            <SelectContent>
+              {pests.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={susceptibility} onValueChange={setSusceptibility}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {LEVELS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Input placeholder="seuil de nuisibilité (optionnel)" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
+          <Input placeholder="stades sensibles (virgules, optionnel)" value={stages} onChange={(e) => setStages(e.target.value)} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Rattacher</Button>
           </div>
         </form>
       )}
