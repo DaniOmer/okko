@@ -6,6 +6,7 @@ import { PrismaAuditLogRepository } from './infrastructure/audit/prisma-audit-lo
 import { PrismaVarietyRepository } from './infrastructure/crop/prisma-variety.repository';
 import { PrismaZoneRepository } from './infrastructure/zone/prisma-zone.repository';
 import { PrismaCropZoneSuitabilityRepository } from './infrastructure/zone/prisma-crop-zone-suitability.repository';
+import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-cropping-window.repository';
 import { UuidIdGenerator } from './infrastructure/uuid-id-generator';
 import { CROP_REPOSITORY } from './application/crop/crop.repository';
 import { AUDIT_LOG_REPOSITORY } from './application/audit/audit-log.repository';
@@ -13,16 +14,20 @@ import { CLOCK } from './application/shared/clock';
 import { VARIETY_REPOSITORY } from './application/crop/variety.repository';
 import { ZONE_REPOSITORY } from './application/zone/zone.repository';
 import { CROP_ZONE_SUITABILITY_REPOSITORY } from './application/zone/crop-zone-suitability.repository';
+import { CROPPING_WINDOW_REPOSITORY } from './application/window/cropping-window.repository';
 import { CreateCropUseCase } from './application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from './application/crop/update-crop.use-case';
 import { PublishCropUseCase } from './application/crop/publish-crop.use-case';
 import { SetCropRequirementsUseCase } from './application/crop/set-crop-requirements.use-case';
+import { SetCropPhenologyUseCase } from './application/crop/set-crop-phenology.use-case';
 import { AddVarietyUseCase } from './application/crop/add-variety.use-case';
 import { ListVarietiesUseCase } from './application/crop/list-varieties.use-case';
 import { CreateZoneUseCase } from './application/zone/create-zone.use-case';
 import { ListZonesUseCase } from './application/zone/list-zones.use-case';
 import { SetCropZoneSuitabilityUseCase } from './application/zone/set-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from './application/zone/list-crop-zones.use-case';
+import { AddCroppingWindowUseCase } from './application/window/add-cropping-window.use-case';
+import { ListCroppingWindowsUseCase } from './application/window/list-cropping-windows.use-case';
 import { CropController } from './presentation/crop/crop.controller';
 import { ZoneController } from './presentation/zone/zone.controller';
 
@@ -86,6 +91,22 @@ import { ZoneController } from './presentation/zone/zone.controller';
       provide: ListCropZonesUseCase,
       useFactory: (s, z) => new ListCropZonesUseCase(s, z),
       inject: [CROP_ZONE_SUITABILITY_REPOSITORY, ZONE_REPOSITORY],
+    },
+    { provide: CROPPING_WINDOW_REPOSITORY, useClass: PrismaCroppingWindowRepository },
+    {
+      provide: SetCropPhenologyUseCase,
+      useFactory: (r, a, c) => new SetCropPhenologyUseCase(r, a, c),
+      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: AddCroppingWindowUseCase,
+      useFactory: (cr, z, w, a, c, ids) => new AddCroppingWindowUseCase(cr, z, w, a, c, ids),
+      inject: [CROP_REPOSITORY, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+    },
+    {
+      provide: ListCroppingWindowsUseCase,
+      useFactory: (w) => new ListCroppingWindowsUseCase(w),
+      inject: [CROPPING_WINDOW_REPOSITORY],
     },
   ],
 })

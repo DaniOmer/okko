@@ -18,6 +18,11 @@ import { SetCropZoneSuitabilityUseCase, ZoneNotFoundError } from '../../applicat
 import { ListCropZonesUseCase } from '../../application/zone/list-crop-zones.use-case';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
 import { ProvenanceProps } from '../../domain/shared/provenance';
+import { SetCropPhenologyUseCase } from '../../application/crop/set-crop-phenology.use-case';
+import { AddCroppingWindowUseCase } from '../../application/window/add-cropping-window.use-case';
+import { ListCroppingWindowsUseCase } from '../../application/window/list-cropping-windows.use-case';
+import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
+import { TechnicalOperationJSON } from '../../domain/window/technical-operation';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -34,6 +39,9 @@ export class CropController {
     @Inject(VARIETY_REPOSITORY) private readonly varieties: VarietyRepository,
     private readonly setSuitability: SetCropZoneSuitabilityUseCase,
     private readonly listCropZones: ListCropZonesUseCase,
+    private readonly setPhenology: SetCropPhenologyUseCase,
+    private readonly addWindow: AddCroppingWindowUseCase,
+    private readonly listWindows: ListCroppingWindowsUseCase,
   ) {}
 
   @Post()
@@ -53,7 +61,8 @@ export class CropController {
     if (!snap) throw new NotFoundException(id);
     const vars = await this.varieties.listByCrop(id);
     const zones = await this.listCropZones.execute({ cropId: id });
-    return toCropDocument(snap, 'fr', vars, zones);
+    const windows = await this.listWindows.execute({ cropId: id });
+    return toCropDocument(snap, 'fr', vars, zones, windows);
   }
 
   @Patch(':id')
@@ -129,5 +138,37 @@ export class CropController {
   @Get(':id/zones')
   async getZones(@Param('id') id: string) {
     return this.listCropZones.execute({ cropId: id });
+  }
+
+  @Patch(':id/phenology')
+  async phenology(@Param('id') id: string, @Body() body: { stages: PhenologicalStageJSON[] }) {
+    try {
+      const snap = await this.setPhenology.execute({ cropId: id, actor: ACTOR, stages: body.stages });
+      const vars = await this.varieties.listByCrop(id);
+      const zones = await this.listCropZones.execute({ cropId: id });
+      const windows = await this.listWindows.execute({ cropId: id });
+      return toCropDocument(snap, 'fr', vars, zones, windows);
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Post(':id/windows')
+  async createWindow(
+    @Param('id') id: string,
+    @Body() body: { zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean; operations?: TechnicalOperationJSON[]; notes?: string },
+  ) {
+    try {
+      return await this.addWindow.execute({ cropId: id, actor: ACTOR, ...body });
+    } catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError) throw new NotFoundException(e.message);
+      throw e;
+    }
+  }
+
+  @Get(':id/windows')
+  async getWindows(@Param('id') id: string) {
+    return this.listWindows.execute({ cropId: id });
   }
 }
