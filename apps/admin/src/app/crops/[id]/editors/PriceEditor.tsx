@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { addPrice } from '../../../../lib/api';
 
 export function PriceEditor({ cropId }: { cropId: string }) {
@@ -17,17 +19,17 @@ export function PriceEditor({ cropId }: { cropId: string }) {
           className="space-y-2 text-sm"
         >
           <div className="flex gap-1">
-            <input className="flex-1 border p-1" placeholder="Marché" value={market} onChange={(e)=>setMarket(e.target.value)} required />
-            <input className="w-32 border p-1" type="date" value={date} onChange={(e)=>setDate(e.target.value)} required />
+            <Input className="flex-1" placeholder="Marché" value={market} onChange={(e)=>setMarket(e.target.value)} required />
+            <Input className="w-32" type="date" value={date} onChange={(e)=>setDate(e.target.value)} required />
           </div>
           <div className="flex gap-1">
-            <input className="w-24 border p-1" placeholder="prix" value={price} onChange={(e)=>setPrice(e.target.value)} required />
-            <input className="w-24 border p-1" placeholder="unité" value={unit} onChange={(e)=>setUnit(e.target.value)} />
-            <input className="w-20 border p-1" placeholder="devise" value={currency} onChange={(e)=>setCurrency(e.target.value)} />
+            <Input className="w-24" placeholder="prix" value={price} onChange={(e)=>setPrice(e.target.value)} required />
+            <Input className="w-24" placeholder="unité" value={unit} onChange={(e)=>setUnit(e.target.value)} />
+            <Input className="w-20" placeholder="devise" value={currency} onChange={(e)=>setCurrency(e.target.value)} />
           </div>
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Ajouter</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
           </div>
         </form>
       )}

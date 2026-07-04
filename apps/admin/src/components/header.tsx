@@ -10,7 +10,7 @@ import { Sidebar } from "@/components/sidebar";
 
 export function Header() {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [q, setQ] = useState("");
 
   return (
@@ -47,7 +47,7 @@ export function Header() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           aria-label="Basculer le thème"
         >
           <Sun className="h-5 w-5 dark:hidden" />

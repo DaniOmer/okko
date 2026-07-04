@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { setPhenology } from '../../../../lib/api';
 import type { PhenologicalStage } from '../../../../lib/api';
 
@@ -17,14 +19,14 @@ export function PhenologyEditor({ cropId, current }: { cropId: string; current: 
           }}
           className="space-y-2 text-sm"
         >
-          <input className="w-full border p-1" placeholder="Nom du stade (ex. Levée)" value={name} onChange={(e)=>setName(e.target.value)} required />
+          <Input className="w-full" placeholder="Nom du stade (ex. Levée)" value={name} onChange={(e)=>setName(e.target.value)} required />
           <div className="flex gap-1 items-center">
-            <input className="w-20 border p-1" placeholder="jour début" value={start} onChange={(e)=>setStart(e.target.value)} required />
-            <input className="w-20 border p-1" placeholder="jour fin" value={end} onChange={(e)=>setEnd(e.target.value)} required />
+            <Input className="w-20" placeholder="jour début" value={start} onChange={(e)=>setStart(e.target.value)} required />
+            <Input className="w-20" placeholder="jour fin" value={end} onChange={(e)=>setEnd(e.target.value)} required />
           </div>
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Ajouter</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
           </div>
         </form>
       )}
