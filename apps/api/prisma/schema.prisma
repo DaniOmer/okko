@@ -19,8 +19,23 @@ model Crop {
   climatic       Json?
   edaphic        Json?
   phenology      Json?
+  nutrition      Json?
+  yields         Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model PricePoint {
+  id        String   @id
+  cropId    String
+  market    String
+  date      String
+  price     Float
+  unit      String
+  currency  String
+  createdAt DateTime @default(now())
+
+  @@index([cropId])
 }
 
 model Variety {
