@@ -1,8 +1,12 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
+export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
+export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
+
 export interface CropDocument {
   id: string; name: string; scientificName: string; family: string;
   cycleType: string; status: string; version: number;
+  completeness: CompletenessReport;
 }
 
 export async function listCrops(): Promise<CropDocument[]> {
@@ -106,6 +110,12 @@ export async function createPest(input: { name: Record<string, string>; type: st
   const res = await fetch(`${BASE}/pests`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
   });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
+export async function getCropHistory(id: string): Promise<AuditRecord[]> {
+  const res = await fetch(`${BASE}/crops/${id}/history`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
 }
