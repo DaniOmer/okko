@@ -7,13 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-
-const TYPES = ['INSECT', 'FUNGUS', 'BACTERIA', 'VIRUS', 'WEED', 'NEMATODE', 'OTHER'];
+import { PEST_TYPE_LABELS } from '@/lib/labels';
 
 export default function NewPestPage() {
   const router = useRouter();
   const [fr, setFr] = useState('');
-  const [type, setType] = useState(TYPES[0]);
+  const [type, setType] = useState('INSECT');
   const [scientificName, setSci] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +45,7 @@ export default function NewPestPage() {
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {Object.entries(PEST_TYPE_LABELS).map(([code, fr]) => <SelectItem key={code} value={code}>{fr}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

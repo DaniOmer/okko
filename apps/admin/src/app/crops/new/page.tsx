@@ -7,15 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-
-const CYCLE_TYPES = ['SEASONAL_ANNUAL', 'BIENNIAL', 'PERENNIAL_HERBACEOUS', 'PERENNIAL_WOODY_FRUIT', 'FORESTRY_WOOD'];
+import { CYCLE_TYPE_LABELS } from '@/lib/labels';
 
 export default function NewCropPage() {
   const router = useRouter();
   const [fr, setFr] = useState('');
   const [scientificName, setSci] = useState('');
   const [family, setFamily] = useState('');
-  const [cycleType, setCycle] = useState(CYCLE_TYPES[0]);
+  const [cycleType, setCycle] = useState('SEASONAL_ANNUAL');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
@@ -55,7 +54,7 @@ export default function NewCropPage() {
               <Select value={cycleType} onValueChange={setCycle}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {CYCLE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {Object.entries(CYCLE_TYPE_LABELS).map(([code, fr]) => <SelectItem key={code} value={code}>{fr}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
