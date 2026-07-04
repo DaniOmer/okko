@@ -62,7 +62,7 @@ export class CropController {
     const vars = await this.varieties.listByCrop(id);
     const zones = await this.listCropZones.execute({ cropId: id });
     const windows = await this.listWindows.execute({ cropId: id });
-    return toCropDocument(snap, 'fr', vars, zones, windows);
+    return toCropDocument(snap, { varieties: vars, zones, windows });
   }
 
   @Patch(':id')
@@ -96,7 +96,7 @@ export class CropController {
     try {
       const snap = await this.setRequirements.execute({ id, actor: ACTOR, ...body });
       const vars = await this.varieties.listByCrop(id);
-      return toCropDocument(snap, 'fr', vars);
+      return toCropDocument(snap, { varieties: vars });
     } catch (e) {
       if (e instanceof CropNotFoundError) throw new NotFoundException(id);
       throw e;
@@ -147,7 +147,7 @@ export class CropController {
       const vars = await this.varieties.listByCrop(id);
       const zones = await this.listCropZones.execute({ cropId: id });
       const windows = await this.listWindows.execute({ cropId: id });
-      return toCropDocument(snap, 'fr', vars, zones, windows);
+      return toCropDocument(snap, { varieties: vars, zones, windows });
     } catch (e) {
       if (e instanceof CropNotFoundError) throw new NotFoundException(id);
       throw e;

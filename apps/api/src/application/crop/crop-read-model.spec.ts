@@ -14,24 +14,24 @@ const snap = {
 
 describe('toCropDocument', () => {
   it('résout le nom dans la locale demandée', () => {
-    const doc = toCropDocument(snap, 'en');
+    const doc = toCropDocument(snap, { locale: 'en' });
     expect(doc.name).toBe('Carrot');
   });
 
   it('retombe sur fr si la locale manque', () => {
-    const doc = toCropDocument(snap, 'wo');
+    const doc = toCropDocument(snap, { locale: 'wo' });
     expect(doc.name).toBe('Carotte');
   });
 
   it('produit un texte markdown sérialisé pour un LLM', () => {
-    const doc = toCropDocument(snap, 'fr');
+    const doc = toCropDocument(snap, { locale: 'fr' });
     expect(doc.serializedText).toContain('Carotte');
     expect(doc.serializedText).toContain('Daucus carota');
     expect(doc.serializedText).toContain('SEASONAL_ANNUAL');
   });
 
   it('mappe correctement tous les champs CropDocument', () => {
-    const doc = toCropDocument(snap, 'fr');
+    const doc = toCropDocument(snap, { locale: 'fr' });
     expect(doc.id).toBe('c1');
     expect(doc.family).toBe('Apiaceae');
     expect(doc.cycleType).toBe(CycleType.SEASONAL_ANNUAL);
@@ -53,7 +53,7 @@ describe('toCropDocument with requirements and varieties', () => {
   ];
 
   it('includes requirements and varieties in the document and serialized text', () => {
-    const doc = toCropDocument(snap, 'fr', varieties);
+    const doc = toCropDocument(snap, { varieties });
     expect(doc.climatic?.temperature?.optimal).toBe(25);
     expect(doc.edaphic?.ph?.optimal).toBe(6.5);
     expect(doc.varieties).toHaveLength(1);
@@ -63,7 +63,7 @@ describe('toCropDocument with requirements and varieties', () => {
   });
 
   it('defaults varieties to an empty array', () => {
-    const doc = toCropDocument(snap, 'fr');
+    const doc = toCropDocument(snap, { locale: 'fr' });
     expect(doc.varieties).toEqual([]);
   });
 });
@@ -78,13 +78,13 @@ describe('toCropDocument with zones', () => {
   ];
 
   it('includes zones and mentions them in serialized text', () => {
-    const doc = toCropDocument(snap, 'fr', [], zones);
+    const doc = toCropDocument(snap, { zones });
     expect(doc.zones).toHaveLength(1);
     expect(doc.serializedText).toContain('Sahel');
   });
 
   it('defaults zones to an empty array', () => {
-    expect(toCropDocument(snap, 'fr').zones).toEqual([]);
+    expect(toCropDocument(snap, { locale: 'fr' }).zones).toEqual([]);
   });
 });
 
@@ -99,7 +99,7 @@ describe('toCropDocument with phenology and windows', () => {
   ];
 
   it('includes phenology and windows in the document and serialized text', () => {
-    const doc = toCropDocument(snap, 'fr', [], [], windows);
+    const doc = toCropDocument(snap, { windows });
     expect(doc.phenology).toHaveLength(1);
     expect(doc.croppingWindows).toHaveLength(1);
     expect(doc.serializedText).toContain('Levée');
@@ -107,7 +107,7 @@ describe('toCropDocument with phenology and windows', () => {
   });
 
   it('defaults phenology and windows to empty arrays', () => {
-    const doc = toCropDocument({ ...snap, phenology: undefined }, 'fr');
+    const doc = toCropDocument({ ...snap, phenology: undefined }, { locale: 'fr' });
     expect(doc.phenology).toEqual([]);
     expect(doc.croppingWindows).toEqual([]);
   });

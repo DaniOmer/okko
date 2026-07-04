@@ -22,13 +22,18 @@ export interface CropDocument {
   serializedText: string;
 }
 
-export function toCropDocument(
-  s: CropSnapshot,
-  locale = 'fr',
-  varieties: VarietySnapshot[] = [],
-  zones: CropZoneView[] = [],
-  windows: CroppingWindowSnapshot[] = [],
-): CropDocument {
+export interface ToCropDocumentOptions {
+  locale?: string;
+  varieties?: VarietySnapshot[];
+  zones?: CropZoneView[];
+  windows?: CroppingWindowSnapshot[];
+}
+
+export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}): CropDocument {
+  const locale = opts.locale ?? 'fr';
+  const varieties = opts.varieties ?? [];
+  const zones = opts.zones ?? [];
+  const windows = opts.windows ?? [];
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
   const phenology = s.phenology ?? [];
   const lines = [
