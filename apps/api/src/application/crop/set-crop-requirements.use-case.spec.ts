@@ -35,4 +35,31 @@ describe('SetCropRequirementsUseCase', () => {
     const uc = new SetCropRequirementsUseCase(repo, audit, clock);
     await expect(uc.execute({ id: 'nope', actor: 'a', climatic: {} })).rejects.toThrow(CropNotFoundError);
   });
+
+  it('partial update: setting only climatic leaves existing edaphic intact, and audit has from/to diff', async () => {
+    const repo = new InMemoryCropRepository();
+    const audit = { record: jest.fn() };
+    await seed(repo, audit);
+    const uc = new SetCropRequirementsUseCase(repo, audit, clock);
+
+    // First call: set only edaphic
+    await uc.execute({
+      id: 'c1', actor: 'a',
+      edaphic: { ph: { min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' }, texture: 'limoneux' },
+    });
+
+    // Second call: set only climatic — edaphic must remain from first call
+    const out = await uc.execute({
+      id: 'c1', actor: 'a',
+      climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } },
+    });
+
+    expect(out.edaphic?.ph?.optimal).toBe(6.5);
+    expect(out.climatic?.temperature?.optimal).toBe(25);
+
+    // Audit changes should use from/to diff shape
+    const lastCall = audit.record.mock.calls[audit.record.mock.calls.length - 1][0];
+    expect(lastCall.changes).toHaveProperty('from');
+    expect(lastCall.changes).toHaveProperty('to');
+  });
 });

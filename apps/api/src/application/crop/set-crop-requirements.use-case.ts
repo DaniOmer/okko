@@ -20,6 +20,10 @@ export class SetCropRequirementsUseCase {
     private readonly clock: Clock,
   ) {}
 
+  /**
+   * Full-replace semantics: a provided block replaces that requirement block entirely;
+   * an omitted block is left unchanged.
+   */
   async execute(input: SetCropRequirementsInput): Promise<CropSnapshot> {
     const snap = await this.crops.findById(input.id);
     if (!snap) throw new CropNotFoundError(input.id);
@@ -31,7 +35,7 @@ export class SetCropRequirementsUseCase {
     await this.audit.record({
       entityType: 'Crop', entityId: crop.id, actor: input.actor,
       at: this.clock.nowIso(),
-      changes: { climatic: input.climatic, edaphic: input.edaphic },
+      changes: { from: { climatic: snap.climatic, edaphic: snap.edaphic }, to: { climatic: next.climatic, edaphic: next.edaphic } },
     });
     return next;
   }
