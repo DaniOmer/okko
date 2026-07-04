@@ -4,6 +4,9 @@ import { CycleType } from '../../domain/crop/cycle-type';
 import { VarietySnapshot } from '../../domain/crop/variety';
 import { CropZoneView } from '../zone/list-crop-zones.use-case';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
+import { CropPestView } from '../pest/list-crop-pests.use-case';
+import { PestType } from '../../domain/pest/pest-type';
+import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 
 const snap = {
   id: 'c1', commonNames: { fr: 'Carotte', en: 'Carrot' },
@@ -110,5 +113,25 @@ describe('toCropDocument with phenology and windows', () => {
     const doc = toCropDocument({ ...snap, phenology: undefined }, { locale: 'fr' });
     expect(doc.phenology).toEqual([]);
     expect(doc.croppingWindows).toEqual([]);
+  });
+});
+
+describe('toCropDocument with pests', () => {
+  const snap = {
+    id: 'c1', commonNames: { fr: 'Manguier' }, scientificName: 'Mangifera indica', family: 'Anacardiaceae',
+    cycleType: CycleType.PERENNIAL_WOODY_FRUIT, status: CropStatus.PUBLISHED, version: 7, metadata: {},
+  };
+  const pests: CropPestView[] = [
+    { pestId: 'p1', pestName: { fr: 'Mouche des fruits' }, type: PestType.INSECT, susceptibility: SusceptibilityLevel.HIGH, controlMethods: [] },
+  ];
+
+  it('includes pests in the document and serialized text', () => {
+    const doc = toCropDocument(snap, { pests });
+    expect(doc.pests).toHaveLength(1);
+    expect(doc.serializedText).toContain('Mouche des fruits');
+  });
+
+  it('defaults pests to an empty array', () => {
+    expect(toCropDocument(snap).pests).toEqual([]);
   });
 });

@@ -3,6 +3,7 @@ import { VarietySnapshot } from '../../domain/crop/variety';
 import { CropZoneView } from '../zone/list-crop-zones.use-case';
 import { CroppingWindowSnapshot } from '../../domain/window/cropping-window';
 import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
+import { CropPestView } from '../pest/list-crop-pests.use-case';
 
 export interface CropDocument {
   id: string;
@@ -19,6 +20,7 @@ export interface CropDocument {
   zones: CropZoneView[];
   phenology: PhenologicalStageJSON[];
   croppingWindows: CroppingWindowSnapshot[];
+  pests: CropPestView[];
   serializedText: string;
 }
 
@@ -27,6 +29,7 @@ export interface ToCropDocumentOptions {
   varieties?: VarietySnapshot[];
   zones?: CropZoneView[];
   windows?: CroppingWindowSnapshot[];
+  pests?: CropPestView[];
 }
 
 export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}): CropDocument {
@@ -34,6 +37,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   const varieties = opts.varieties ?? [];
   const zones = opts.zones ?? [];
   const windows = opts.windows ?? [];
+  const pests = opts.pests ?? [];
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
   const phenology = s.phenology ?? [];
   const lines = [
@@ -66,10 +70,13 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   if (windows.length > 0) {
     lines.push(`Fenêtres : ${windows.map((w) => w.season).join(', ')}`);
   }
+  if (pests.length > 0) {
+    lines.push(`Ravageurs : ${pests.map((p) => `${p.pestName[locale] ?? p.pestName['fr']} (${p.susceptibility})`).join(', ')}`);
+  }
   return {
     id: s.id, name, scientificName: s.scientificName, family: s.family,
     cycleType: s.cycleType, status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, zones, phenology, croppingWindows: windows, serializedText: lines.join('\n'),
+    varieties, zones, phenology, croppingWindows: windows, pests, serializedText: lines.join('\n'),
   };
 }
