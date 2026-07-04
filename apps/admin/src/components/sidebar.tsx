@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sprout, Map, Bug, History } from "lucide-react";
+import { LayoutDashboard, Sprout, Map, Bug, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const GROUPS: { title: string; items: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] }[] = [
+  { title: "Général", items: [
+    { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
+  ] },
   { title: "Base de connaissances", items: [
     { href: "/crops", label: "Cultures", icon: Sprout },
     { href: "/zones", label: "Zones", icon: Map },

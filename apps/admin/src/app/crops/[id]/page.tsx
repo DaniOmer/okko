@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
 import { PublishButton } from './editors/PublishButton';
 import { RequirementsEditor } from './editors/RequirementsEditor';
@@ -11,7 +12,17 @@ import { ZoneSuitabilityEditor } from './editors/ZoneSuitabilityEditor';
 import { PestControlEditor } from './editors/PestControlEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
-  const [crop, history, zones, pests] = await Promise.all([getCrop(params.id), getCropHistory(params.id), listZones(), listPests()]);
+  // The crop is required — a missing one is a genuine 404, not a crashed page.
+  const crop = await getCrop(params.id).catch(() => null);
+  if (!crop) notFound();
+
+  // Supplementary data degrades gracefully: a lagging or unavailable endpoint
+  // (history, catalogs) must never 500 the whole detail page.
+  const [history, zones, pests] = await Promise.all([
+    getCropHistory(params.id).catch(() => []),
+    listZones().catch(() => []),
+    listPests().catch(() => []),
+  ]);
   return (
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
