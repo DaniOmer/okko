@@ -5,6 +5,7 @@ import { CropStatus, CropStatusError } from './crop-status';
 import { ClimaticRequirements } from '../shared/climatic-requirements';
 import { EdaphicRequirements } from '../shared/edaphic-requirements';
 import { RangeValue } from '../shared/range-value';
+import { PhenologicalStage } from './phenological-stage';
 
 const base = () => Crop.create({
   id: 'crop-1',
@@ -86,5 +87,32 @@ describe('Crop requirements', () => {
     const restored = Crop.fromSnapshot(c.toSnapshot());
     expect(restored.edaphic?.ph?.optimal).toBe(6.5);
     expect(restored.edaphic?.texture).toBe('argilo-limoneux');
+  });
+});
+
+describe('Crop phenology', () => {
+  const base = () => Crop.create({
+    id: 'crop-phen',
+    commonNames: TranslatableText.create({ fr: 'Maïs' }),
+    scientificName: 'Zea mays',
+    family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL,
+  });
+
+  it('sets phenology, bumps version, and round-trips', () => {
+    const c = base();
+    c.setPhenology([
+      PhenologicalStage.create({ name: TranslatableText.create({ fr: 'Levée' }), startDay: 5, endDay: 12, order: 1 }),
+      PhenologicalStage.create({ name: TranslatableText.create({ fr: 'Floraison' }), startDay: 55, endDay: 65, order: 2 }),
+    ]);
+    expect(c.version).toBe(2);
+    expect(c.phenology).toHaveLength(2);
+    const restored = Crop.fromSnapshot(c.toSnapshot());
+    expect(restored.phenology).toHaveLength(2);
+    expect(restored.phenology[1].name.getOrDefault('fr')).toBe('Floraison');
+  });
+
+  it('defaults phenology to an empty array', () => {
+    expect(base().phenology).toEqual([]);
   });
 });

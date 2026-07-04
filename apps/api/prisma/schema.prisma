@@ -18,6 +18,7 @@ model Crop {
   metadata       Json
   climatic       Json?
   edaphic        Json?
+  phenology      Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
