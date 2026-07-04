@@ -1,4 +1,4 @@
-import { getCrop, getCropHistory, listZones } from '../../../lib/api';
+import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
 import { PublishButton } from './editors/PublishButton';
 import { RequirementsEditor } from './editors/RequirementsEditor';
 import { PhenologyEditor } from './editors/PhenologyEditor';
@@ -7,9 +7,11 @@ import { YieldsEditor } from './editors/YieldsEditor';
 import { VarietyEditor } from './editors/VarietyEditor';
 import { PriceEditor } from './editors/PriceEditor';
 import { WindowEditor } from './editors/WindowEditor';
+import { ZoneSuitabilityEditor } from './editors/ZoneSuitabilityEditor';
+import { PestControlEditor } from './editors/PestControlEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
-  const [crop, history, zones] = await Promise.all([getCrop(params.id), getCropHistory(params.id), listZones()]);
+  const [crop, history, zones, pests] = await Promise.all([getCrop(params.id), getCropHistory(params.id), listZones(), listPests()]);
   return (
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
@@ -51,6 +53,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={z.zoneId}>{z.zoneName.fr} — <strong>{z.rating}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
           ))}
         </ul>
+        <ZoneSuitabilityEditor cropId={params.id} zones={zones} />
       </section>
 
       <section>
@@ -90,6 +93,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             </ul>
           </div>
         ))}
+        <PestControlEditor cropId={params.id} pests={pests} />
       </section>
 
       <section>
