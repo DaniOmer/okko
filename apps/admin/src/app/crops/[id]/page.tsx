@@ -1,5 +1,6 @@
 import { getCrop, getCropHistory } from '../../../lib/api';
 import { PublishButton } from './editors/PublishButton';
+import { RequirementsEditor } from './editors/RequirementsEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
   const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
@@ -24,6 +25,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         {crop.edaphic?.ph
           ? <p>pH : {crop.edaphic.ph.min}–{crop.edaphic.ph.optimal}–{crop.edaphic.ph.max}</p>
           : <p className="text-gray-400">Non renseignées</p>}
+        <RequirementsEditor cropId={params.id} />
       </section>
 
       <section>
