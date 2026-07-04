@@ -1,4 +1,5 @@
 import { getCrop, getCropHistory } from '../../../lib/api';
+import { PublishButton } from './editors/PublishButton';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
   const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
@@ -6,6 +7,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
       <p className="text-sm">{crop.cycleType} · {crop.status} (v{crop.version})</p>
+      <PublishButton cropId={params.id} status={crop.status} />
       {crop.completeness && (
         <p className="text-sm">Complétude : <strong>{crop.completeness.percent}%</strong> ({crop.completeness.filled}/{crop.completeness.total} catégories)</p>
       )}
