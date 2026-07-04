@@ -13,9 +13,13 @@ Okko rassemble en un seul endroit le savoir agronomique actionnable, le suivi de
 
 ## État actuel
 
-**Phase 0 — Plan 1 (fondations)** ✅ livré : modèle de données agnostique à la culture, agrégat `Crop` (identité, cycle, versionnement, provenance, i18n), persistance Postgres, API REST et un back-office admin minimal (liste + création de fiche).
+**Phase 0 — Base de connaissances + back-office admin : ✅ COMPLÈTE** (Plans 1 à 7).
 
-Les 11 catégories agronomiques complètes (variétés, climat, sol, zones, fenêtres de production, phénologie, itinéraire technique, nutrition, phytosanitaire, rendement, prix) arrivent dans les plans suivants — voir [Roadmap](#roadmap).
+La fiche culture couvre toutes les catégories agronomiques du spec, saisissables via l'admin et exposées par `GET /crops/:id` (sérialisation **AI-ready** pour le futur chatbot) :
+
+> identité · cycle · variétés · exigences climatiques · exigences édaphiques · zones d'adéquation · phénologie · fenêtres de production (avec itinéraires) · ravageurs & maladies (avec lutte durable) · nutrition · rendement · prix
+
+Transversal : versionnement + **journal d'audit** (avec historique consultable), **provenance** sur les valeurs, **indicateur de complétude** par catégorie, i18n. **136 tests** (unitaires + intégration + e2e). Voir [Roadmap](#roadmap).
 
 ---
 
@@ -116,13 +120,14 @@ Les tests d'intégration et e2e nécessitent Postgres lancé (`pnpm db:up`).
 
 | Méthode | Route | Description |
 |---|---|---|
-| `POST` | `/crops` | Créer une fiche culture (statut `DRAFT`) |
-| `GET` | `/crops` | Lister les fiches |
-| `GET` | `/crops/:id` | Récupérer une fiche (404 si absente) |
-| `PATCH` | `/crops/:id` | Mettre à jour (nom, metadata) |
-| `POST` | `/crops/:id/publish` | Publier (409 si déjà publiée) |
+| `POST` | `/crops` · `GET /crops` · `GET /crops/:id` | Créer / lister / récupérer une fiche (compose toutes les catégories + complétude) |
+| `PATCH` | `/crops/:id` · `/publish` · `/requirements` · `/phenology` · `/nutrition` · `/yields` | Mettre à jour identité / publier (409) / exigences / phénologie / nutrition / rendement |
+| `POST/GET` | `/crops/:id/varieties` · `/windows` · `/prices` | Variétés · fenêtres de production · série de prix |
+| `PUT/GET` | `/crops/:id/zones/:zoneId` · `/pests/:pestId` | Adéquation zone · contrôle ravageur |
+| `GET` | `/crops/:id/history` | Historique d'audit de la fiche |
+| `POST/GET` | `/zones` · `/pests` | Catalogues partagés (zones agro-écologiques · ravageurs/maladies) |
 
-Toutes les réponses sont projetées via le read-model `CropDocument` (AI-ready).
+Toutes les réponses de fiche sont projetées via le read-model `CropDocument` (AI-ready, avec `completeness`).
 
 ---
 
@@ -139,14 +144,14 @@ Toutes les réponses sont projetées via le read-model `CropDocument` (AI-ready)
 
 | Phase | Contenu | Statut |
 |---|---|---|
-| **0** | Base de connaissances + back-office admin (socle) | 🟡 Plan 1 livré ; catégories agronomiques à venir |
+| **0** | Base de connaissances + back-office admin (socle) | ✅ **complète** (Plans 1-7) |
 | **1** | Carnet de suivi de production (event sourcing) | ⏳ |
 | **2** | Diagnostic IA (photo → maladie → recommandation) | ⏳ |
 | **3** | API publique de la base + analytics | ⏳ |
 | **4** | Module élevage (agriculture animale de précision) | ⏳ |
 
-Plans détaillés à venir (chacun livrable et testable seul) :
-Plan 2 — variétés + exigences climatiques/édaphiques · Plan 3 — zones agro-écologiques · Plan 4 — fenêtres + phénologie + itinéraire · Plan 5 — ravageurs/maladies · Plan 6 — nutrition, rendement, prix · Plan 7 — historique admin.
+**Phase 0 — plans livrés** (chacun testable seul, voir `docs/superpowers/plans/`) :
+Plan 1 fondations · Plan 2 variétés + climat/sol · Plan 3 zones agro-écologiques · Plan 4 fenêtres + phénologie + itinéraire · Plan 5 ravageurs/maladies + lutte durable · Plan 6 nutrition + rendement + prix · Plan 7 historique d'audit + complétude.
 
 ---
 
