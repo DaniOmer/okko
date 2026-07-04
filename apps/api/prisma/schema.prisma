@@ -43,3 +43,27 @@ model AuditLog {
   at         DateTime
   changes    Json
 }
+
+model AgroEcologicalZone {
+  id             String   @id
+  name           Json
+  country        String
+  koppen         String?
+  altitude       Json?
+  annualRainfall Json?
+  notes          String?
+  metadata       Json
+  createdAt      DateTime @default(now())
+}
+
+model CropZoneSuitability {
+  cropId        String
+  zoneId        String
+  rating        String
+  justification String?
+  provenance    Json?
+  createdAt     DateTime @default(now())
+
+  @@id([cropId, zoneId])
+  @@index([zoneId])
+}

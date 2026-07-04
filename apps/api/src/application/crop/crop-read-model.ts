@@ -1,5 +1,6 @@
 import { CropSnapshot } from '../../domain/crop/crop';
 import { VarietySnapshot } from '../../domain/crop/variety';
+import { CropZoneView } from '../zone/list-crop-zones.use-case';
 
 export interface CropDocument {
   id: string;
@@ -13,6 +14,7 @@ export interface CropDocument {
   climatic?: CropSnapshot['climatic'];
   edaphic?: CropSnapshot['edaphic'];
   varieties: VarietySnapshot[];
+  zones: CropZoneView[];
   serializedText: string;
 }
 
@@ -20,6 +22,7 @@ export function toCropDocument(
   s: CropSnapshot,
   locale = 'fr',
   varieties: VarietySnapshot[] = [],
+  zones: CropZoneView[] = [],
 ): CropDocument {
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
   const lines = [
@@ -43,10 +46,13 @@ export function toCropDocument(
   if (varieties.length > 0) {
     lines.push(`Variétés : ${varieties.map((v) => v.name[locale] ?? v.name['fr']).join(', ')}`);
   }
+  if (zones.length > 0) {
+    lines.push(`Zones : ${zones.map((z) => `${z.zoneName[locale] ?? z.zoneName['fr']} (${z.rating})`).join(', ')}`);
+  }
   return {
     id: s.id, name, scientificName: s.scientificName, family: s.family,
     cycleType: s.cycleType, status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, serializedText: lines.join('\n'),
+    varieties, zones, serializedText: lines.join('\n'),
   };
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, NotFoundException, ConflictException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
@@ -14,6 +14,10 @@ import { VARIETY_REPOSITORY, VarietyRepository } from '../../application/crop/va
 import { ClimaticRequirementsJSON } from '../../domain/shared/climatic-requirements';
 import { EdaphicRequirementsJSON } from '../../domain/shared/edaphic-requirements';
 import { RangeValue } from '../../domain/shared/range-value';
+import { SetCropZoneSuitabilityUseCase, ZoneNotFoundError } from '../../application/zone/set-crop-zone-suitability.use-case';
+import { ListCropZonesUseCase } from '../../application/zone/list-crop-zones.use-case';
+import { SuitabilityRating } from '../../domain/zone/suitability-rating';
+import { ProvenanceProps } from '../../domain/shared/provenance';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -28,6 +32,8 @@ export class CropController {
     private readonly addVariety: AddVarietyUseCase,
     private readonly listVarieties: ListVarietiesUseCase,
     @Inject(VARIETY_REPOSITORY) private readonly varieties: VarietyRepository,
+    private readonly setSuitability: SetCropZoneSuitabilityUseCase,
+    private readonly listCropZones: ListCropZonesUseCase,
   ) {}
 
   @Post()
@@ -46,7 +52,8 @@ export class CropController {
     const snap = await this.crops.findById(id);
     if (!snap) throw new NotFoundException(id);
     const vars = await this.varieties.listByCrop(id);
-    return toCropDocument(snap, 'fr', vars);
+    const zones = await this.listCropZones.execute({ cropId: id });
+    return toCropDocument(snap, 'fr', vars, zones);
   }
 
   @Patch(':id')
@@ -103,5 +110,24 @@ export class CropController {
   @Get(':id/varieties')
   async getVarieties(@Param('id') id: string) {
     return this.listVarieties.execute({ cropId: id });
+  }
+
+  @Put(':id/zones/:zoneId')
+  async setZone(
+    @Param('id') id: string,
+    @Param('zoneId') zoneId: string,
+    @Body() body: { rating: SuitabilityRating; justification?: string; provenance?: ProvenanceProps },
+  ) {
+    try {
+      return await this.setSuitability.execute({ cropId: id, zoneId, actor: ACTOR, ...body });
+    } catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError) throw new NotFoundException(e.message);
+      throw e;
+    }
+  }
+
+  @Get(':id/zones')
+  async getZones(@Param('id') id: string) {
+    return this.listCropZones.execute({ cropId: id });
   }
 }

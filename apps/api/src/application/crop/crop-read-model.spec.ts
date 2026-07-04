@@ -2,6 +2,8 @@ import { toCropDocument } from './crop-read-model';
 import { CropStatus } from '../../domain/crop/crop-status';
 import { CycleType } from '../../domain/crop/cycle-type';
 import { VarietySnapshot } from '../../domain/crop/variety';
+import { CropZoneView } from '../zone/list-crop-zones.use-case';
+import { SuitabilityRating } from '../../domain/zone/suitability-rating';
 
 const snap = {
   id: 'c1', commonNames: { fr: 'Carotte', en: 'Carrot' },
@@ -63,5 +65,25 @@ describe('toCropDocument with requirements and varieties', () => {
   it('defaults varieties to an empty array', () => {
     const doc = toCropDocument(snap, 'fr');
     expect(doc.varieties).toEqual([]);
+  });
+});
+
+describe('toCropDocument with zones', () => {
+  const snap = {
+    id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 5, metadata: {},
+  };
+  const zones: CropZoneView[] = [
+    { zoneId: 'z1', zoneName: { fr: 'Sahel' }, rating: SuitabilityRating.SUITABLE },
+  ];
+
+  it('includes zones and mentions them in serialized text', () => {
+    const doc = toCropDocument(snap, 'fr', [], zones);
+    expect(doc.zones).toHaveLength(1);
+    expect(doc.serializedText).toContain('Sahel');
+  });
+
+  it('defaults zones to an empty array', () => {
+    expect(toCropDocument(snap, 'fr').zones).toEqual([]);
   });
 });

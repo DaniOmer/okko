@@ -29,6 +29,15 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           ))}
         </ul>
       </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Zones ({crop.zones.length})</h2>
+        <ul className="list-disc pl-5">
+          {crop.zones.map((z) => (
+            <li key={z.zoneId}>{z.zoneName.fr} — <strong>{z.rating}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }
