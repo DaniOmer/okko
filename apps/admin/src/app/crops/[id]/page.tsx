@@ -75,6 +75,33 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           </div>
         ))}
       </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Nutrition ({crop.nutrition.length})</h2>
+        <ul className="list-disc pl-5">
+          {crop.nutrition.map((n, i) => (
+            <li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Rendement ({crop.yields.length})</h2>
+        <ul className="list-disc pl-5">
+          {crop.yields.map((y, i) => (
+            <li key={i}>{y.inputLevel} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Prix ({crop.prices.length})</h2>
+        <ul className="list-disc pl-5">
+          {crop.prices.map((p) => (
+            <li key={p.id}>{p.date} — {p.price} {p.unit} @ {p.market}</li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }
