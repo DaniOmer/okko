@@ -83,3 +83,29 @@ model CroppingWindow {
 
   @@index([cropId])
 }
+
+model PestDisease {
+  id             String   @id
+  name           Json
+  type           String
+  scientificName String?
+  symptoms       Json?
+  photos         Json
+  notes          String?
+  metadata       Json
+  createdAt      DateTime @default(now())
+}
+
+model CropPestControl {
+  cropId          String
+  pestId          String
+  susceptibility  String
+  sensitiveStages Json
+  threshold       String?
+  controlMethods  Json
+  provenance      Json?
+  createdAt       DateTime @default(now())
+
+  @@id([cropId, pestId])
+  @@index([pestId])
+}
