@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { listCrops, listZones, listPests } from '../lib/api';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { labelOf, CROP_STATUS_LABELS } from '@/lib/labels';
 
 export default async function DashboardPage() {
   // Résilient : un endpoint indisponible dégrade sa carte à zéro plutôt que
@@ -77,7 +78,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-3 text-sm">
                       <Badge variant={c.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                        {c.status}
+                        {labelOf(CROP_STATUS_LABELS, c.status)}
                       </Badge>
                       <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                         {c.completeness?.percent ?? '—'}%

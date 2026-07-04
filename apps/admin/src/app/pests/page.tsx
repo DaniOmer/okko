@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { listPests } from '../../lib/api';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
+import { labelOf, PEST_TYPE_LABELS } from '@/lib/labels';
 
 export default async function PestsPage() {
   const pests = await listPests().catch(() => []);
@@ -30,7 +31,7 @@ export default async function PestsPage() {
             {pests.map((p) => (
               <TableRow key={p.id}>
                 <TableCell>{p.name}</TableCell>
-                <TableCell>{p.type}</TableCell>
+                <TableCell>{labelOf(PEST_TYPE_LABELS, p.type)}</TableCell>
                 <TableCell>{p.scientificName ?? '—'}</TableCell>
               </TableRow>
             ))}

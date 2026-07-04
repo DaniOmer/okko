@@ -3,6 +3,7 @@ import { listCrops } from '../../lib/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
+import { labelOf, CYCLE_TYPE_LABELS, CROP_STATUS_LABELS } from '@/lib/labels';
 
 export default async function CropsPage({ searchParams }: { searchParams: { q?: string } }) {
   const raw = (searchParams.q ?? '').trim();
@@ -39,9 +40,9 @@ export default async function CropsPage({ searchParams }: { searchParams: { q?: 
                     <Link href={`/crops/${c.id}`} className="text-primary hover:underline">{c.name}</Link>
                   </TableCell>
                   <TableCell className="italic text-muted-foreground">{c.scientificName}</TableCell>
-                  <TableCell>{c.cycleType}</TableCell>
+                  <TableCell>{labelOf(CYCLE_TYPE_LABELS, c.cycleType)}</TableCell>
                   <TableCell>
-                    <Badge variant={c.status === 'PUBLISHED' ? 'default' : 'secondary'}>{c.status}</Badge>
+                    <Badge variant={c.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, c.status)}</Badge>
                   </TableCell>
                   <TableCell className="text-right">{c.completeness?.percent ?? '—'}%</TableCell>
                 </TableRow>
