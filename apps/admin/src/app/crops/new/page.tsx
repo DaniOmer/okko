@@ -2,6 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createCrop } from '../../../lib/api';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 const CYCLE_TYPES = ['SEASONAL_ANNUAL', 'BIENNIAL', 'PERENNIAL_HERBACEOUS', 'PERENNIAL_WOODY_FRUIT', 'FORESTRY_WOOD'];
 
@@ -26,17 +31,38 @@ export default function NewCropPage() {
 
   return (
     <main className="p-8 max-w-lg">
-      <h1 className="text-2xl font-bold mb-6">Nouvelle culture</h1>
-      {errorMsg && <p className="mb-4 text-red-600">{errorMsg}</p>}
-      <form onSubmit={submit} className="space-y-4">
-        <input className="w-full border p-2" placeholder="Nom (fr)" value={fr} onChange={(e) => setFr(e.target.value)} required />
-        <input className="w-full border p-2" placeholder="Nom scientifique" value={scientificName} onChange={(e) => setSci(e.target.value)} required />
-        <input className="w-full border p-2" placeholder="Famille" value={family} onChange={(e) => setFamily(e.target.value)} required />
-        <select className="w-full border p-2" value={cycleType} onChange={(e) => setCycle(e.target.value)}>
-          {CYCLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <button type="submit" className="rounded bg-green-700 px-4 py-2 text-white">Créer</button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Nouvelle culture</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {errorMsg && <p className="mb-4 text-destructive">{errorMsg}</p>}
+          <form onSubmit={submit} className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="crop-fr">Nom (fr)</Label>
+              <Input id="crop-fr" placeholder="Nom (fr)" value={fr} onChange={(e) => setFr(e.target.value)} required />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="crop-sci">Nom scientifique</Label>
+              <Input id="crop-sci" placeholder="Nom scientifique" value={scientificName} onChange={(e) => setSci(e.target.value)} required />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="crop-family">Famille</Label>
+              <Input id="crop-family" placeholder="Famille" value={family} onChange={(e) => setFamily(e.target.value)} required />
+            </div>
+            <div className="space-y-1">
+              <Label>Type de cycle</Label>
+              <Select value={cycleType} onValueChange={setCycle}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CYCLE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="submit">Créer</Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }

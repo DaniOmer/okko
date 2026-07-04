@@ -1,19 +1,42 @@
 import Link from 'next/link';
 import { listZones } from '../../lib/api';
+import { Button } from '@/components/ui/button';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 
 export default async function ZonesPage() {
-  const zones = await listZones();
+  const zones = await listZones().catch(() => []);
   return (
     <main className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Zones agro-écologiques</h1>
-        <Link href="/zones/new" className="rounded bg-green-700 px-4 py-2 text-white">Nouvelle zone</Link>
+        <Button asChild>
+          <Link href="/zones/new">Nouvelle zone</Link>
+        </Button>
       </div>
-      <ul className="divide-y">
-        {zones.map((z) => (
-          <li key={z.id} className="py-3">{z.name} — {z.country}{z.koppen ? ` · ${z.koppen}` : ''}</li>
-        ))}
-      </ul>
+      {zones.length === 0 ? (
+        <div className="rounded border-2 border-dashed p-8 text-center text-muted-foreground">
+          Aucune zone enregistrée.
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nom</TableHead>
+              <TableHead>Pays</TableHead>
+              <TableHead>Köppen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {zones.map((z) => (
+              <TableRow key={z.id}>
+                <TableCell>{z.name}</TableCell>
+                <TableCell>{z.country}</TableCell>
+                <TableCell>{z.koppen ?? '—'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </main>
   );
 }

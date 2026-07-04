@@ -2,6 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPest } from '../../../lib/api';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 const TYPES = ['INSECT', 'FUNGUS', 'BACTERIA', 'VIRUS', 'WEED', 'NEMATODE', 'OTHER'];
 
@@ -25,16 +30,34 @@ export default function NewPestPage() {
 
   return (
     <main className="p-8 max-w-lg">
-      <h1 className="text-2xl font-bold mb-6">Nouveau ravageur / maladie</h1>
-      {error && <p className="mb-4 text-red-600">{error}</p>}
-      <form onSubmit={submit} className="space-y-4">
-        <input className="w-full border p-2" placeholder="Nom (fr)" value={fr} onChange={(e) => setFr(e.target.value)} required />
-        <select className="w-full border p-2" value={type} onChange={(e) => setType(e.target.value)}>
-          {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <input className="w-full border p-2" placeholder="Nom scientifique (optionnel)" value={scientificName} onChange={(e) => setSci(e.target.value)} />
-        <button type="submit" className="rounded bg-green-700 px-4 py-2 text-white">Créer</button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Nouveau ravageur / maladie</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && <p className="mb-4 text-destructive">{error}</p>}
+          <form onSubmit={submit} className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="pest-fr">Nom (fr)</Label>
+              <Input id="pest-fr" placeholder="Nom (fr)" value={fr} onChange={(e) => setFr(e.target.value)} required />
+            </div>
+            <div className="space-y-1">
+              <Label>Type</Label>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="pest-sci">Nom scientifique (optionnel)</Label>
+              <Input id="pest-sci" placeholder="Nom scientifique (optionnel)" value={scientificName} onChange={(e) => setSci(e.target.value)} />
+            </div>
+            <Button type="submit">Créer</Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }
