@@ -61,6 +61,20 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           </div>
         ))}
       </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Ravageurs &amp; maladies ({crop.pests.length})</h2>
+        {crop.pests.map((p) => (
+          <div key={p.pestId} className="mb-3">
+            <p className="font-medium">{p.pestName.fr} — <strong>{p.susceptibility}</strong> ({p.type})</p>
+            <ul className="list-disc pl-5 text-sm">
+              {p.controlMethods.map((m, i) => (
+                <li key={i}>{m.category} : {m.description.fr}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
     </main>
   );
 }

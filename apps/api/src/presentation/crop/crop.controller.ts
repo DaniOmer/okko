@@ -23,6 +23,10 @@ import { AddCroppingWindowUseCase } from '../../application/window/add-cropping-
 import { ListCroppingWindowsUseCase } from '../../application/window/list-cropping-windows.use-case';
 import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
 import { TechnicalOperationJSON } from '../../domain/window/technical-operation';
+import { SetCropPestControlUseCase, PestNotFoundError } from '../../application/pest/set-crop-pest-control.use-case';
+import { ListCropPestsUseCase } from '../../application/pest/list-crop-pests.use-case';
+import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
+import { ControlMethodJSON } from '../../domain/pest/control-method';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -42,6 +46,8 @@ export class CropController {
     private readonly setPhenology: SetCropPhenologyUseCase,
     private readonly addWindow: AddCroppingWindowUseCase,
     private readonly listWindows: ListCroppingWindowsUseCase,
+    private readonly setPestControl: SetCropPestControlUseCase,
+    private readonly listCropPests: ListCropPestsUseCase,
   ) {}
 
   @Post()
@@ -62,7 +68,8 @@ export class CropController {
     const vars = await this.varieties.listByCrop(id);
     const zones = await this.listCropZones.execute({ cropId: id });
     const windows = await this.listWindows.execute({ cropId: id });
-    return toCropDocument(snap, 'fr', vars, zones, windows);
+    const pests = await this.listCropPests.execute({ cropId: id });
+    return toCropDocument(snap, { varieties: vars, zones, windows, pests });
   }
 
   @Patch(':id')
@@ -96,7 +103,7 @@ export class CropController {
     try {
       const snap = await this.setRequirements.execute({ id, actor: ACTOR, ...body });
       const vars = await this.varieties.listByCrop(id);
-      return toCropDocument(snap, 'fr', vars);
+      return toCropDocument(snap, { varieties: vars });
     } catch (e) {
       if (e instanceof CropNotFoundError) throw new NotFoundException(id);
       throw e;
@@ -147,7 +154,7 @@ export class CropController {
       const vars = await this.varieties.listByCrop(id);
       const zones = await this.listCropZones.execute({ cropId: id });
       const windows = await this.listWindows.execute({ cropId: id });
-      return toCropDocument(snap, 'fr', vars, zones, windows);
+      return toCropDocument(snap, { varieties: vars, zones, windows });
     } catch (e) {
       if (e instanceof CropNotFoundError) throw new NotFoundException(id);
       throw e;
@@ -170,5 +177,24 @@ export class CropController {
   @Get(':id/windows')
   async getWindows(@Param('id') id: string) {
     return this.listWindows.execute({ cropId: id });
+  }
+
+  @Put(':id/pests/:pestId')
+  async setPest(
+    @Param('id') id: string,
+    @Param('pestId') pestId: string,
+    @Body() body: { susceptibility: SusceptibilityLevel; sensitiveStages?: string[]; threshold?: string; controlMethods?: ControlMethodJSON[]; provenance?: ProvenanceProps },
+  ) {
+    try {
+      return await this.setPestControl.execute({ cropId: id, pestId, actor: ACTOR, ...body });
+    } catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof PestNotFoundError) throw new NotFoundException((e as Error).message);
+      throw e;
+    }
+  }
+
+  @Get(':id/pests')
+  async getPests(@Param('id') id: string) {
+    return this.listCropPests.execute({ cropId: id });
   }
 }

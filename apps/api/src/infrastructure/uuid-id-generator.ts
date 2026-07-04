@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { IdGenerator } from '../application/crop/add-variety.use-case';
+import { IdGenerator } from '../application/shared/id-generator';
 
 @Injectable()
 export class UuidIdGenerator implements IdGenerator {

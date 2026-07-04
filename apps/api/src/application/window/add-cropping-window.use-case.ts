@@ -5,7 +5,7 @@ import { ZoneRepository } from '../zone/zone.repository';
 import { CroppingWindowRepository } from './cropping-window.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
-import { IdGenerator } from '../crop/add-variety.use-case';
+import { IdGenerator } from '../shared/id-generator';
 import { CropNotFoundError } from '../crop/publish-crop.use-case';
 import { ZoneNotFoundError } from '../zone/set-crop-zone-suitability.use-case';
 

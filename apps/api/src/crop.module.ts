@@ -30,9 +30,18 @@ import { AddCroppingWindowUseCase } from './application/window/add-cropping-wind
 import { ListCroppingWindowsUseCase } from './application/window/list-cropping-windows.use-case';
 import { CropController } from './presentation/crop/crop.controller';
 import { ZoneController } from './presentation/zone/zone.controller';
+import { PestController } from './presentation/pest/pest.controller';
+import { PrismaPestRepository } from './infrastructure/pest/prisma-pest.repository';
+import { PrismaCropPestControlRepository } from './infrastructure/pest/prisma-crop-pest-control.repository';
+import { PEST_REPOSITORY } from './application/pest/pest.repository';
+import { CROP_PEST_CONTROL_REPOSITORY } from './application/pest/crop-pest-control.repository';
+import { CreatePestUseCase } from './application/pest/create-pest.use-case';
+import { ListPestsUseCase } from './application/pest/list-pests.use-case';
+import { SetCropPestControlUseCase } from './application/pest/set-crop-pest-control.use-case';
+import { ListCropPestsUseCase } from './application/pest/list-crop-pests.use-case';
 
 @Module({
-  controllers: [CropController, ZoneController],
+  controllers: [CropController, ZoneController, PestController],
   providers: [
     PrismaService,
     { provide: CLOCK, useClass: SystemClock },
@@ -107,6 +116,28 @@ import { ZoneController } from './presentation/zone/zone.controller';
       provide: ListCroppingWindowsUseCase,
       useFactory: (w) => new ListCroppingWindowsUseCase(w),
       inject: [CROPPING_WINDOW_REPOSITORY],
+    },
+    { provide: PEST_REPOSITORY, useClass: PrismaPestRepository },
+    { provide: CROP_PEST_CONTROL_REPOSITORY, useClass: PrismaCropPestControlRepository },
+    {
+      provide: CreatePestUseCase,
+      useFactory: (p, a, c, ids) => new CreatePestUseCase(p, a, c, ids),
+      inject: [PEST_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+    },
+    {
+      provide: ListPestsUseCase,
+      useFactory: (p) => new ListPestsUseCase(p),
+      inject: [PEST_REPOSITORY],
+    },
+    {
+      provide: SetCropPestControlUseCase,
+      useFactory: (cr, p, ctrl, a, c) => new SetCropPestControlUseCase(cr, p, ctrl, a, c),
+      inject: [CROP_REPOSITORY, PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: ListCropPestsUseCase,
+      useFactory: (ctrl, p) => new ListCropPestsUseCase(ctrl, p),
+      inject: [CROP_PEST_CONTROL_REPOSITORY, PEST_REPOSITORY],
     },
   ],
 })

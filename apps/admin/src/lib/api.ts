@@ -67,6 +67,7 @@ export interface CropDetail extends CropDocument {
   zones: CropZone[];
   phenology: PhenologicalStage[];
   croppingWindows: CroppingWindow[];
+  pests: CropPest[];
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {
@@ -77,6 +78,25 @@ export async function getCrop(id: string): Promise<CropDetail> {
 
 export async function addVariety(cropId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<Variety> {
   const res = await fetch(`${BASE}/crops/${cropId}/varieties`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
+export interface Pest { id: string; name: string; type: string; scientificName?: string; }
+export interface CropPest {
+  pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;
+  controlMethods: { category: string; description: Record<string, string>; inputs: string[] }[];
+}
+
+export async function listPests(): Promise<Pest[]> {
+  const res = await fetch(`${BASE}/pests`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+export async function createPest(input: { name: Record<string, string>; type: string; scientificName?: string }): Promise<Pest> {
+  const res = await fetch(`${BASE}/pests`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
