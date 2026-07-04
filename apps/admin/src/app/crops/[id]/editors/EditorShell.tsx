@@ -1,6 +1,14 @@
 'use client';
 import { ReactNode, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface Helpers {
   submit: (fn: () => Promise<unknown>) => Promise<void>;
@@ -28,18 +36,24 @@ export function EditorShell({ label, children }: { label: string; children: (h: 
     }
   }
 
-  if (!open) {
-    return (
-      <button onClick={() => setOpen(true)} className="text-sm text-green-700 underline">
-        {label}
-      </button>
-    );
-  }
-
   return (
-    <div className="mt-2 rounded border p-3 bg-gray-50">
-      {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
-      {children({ submit, close: () => setOpen(false), busy })}
-    </div>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (!o) setError(null);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">{label}</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{label}</DialogTitle>
+        </DialogHeader>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {children({ submit, close: () => setOpen(false), busy })}
+      </DialogContent>
+    </Dialog>
   );
 }
