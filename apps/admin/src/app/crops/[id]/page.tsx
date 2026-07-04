@@ -4,6 +4,8 @@ import { RequirementsEditor } from './editors/RequirementsEditor';
 import { PhenologyEditor } from './editors/PhenologyEditor';
 import { NutritionEditor } from './editors/NutritionEditor';
 import { YieldsEditor } from './editors/YieldsEditor';
+import { VarietyEditor } from './editors/VarietyEditor';
+import { PriceEditor } from './editors/PriceEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
   const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
@@ -38,6 +40,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={v.id}>{v.name.fr}{v.maturityDays ? ` — ${v.maturityDays} j` : ''}</li>
           ))}
         </ul>
+        <VarietyEditor cropId={params.id} />
       </section>
 
       <section>
@@ -114,6 +117,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={p.id}>{p.date} — {p.price} {p.unit} @ {p.market}</li>
           ))}
         </ul>
+        <PriceEditor cropId={params.id} />
       </section>
       <section>
         <h2 className="font-semibold mb-2">Historique ({history.length})</h2>
