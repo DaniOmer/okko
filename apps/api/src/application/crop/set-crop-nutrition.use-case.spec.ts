@@ -38,6 +38,7 @@ describe('SetCropNutrition / SetCropYields', () => {
       yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }],
     });
     expect(out.yields).toHaveLength(1);
+    expect(audit.record).toHaveBeenCalled();
   });
 
   it('throws CropNotFoundError when absent', async () => {

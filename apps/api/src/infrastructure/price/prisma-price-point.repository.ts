@@ -14,7 +14,7 @@ export class PrismaPricePointRepository implements PricePointRepository {
   }
 
   async listByCrop(cropId: string): Promise<PricePointSnapshot[]> {
-    const rows = await this.prisma.pricePoint.findMany({ where: { cropId }, orderBy: { date: 'desc' } });
+    const rows = await this.prisma.pricePoint.findMany({ where: { cropId }, orderBy: [{ date: 'desc' }, { createdAt: 'desc' }] });
     return rows.map((r) => this.toSnapshot(r));
   }
 
