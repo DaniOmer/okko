@@ -6,8 +6,7 @@ import { VarietyRepository } from './variety.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
 import { CropNotFoundError } from './publish-crop.use-case';
-
-export interface IdGenerator { next(): string; }
+import { IdGenerator } from '../shared/id-generator';
 
 export interface AddVarietyInput {
   cropId: string;

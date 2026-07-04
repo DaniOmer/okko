@@ -4,7 +4,7 @@ import { RangeValue } from '../../domain/shared/range-value';
 import { ZoneRepository } from './zone.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
-import { IdGenerator } from '../crop/add-variety.use-case';
+import { IdGenerator } from '../shared/id-generator';
 
 export interface CreateZoneInput {
   id?: string;
