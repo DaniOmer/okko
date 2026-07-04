@@ -1,11 +1,22 @@
-import { getCrop, getCropHistory } from '../../../lib/api';
+import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
+import { PublishButton } from './editors/PublishButton';
+import { RequirementsEditor } from './editors/RequirementsEditor';
+import { PhenologyEditor } from './editors/PhenologyEditor';
+import { NutritionEditor } from './editors/NutritionEditor';
+import { YieldsEditor } from './editors/YieldsEditor';
+import { VarietyEditor } from './editors/VarietyEditor';
+import { PriceEditor } from './editors/PriceEditor';
+import { WindowEditor } from './editors/WindowEditor';
+import { ZoneSuitabilityEditor } from './editors/ZoneSuitabilityEditor';
+import { PestControlEditor } from './editors/PestControlEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
-  const [crop, history] = await Promise.all([getCrop(params.id), getCropHistory(params.id)]);
+  const [crop, history, zones, pests] = await Promise.all([getCrop(params.id), getCropHistory(params.id), listZones(), listPests()]);
   return (
     <main className="p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold">{crop.name} <em className="text-base text-gray-500">{crop.scientificName}</em></h1>
       <p className="text-sm">{crop.cycleType} · {crop.status} (v{crop.version})</p>
+      <PublishButton cropId={params.id} status={crop.status} />
       {crop.completeness && (
         <p className="text-sm">Complétude : <strong>{crop.completeness.percent}%</strong> ({crop.completeness.filled}/{crop.completeness.total} catégories)</p>
       )}
@@ -22,6 +33,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         {crop.edaphic?.ph
           ? <p>pH : {crop.edaphic.ph.min}–{crop.edaphic.ph.optimal}–{crop.edaphic.ph.max}</p>
           : <p className="text-gray-400">Non renseignées</p>}
+        <RequirementsEditor cropId={params.id} />
       </section>
 
       <section>
@@ -31,6 +43,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={v.id}>{v.name.fr}{v.maturityDays ? ` — ${v.maturityDays} j` : ''}</li>
           ))}
         </ul>
+        <VarietyEditor cropId={params.id} />
       </section>
 
       <section>
@@ -40,6 +53,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={z.zoneId}>{z.zoneName.fr} — <strong>{z.rating}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
           ))}
         </ul>
+        <ZoneSuitabilityEditor cropId={params.id} zones={zones} />
       </section>
 
       <section>
@@ -49,6 +63,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={p.order}>{p.name.fr} — J{p.startDay} à J{p.endDay}</li>
           ))}
         </ul>
+        <PhenologyEditor cropId={params.id} current={crop.phenology} />
       </section>
 
       <section>
@@ -63,6 +78,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             </ul>
           </div>
         ))}
+        <WindowEditor cropId={params.id} zones={zones} />
       </section>
 
       <section>
@@ -77,6 +93,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             </ul>
           </div>
         ))}
+        <PestControlEditor cropId={params.id} pests={pests} />
       </section>
 
       <section>
@@ -86,6 +103,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</li>
           ))}
         </ul>
+        <NutritionEditor cropId={params.id} current={crop.nutrition} />
       </section>
 
       <section>
@@ -95,6 +113,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={i}>{y.inputLevel} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
           ))}
         </ul>
+        <YieldsEditor cropId={params.id} current={crop.yields} />
       </section>
 
       <section>
@@ -104,6 +123,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <li key={p.id}>{p.date} — {p.price} {p.unit} @ {p.market}</li>
           ))}
         </ul>
+        <PriceEditor cropId={params.id} />
       </section>
       <section>
         <h2 className="font-semibold mb-2">Historique ({history.length})</h2>
