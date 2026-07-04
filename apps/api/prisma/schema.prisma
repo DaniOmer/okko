@@ -18,6 +18,7 @@ model Crop {
   metadata       Json
   climatic       Json?
   edaphic        Json?
+  phenology      Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -66,4 +67,19 @@ model CropZoneSuitability {
 
   @@id([cropId, zoneId])
   @@index([zoneId])
+}
+
+model CroppingWindow {
+  id                 String   @id
+  cropId             String
+  zoneId             String
+  season             String
+  sowingStart        String?
+  sowingEnd          String?
+  irrigationRequired Boolean
+  operations         Json
+  notes              String?
+  createdAt          DateTime @default(now())
+
+  @@index([cropId])
 }

@@ -51,12 +51,22 @@ export async function createZone(input: { name: Record<string, string>; country:
   return res.json();
 }
 
+export interface PhenologicalStage { name: Record<string, string>; startDay: number; endDay: number; order: number; }
+export interface TechnicalOperation { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string; }
+export interface CroppingWindow {
+  id: string; cropId: string; zoneId: string; season: string;
+  sowingStart?: string; sowingEnd?: string; irrigationRequired: boolean;
+  operations: TechnicalOperation[]; notes?: string;
+}
+
 export interface CropDetail extends CropDocument {
   climatic?: { temperature?: { min: number; optimal: number; max: number; unit: string };
                rainfall?: { min: number; optimal: number; max: number; unit: string } };
   edaphic?: { ph?: { min: number; optimal: number; max: number; unit: string }; texture?: string };
   varieties: Variety[];
   zones: CropZone[];
+  phenology: PhenologicalStage[];
+  croppingWindows: CroppingWindow[];
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {

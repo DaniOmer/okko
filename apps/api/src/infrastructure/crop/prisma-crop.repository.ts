@@ -19,6 +19,7 @@ export class PrismaCropRepository implements CropRepository {
       metadata: s.metadata as Prisma.InputJsonValue,
       climatic: (s.climatic ?? undefined) as Prisma.InputJsonValue | undefined,
       edaphic: (s.edaphic ?? undefined) as Prisma.InputJsonValue | undefined,
+      phenology: (s.phenology ?? []) as unknown as Prisma.InputJsonValue,
     };
     await this.prisma.crop.upsert({
       where: { id: s.id },
@@ -49,6 +50,7 @@ export class PrismaCropRepository implements CropRepository {
       metadata: row.metadata as Record<string, unknown>,
       climatic: (row.climatic ?? undefined) as CropSnapshot['climatic'],
       edaphic: (row.edaphic ?? undefined) as CropSnapshot['edaphic'],
+      phenology: (row.phenology ?? []) as unknown as CropSnapshot['phenology'],
     };
   }
 }

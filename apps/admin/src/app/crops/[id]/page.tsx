@@ -38,6 +38,29 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           ))}
         </ul>
       </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Phénologie ({crop.phenology.length})</h2>
+        <ul className="list-disc pl-5">
+          {crop.phenology.map((p) => (
+            <li key={p.order}>{p.name.fr} — J{p.startDay} à J{p.endDay}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="font-semibold mb-2">Fenêtres de production ({crop.croppingWindows.length})</h2>
+        {crop.croppingWindows.map((w) => (
+          <div key={w.id} className="mb-3">
+            <p className="font-medium">{w.season}{w.irrigationRequired ? ' · irrigation requise' : ''}</p>
+            <ul className="list-disc pl-5 text-sm">
+              {w.operations.map((op, i) => (
+                <li key={i}>J+{op.timingDays} — {op.label.fr} ({op.type})</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
     </main>
   );
 }
