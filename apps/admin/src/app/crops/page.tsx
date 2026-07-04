@@ -12,7 +12,7 @@ export default async function CropsPage() {
       <ul className="divide-y">
         {crops.map((c) => (
           <li key={c.id} className="py-3 flex justify-between">
-            <span>{c.name} — <em>{c.scientificName}</em> · {c.cycleType}</span>
+            <Link href={`/crops/${c.id}`} className="text-green-800 underline">{c.name}</Link> — <em>{c.scientificName}</em> · {c.cycleType}
             <span className="text-sm">{c.status} (v{c.version})</span>
           </li>
         ))}
