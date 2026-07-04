@@ -7,6 +7,9 @@ import { SuitabilityRating } from '../../domain/zone/suitability-rating';
 import { CropPestView } from '../pest/list-crop-pests.use-case';
 import { PestType } from '../../domain/pest/pest-type';
 import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
+import { PricePointSnapshot } from '../../domain/price/price-point';
+import { NutrientBasis } from '../../domain/crop/nutrient-requirement';
+import { InputLevel } from '../../domain/crop/yield-reference';
 
 const snap = {
   id: 'c1', commonNames: { fr: 'Carotte', en: 'Carrot' },
@@ -133,5 +136,33 @@ describe('toCropDocument with pests', () => {
 
   it('defaults pests to an empty array', () => {
     expect(toCropDocument(snap).pests).toEqual([]);
+  });
+});
+
+describe('toCropDocument with nutrition, yields and prices', () => {
+  const snap = {
+    id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
+    cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 8, metadata: {},
+    nutrition: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }],
+    yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }],
+  };
+  const prices: PricePointSnapshot[] = [
+    { id: 'pp1', cropId: 'c1', market: 'Dantokpa', date: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' },
+  ];
+
+  it('includes nutrition, yields and prices in the document and serialized text', () => {
+    const doc = toCropDocument(snap, { prices });
+    expect(doc.nutrition).toHaveLength(1);
+    expect(doc.yields).toHaveLength(1);
+    expect(doc.prices).toHaveLength(1);
+    expect(doc.serializedText).toContain('N');
+    expect(doc.serializedText).toContain('Dantokpa');
+  });
+
+  it('defaults nutrition, yields and prices to empty arrays', () => {
+    const doc = toCropDocument({ ...snap, nutrition: undefined, yields: undefined });
+    expect(doc.nutrition).toEqual([]);
+    expect(doc.yields).toEqual([]);
+    expect(doc.prices).toEqual([]);
   });
 });
