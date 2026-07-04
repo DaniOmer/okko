@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { addVariety } from '../../../../lib/api';
 
 export function VarietyEditor({ cropId }: { cropId: string }) {
@@ -19,12 +21,12 @@ export function VarietyEditor({ cropId }: { cropId: string }) {
           }}
           className="space-y-2 text-sm"
         >
-          <input className="w-full border p-1" placeholder="Nom (fr)" value={name} onChange={(e)=>setName(e.target.value)} required />
-          <input className="w-full border p-1" placeholder="Cycle (jours, optionnel)" value={maturityDays} onChange={(e)=>setMaturityDays(e.target.value)} />
-          <input className="w-full border p-1" placeholder="Traits (séparés par des virgules)" value={traits} onChange={(e)=>setTraits(e.target.value)} />
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Ajouter</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <Input className="w-full" placeholder="Nom (fr)" value={name} onChange={(e)=>setName(e.target.value)} required />
+          <Input className="w-full" placeholder="Cycle (jours, optionnel)" value={maturityDays} onChange={(e)=>setMaturityDays(e.target.value)} />
+          <Input className="w-full" placeholder="Traits (séparés par des virgules)" value={traits} onChange={(e)=>setTraits(e.target.value)} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
           </div>
         </form>
       )}

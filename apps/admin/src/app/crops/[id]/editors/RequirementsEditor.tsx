@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { setRequirements } from '../../../../lib/api';
 
 const n = (v: string): number => Number(v);
@@ -27,26 +29,26 @@ export function RequirementsEditor({ cropId }: { cropId: string }) {
           className="space-y-2 text-sm"
         >
           <fieldset className="flex gap-1 items-center"><span className="w-24">Température</span>
-            <input className="w-16 border p-1" placeholder="min" value={tMin} onChange={(e)=>setTMin(e.target.value)} />
-            <input className="w-16 border p-1" placeholder="opt" value={tOpt} onChange={(e)=>setTOpt(e.target.value)} />
-            <input className="w-16 border p-1" placeholder="max" value={tMax} onChange={(e)=>setTMax(e.target.value)} /><span>°C</span>
+            <Input className="w-16" placeholder="min" value={tMin} onChange={(e)=>setTMin(e.target.value)} />
+            <Input className="w-16" placeholder="opt" value={tOpt} onChange={(e)=>setTOpt(e.target.value)} />
+            <Input className="w-16" placeholder="max" value={tMax} onChange={(e)=>setTMax(e.target.value)} /><span>°C</span>
           </fieldset>
           <fieldset className="flex gap-1 items-center"><span className="w-24">Pluviométrie</span>
-            <input className="w-16 border p-1" placeholder="min" value={rMin} onChange={(e)=>setRMin(e.target.value)} />
-            <input className="w-16 border p-1" placeholder="opt" value={rOpt} onChange={(e)=>setROpt(e.target.value)} />
-            <input className="w-16 border p-1" placeholder="max" value={rMax} onChange={(e)=>setRMax(e.target.value)} /><span>mm</span>
+            <Input className="w-16" placeholder="min" value={rMin} onChange={(e)=>setRMin(e.target.value)} />
+            <Input className="w-16" placeholder="opt" value={rOpt} onChange={(e)=>setROpt(e.target.value)} />
+            <Input className="w-16" placeholder="max" value={rMax} onChange={(e)=>setRMax(e.target.value)} /><span>mm</span>
           </fieldset>
           <fieldset className="flex gap-1 items-center"><span className="w-24">pH du sol</span>
-            <input className="w-16 border p-1" placeholder="min" value={phMin} onChange={(e)=>setPhMin(e.target.value)} />
-            <input className="w-16 border p-1" placeholder="opt" value={phOpt} onChange={(e)=>setPhOpt(e.target.value)} />
-            <input className="w-16 border p-1" placeholder="max" value={phMax} onChange={(e)=>setPhMax(e.target.value)} />
+            <Input className="w-16" placeholder="min" value={phMin} onChange={(e)=>setPhMin(e.target.value)} />
+            <Input className="w-16" placeholder="opt" value={phOpt} onChange={(e)=>setPhOpt(e.target.value)} />
+            <Input className="w-16" placeholder="max" value={phMax} onChange={(e)=>setPhMax(e.target.value)} />
           </fieldset>
           <fieldset className="flex gap-1 items-center"><span className="w-24">Texture</span>
-            <input className="flex-1 border p-1" placeholder="ex. limono-sableux" value={texture} onChange={(e)=>setTexture(e.target.value)} />
+            <Input className="flex-1" placeholder="ex. limono-sableux" value={texture} onChange={(e)=>setTexture(e.target.value)} />
           </fieldset>
-          <div className="flex gap-2">
-            <button type="submit" disabled={busy} className="rounded bg-green-700 px-3 py-1 text-white">Enregistrer</button>
-            <button type="button" onClick={close}>Annuler</button>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+            <Button type="submit" size="sm" disabled={busy}>Enregistrer</Button>
           </div>
         </form>
       )}
