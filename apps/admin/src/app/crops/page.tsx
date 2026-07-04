@@ -1,14 +1,19 @@
 import Link from 'next/link';
 import { listCrops } from '../../lib/api';
 
-export default async function CropsPage() {
-  const crops = await listCrops();
+export default async function CropsPage({ searchParams }: { searchParams: { q?: string } }) {
+  const q = (searchParams.q ?? '').trim().toLowerCase();
+  const all = await listCrops();
+  const crops = q
+    ? all.filter((c) => c.name.toLowerCase().includes(q) || c.scientificName.toLowerCase().includes(q))
+    : all;
   return (
     <main className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Fiches culture</h1>
         <Link href="/crops/new" className="rounded bg-green-700 px-4 py-2 text-white">Nouvelle culture</Link>
       </div>
+      {q && <p className="text-sm text-muted-foreground mb-4">Résultats pour &laquo;&nbsp;{q}&nbsp;&raquo;</p>}
       <ul className="divide-y">
         {crops.map((c) => (
           <li key={c.id} className="py-3 flex justify-between">
