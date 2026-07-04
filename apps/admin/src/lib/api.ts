@@ -68,6 +68,9 @@ export interface CropDetail extends CropDocument {
   phenology: PhenologicalStage[];
   croppingWindows: CroppingWindow[];
   pests: CropPest[];
+  nutrition: NutrientRequirement[];
+  yields: YieldReference[];
+  prices: PricePoint[];
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {
@@ -89,6 +92,10 @@ export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;
   controlMethods: { category: string; description: Record<string, string>; inputs: string[] }[];
 }
+
+export interface NutrientRequirement { nutrient: string; amount: number; unit: string; basis: string; stage?: string; }
+export interface YieldReference { inputLevel: string; min: number; average: number; potential: number; unit: string; zoneId?: string; }
+export interface PricePoint { id: string; cropId: string; market: string; date: string; price: number; unit: string; currency: string; }
 
 export async function listPests(): Promise<Pest[]> {
   const res = await fetch(`${BASE}/pests`, { cache: 'no-store' });

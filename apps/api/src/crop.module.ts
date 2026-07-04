@@ -39,6 +39,12 @@ import { CreatePestUseCase } from './application/pest/create-pest.use-case';
 import { ListPestsUseCase } from './application/pest/list-pests.use-case';
 import { SetCropPestControlUseCase } from './application/pest/set-crop-pest-control.use-case';
 import { ListCropPestsUseCase } from './application/pest/list-crop-pests.use-case';
+import { PrismaPricePointRepository } from './infrastructure/price/prisma-price-point.repository';
+import { PRICE_POINT_REPOSITORY } from './application/price/price-point.repository';
+import { SetCropNutritionUseCase } from './application/crop/set-crop-nutrition.use-case';
+import { SetCropYieldsUseCase } from './application/crop/set-crop-yields.use-case';
+import { AddPricePointUseCase } from './application/price/add-price-point.use-case';
+import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-case';
 
 @Module({
   controllers: [CropController, ZoneController, PestController],
@@ -138,6 +144,27 @@ import { ListCropPestsUseCase } from './application/pest/list-crop-pests.use-cas
       provide: ListCropPestsUseCase,
       useFactory: (ctrl, p) => new ListCropPestsUseCase(ctrl, p),
       inject: [CROP_PEST_CONTROL_REPOSITORY, PEST_REPOSITORY],
+    },
+    { provide: PRICE_POINT_REPOSITORY, useClass: PrismaPricePointRepository },
+    {
+      provide: SetCropNutritionUseCase,
+      useFactory: (r, a, c) => new SetCropNutritionUseCase(r, a, c),
+      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: SetCropYieldsUseCase,
+      useFactory: (r, a, c) => new SetCropYieldsUseCase(r, a, c),
+      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: AddPricePointUseCase,
+      useFactory: (cr, pr, a, c, ids) => new AddPricePointUseCase(cr, pr, a, c, ids),
+      inject: [CROP_REPOSITORY, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+    },
+    {
+      provide: ListCropPricesUseCase,
+      useFactory: (pr) => new ListCropPricesUseCase(pr),
+      inject: [PRICE_POINT_REPOSITORY],
     },
   ],
 })

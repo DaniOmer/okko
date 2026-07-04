@@ -4,6 +4,8 @@ import { CropStatus, assertCanTransition } from './crop-status';
 import { ClimaticRequirements, ClimaticRequirementsJSON } from '../shared/climatic-requirements';
 import { EdaphicRequirements, EdaphicRequirementsJSON } from '../shared/edaphic-requirements';
 import { PhenologicalStage, PhenologicalStageJSON } from './phenological-stage';
+import { NutrientRequirement, NutrientRequirementJSON } from './nutrient-requirement';
+import { YieldReference, YieldReferenceJSON } from './yield-reference';
 
 export interface CropSnapshot {
   id: string;
@@ -17,6 +19,8 @@ export interface CropSnapshot {
   climatic?: ClimaticRequirementsJSON;
   edaphic?: EdaphicRequirementsJSON;
   phenology?: PhenologicalStageJSON[];
+  nutrition?: NutrientRequirementJSON[];
+  yields?: YieldReferenceJSON[];
 }
 
 interface CreateCropProps {
@@ -40,12 +44,14 @@ export class Crop {
     private _climatic: ClimaticRequirements | undefined,
     private _edaphic: EdaphicRequirements | undefined,
     private _phenology: PhenologicalStage[],
+    private _nutrition: NutrientRequirement[],
+    private _yields: YieldReference[],
   ) {}
 
   static create(props: CreateCropProps): Crop {
     return new Crop(
       props.id, props.commonNames, props.scientificName, props.family,
-      props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined, [],
+      props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
     );
   }
 
@@ -60,6 +66,8 @@ export class Crop {
   get climatic(): ClimaticRequirements | undefined { return this._climatic; }
   get edaphic(): EdaphicRequirements | undefined { return this._edaphic; }
   get phenology(): PhenologicalStage[] { return [...this._phenology]; }
+  get nutrition(): NutrientRequirement[] { return [...this._nutrition]; }
+  get yields(): YieldReference[] { return [...this._yields]; }
 
   setPhenology(stages: PhenologicalStage[]): void {
     this._phenology = [...stages];
@@ -73,6 +81,16 @@ export class Crop {
 
   setEdaphicRequirements(e: EdaphicRequirements): void {
     this._edaphic = e;
+    this._version += 1;
+  }
+
+  setNutrition(list: NutrientRequirement[]): void {
+    this._nutrition = [...list];
+    this._version += 1;
+  }
+
+  setYields(list: YieldReference[]): void {
+    this._yields = [...list];
     this._version += 1;
   }
 
@@ -109,6 +127,8 @@ export class Crop {
       climatic: this._climatic?.toJSON(),
       edaphic: this._edaphic?.toJSON(),
       phenology: this._phenology.map((s) => s.toJSON()),
+      nutrition: this._nutrition.map((n) => n.toJSON()),
+      yields: this._yields.map((y) => y.toJSON()),
     };
   }
 
@@ -119,6 +139,8 @@ export class Crop {
       s.climatic ? ClimaticRequirements.fromJSON(s.climatic) : undefined,
       s.edaphic ? EdaphicRequirements.fromJSON(s.edaphic) : undefined,
       (s.phenology ?? []).map((j) => PhenologicalStage.fromJSON(j)),
+      (s.nutrition ?? []).map((j) => NutrientRequirement.fromJSON(j)),
+      (s.yields ?? []).map((j) => YieldReference.fromJSON(j)),
     );
   }
 }

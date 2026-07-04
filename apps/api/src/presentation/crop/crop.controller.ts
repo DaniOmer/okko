@@ -6,6 +6,7 @@ import { PublishCropUseCase, CropNotFoundError } from '../../application/crop/pu
 import { CropStatusError } from '../../domain/crop/crop-status';
 import { CROP_REPOSITORY, CropRepository } from '../../application/crop/crop.repository';
 import { toCropDocument } from '../../application/crop/crop-read-model';
+import { CropSnapshot } from '../../domain/crop/crop';
 import { CycleType } from '../../domain/crop/cycle-type';
 import { SetCropRequirementsUseCase } from '../../application/crop/set-crop-requirements.use-case';
 import { AddVarietyUseCase } from '../../application/crop/add-variety.use-case';
@@ -27,6 +28,12 @@ import { SetCropPestControlUseCase, PestNotFoundError } from '../../application/
 import { ListCropPestsUseCase } from '../../application/pest/list-crop-pests.use-case';
 import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 import { ControlMethodJSON } from '../../domain/pest/control-method';
+import { SetCropNutritionUseCase } from '../../application/crop/set-crop-nutrition.use-case';
+import { SetCropYieldsUseCase } from '../../application/crop/set-crop-yields.use-case';
+import { AddPricePointUseCase } from '../../application/price/add-price-point.use-case';
+import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.use-case';
+import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
+import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -48,6 +55,10 @@ export class CropController {
     private readonly listWindows: ListCroppingWindowsUseCase,
     private readonly setPestControl: SetCropPestControlUseCase,
     private readonly listCropPests: ListCropPestsUseCase,
+    private readonly setNutrition: SetCropNutritionUseCase,
+    private readonly setYields: SetCropYieldsUseCase,
+    private readonly addPrice: AddPricePointUseCase,
+    private readonly listPrices: ListCropPricesUseCase,
   ) {}
 
   @Post()
@@ -65,11 +76,7 @@ export class CropController {
   async get(@Param('id') id: string) {
     const snap = await this.crops.findById(id);
     if (!snap) throw new NotFoundException(id);
-    const vars = await this.varieties.listByCrop(id);
-    const zones = await this.listCropZones.execute({ cropId: id });
-    const windows = await this.listWindows.execute({ cropId: id });
-    const pests = await this.listCropPests.execute({ cropId: id });
-    return toCropDocument(snap, { varieties: vars, zones, windows, pests });
+    return this.composeCropDocument(id, snap);
   }
 
   @Patch(':id')
@@ -196,5 +203,54 @@ export class CropController {
   @Get(':id/pests')
   async getPests(@Param('id') id: string) {
     return this.listCropPests.execute({ cropId: id });
+  }
+
+  @Patch(':id/nutrition')
+  async nutrition(@Param('id') id: string, @Body() body: { requirements: NutrientRequirementJSON[] }) {
+    try {
+      const snap = await this.setNutrition.execute({ cropId: id, actor: ACTOR, requirements: body.requirements });
+      return this.composeCropDocument(id, snap);
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Patch(':id/yields')
+  async yields(@Param('id') id: string, @Body() body: { yields: YieldReferenceJSON[] }) {
+    try {
+      const snap = await this.setYields.execute({ cropId: id, actor: ACTOR, yields: body.yields });
+      return this.composeCropDocument(id, snap);
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Post(':id/prices')
+  async createPrice(
+    @Param('id') id: string,
+    @Body() body: { market: string; date: string; price: number; unit: string; currency: string },
+  ) {
+    try {
+      return await this.addPrice.execute({ cropId: id, actor: ACTOR, ...body });
+    } catch (e) {
+      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Get(':id/prices')
+  async getPrices(@Param('id') id: string) {
+    return this.listPrices.execute({ cropId: id });
+  }
+
+  private async composeCropDocument(id: string, snap: CropSnapshot) {
+    const varieties = await this.varieties.listByCrop(id);
+    const zones = await this.listCropZones.execute({ cropId: id });
+    const windows = await this.listWindows.execute({ cropId: id });
+    const pests = await this.listCropPests.execute({ cropId: id });
+    const prices = await this.listPrices.execute({ cropId: id });
+    return toCropDocument(snap, { varieties, zones, windows, pests, prices });
   }
 }

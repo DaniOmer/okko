@@ -6,6 +6,8 @@ import { ClimaticRequirements } from '../shared/climatic-requirements';
 import { EdaphicRequirements } from '../shared/edaphic-requirements';
 import { RangeValue } from '../shared/range-value';
 import { PhenologicalStage } from './phenological-stage';
+import { NutrientRequirement, NutrientBasis } from './nutrient-requirement';
+import { YieldReference, InputLevel } from './yield-reference';
 
 const base = () => Crop.create({
   id: 'crop-1',
@@ -114,5 +116,35 @@ describe('Crop phenology', () => {
 
   it('defaults phenology to an empty array', () => {
     expect(base().phenology).toEqual([]);
+  });
+});
+
+describe('Crop nutrition and yields', () => {
+  const base = () => Crop.create({
+    id: 'crop-nut', commonNames: TranslatableText.create({ fr: 'Maïs' }),
+    scientificName: 'Zea mays', family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL,
+  });
+
+  it('sets nutrition, bumps version, and round-trips', () => {
+    const c = base();
+    c.setNutrition([NutrientRequirement.create({ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE })]);
+    expect(c.version).toBe(2);
+    expect(c.nutrition).toHaveLength(1);
+    const restored = Crop.fromSnapshot(c.toSnapshot());
+    expect(restored.nutrition[0].nutrient).toBe('N');
+  });
+
+  it('sets yields and round-trips', () => {
+    const c = base();
+    c.setYields([YieldReference.create({ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' })]);
+    expect(c.version).toBe(2);
+    const restored = Crop.fromSnapshot(c.toSnapshot());
+    expect(restored.yields[0].average).toBe(4);
+  });
+
+  it('defaults nutrition and yields to empty arrays', () => {
+    const c = base();
+    expect(c.nutrition).toEqual([]);
+    expect(c.yields).toEqual([]);
   });
 });

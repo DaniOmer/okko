@@ -4,6 +4,9 @@ import { CropZoneView } from '../zone/list-crop-zones.use-case';
 import { CroppingWindowSnapshot } from '../../domain/window/cropping-window';
 import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
 import { CropPestView } from '../pest/list-crop-pests.use-case';
+import { PricePointSnapshot } from '../../domain/price/price-point';
+import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
+import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 
 export interface CropDocument {
   id: string;
@@ -21,6 +24,9 @@ export interface CropDocument {
   phenology: PhenologicalStageJSON[];
   croppingWindows: CroppingWindowSnapshot[];
   pests: CropPestView[];
+  nutrition: NutrientRequirementJSON[];
+  yields: YieldReferenceJSON[];
+  prices: PricePointSnapshot[];
   serializedText: string;
 }
 
@@ -30,6 +36,7 @@ export interface ToCropDocumentOptions {
   zones?: CropZoneView[];
   windows?: CroppingWindowSnapshot[];
   pests?: CropPestView[];
+  prices?: PricePointSnapshot[];
 }
 
 export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}): CropDocument {
@@ -38,6 +45,9 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   const zones = opts.zones ?? [];
   const windows = opts.windows ?? [];
   const pests = opts.pests ?? [];
+  const prices = opts.prices ?? [];
+  const nutrition = s.nutrition ?? [];
+  const yields = s.yields ?? [];
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
   const phenology = s.phenology ?? [];
   const lines = [
@@ -73,10 +83,20 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   if (pests.length > 0) {
     lines.push(`Ravageurs : ${pests.map((p) => `${p.pestName[locale] ?? p.pestName['fr']} (${p.susceptibility})`).join(', ')}`);
   }
+  if (nutrition.length > 0) {
+    lines.push(`Nutrition : ${nutrition.map((n) => `${n.nutrient} ${n.amount}${n.unit}`).join(', ')}`);
+  }
+  if (yields.length > 0) {
+    lines.push(`Rendement : ${yields.map((y) => `${y.inputLevel} ${y.min}-${y.average}-${y.potential} ${y.unit}`).join(', ')}`);
+  }
+  if (prices.length > 0) {
+    const latest = prices[0];
+    lines.push(`Prix récent : ${latest.price} ${latest.unit} (${latest.market}, ${latest.date})`);
+  }
   return {
     id: s.id, name, scientificName: s.scientificName, family: s.family,
     cycleType: s.cycleType, status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, zones, phenology, croppingWindows: windows, pests, serializedText: lines.join('\n'),
+    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, prices, serializedText: lines.join('\n'),
   };
 }
