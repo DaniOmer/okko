@@ -7,6 +7,7 @@ import { CropPestView } from '../pest/list-crop-pests.use-case';
 import { PricePointSnapshot } from '../../domain/price/price-point';
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
+import { computeCompleteness, CompletenessReport } from './crop-completeness';
 
 export interface CropDocument {
   id: string;
@@ -27,6 +28,7 @@ export interface CropDocument {
   nutrition: NutrientRequirementJSON[];
   yields: YieldReferenceJSON[];
   prices: PricePointSnapshot[];
+  completeness: CompletenessReport;
   serializedText: string;
 }
 
@@ -93,10 +95,22 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     const latest = prices[0];
     lines.push(`Prix récent : ${latest.price} ${latest.unit} (${latest.market}, ${latest.date})`);
   }
+  const completeness = computeCompleteness({
+    climatic: !!s.climatic,
+    edaphic: !!s.edaphic,
+    phenology: phenology.length > 0,
+    nutrition: nutrition.length > 0,
+    yields: yields.length > 0,
+    varieties: varieties.length > 0,
+    zones: zones.length > 0,
+    windows: windows.length > 0,
+    pests: pests.length > 0,
+    prices: prices.length > 0,
+  });
   return {
     id: s.id, name, scientificName: s.scientificName, family: s.family,
     cycleType: s.cycleType, status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, prices, serializedText: lines.join('\n'),
+    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, prices, completeness, serializedText: lines.join('\n'),
   };
 }
