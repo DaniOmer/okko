@@ -6,4 +6,5 @@ export class InMemoryPestRepository implements PestRepository {
   async save(p: PestDiseaseSnapshot): Promise<void> { this.store.set(p.id, p); }
   async findById(id: string): Promise<PestDiseaseSnapshot | null> { return this.store.get(id) ?? null; }
   async list(): Promise<PestDiseaseSnapshot[]> { return [...this.store.values()]; }
+  async delete(id: string): Promise<void> { this.store.delete(id); }
 }

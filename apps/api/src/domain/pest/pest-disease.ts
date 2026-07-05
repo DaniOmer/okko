@@ -59,6 +59,19 @@ export class PestDisease {
     };
   }
 
+  update(fields: { name: TranslatableText; type: PestType; scientificName?: string }): PestDisease {
+    return new PestDisease(
+      this._id,
+      fields.name,
+      fields.type,
+      fields.scientificName,
+      this._symptoms,
+      this._photos,
+      this._notes,
+      this._metadata,
+    );
+  }
+
   static fromSnapshot(s: PestDiseaseSnapshot): PestDisease {
     return new PestDisease(
       s.id, TranslatableText.create(s.name), s.type, s.scientificName,

@@ -24,6 +24,10 @@ export class PrismaPestRepository implements PestRepository {
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.pestDisease.delete({ where: { id } });
+  }
+
   private toRow(p: PestDiseaseSnapshot): Prisma.PestDiseaseCreateInput {
     return {
       id: p.id, name: p.name as Prisma.InputJsonValue, type: p.type,

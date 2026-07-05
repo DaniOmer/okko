@@ -6,4 +6,5 @@ export class InMemoryZoneRepository implements ZoneRepository {
   async save(z: ZoneSnapshot): Promise<void> { this.store.set(z.id, z); }
   async findById(id: string): Promise<ZoneSnapshot | null> { return this.store.get(id) ?? null; }
   async list(): Promise<ZoneSnapshot[]> { return [...this.store.values()]; }
+  async delete(id: string): Promise<void> { this.store.delete(id); }
 }
