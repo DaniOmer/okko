@@ -21,3 +21,6 @@ apps/api/prisma/*.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Superpowers scratch (ledger, brainstorm mockups)
+.superpowers/
