@@ -14,7 +14,7 @@ export function Header() {
   const [q, setQ] = useState("");
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b bg-card px-4">
+    <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-card px-4">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="md:hidden" aria-label="Menu">
