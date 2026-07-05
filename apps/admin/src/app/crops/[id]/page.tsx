@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
+import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_LEVEL_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CompletenessRing } from '@/components/completeness-ring';
@@ -35,8 +36,8 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             {crop.name} <em className="text-base font-normal text-muted-foreground">{crop.scientificName}</em>
           </h1>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{crop.cycleType}</span>
-            <Badge variant={crop.status === 'PUBLISHED' ? 'default' : 'secondary'}>{crop.status}</Badge>
+            <span>{labelOf(CYCLE_TYPE_LABELS, crop.cycleType)}</span>
+            <Badge variant={crop.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, crop.status)}</Badge>
             <span>v{crop.version}</span>
           </div>
           <PublishButton cropId={params.id} status={crop.status} />
@@ -92,7 +93,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.zones.map((z) => (
-                <li key={z.zoneId}>{z.zoneName.fr} — <strong>{z.rating}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
+                <li key={z.zoneId}>{z.zoneName.fr} — <strong>{labelOf(SUITABILITY_LABELS, z.rating)}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
               ))}
             </ul>
           </CardContent>
@@ -123,7 +124,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
                 <p className="font-medium">{w.season}{w.irrigationRequired ? ' · irrigation requise' : ''}</p>
                 <ul className="list-disc pl-5">
                   {w.operations.map((op, i) => (
-                    <li key={i}>J+{op.timingDays} — {op.label.fr} ({op.type})</li>
+                    <li key={i}>J+{op.timingDays} — {op.label.fr} ({labelOf(OPERATION_TYPE_LABELS, op.type)})</li>
                   ))}
                 </ul>
               </div>
@@ -139,10 +140,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             {crop.pests.map((p) => (
               <div key={p.pestId} className="mb-3">
-                <p className="font-medium">{p.pestName.fr} — <strong>{p.susceptibility}</strong> ({p.type})</p>
+                <p className="font-medium">{p.pestName.fr} — <strong>{labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}</strong> ({labelOf(PEST_TYPE_LABELS, p.type)})</p>
                 <ul className="list-disc pl-5">
                   {p.controlMethods.map((m, i) => (
-                    <li key={i}>{m.category} : {m.description.fr}</li>
+                    <li key={i}>{labelOf(CONTROL_CATEGORY_LABELS, m.category)} : {m.description.fr}</li>
                   ))}
                 </ul>
               </div>
@@ -172,7 +173,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.yields.map((y, i) => (
-                <li key={i}>{y.inputLevel} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
+                <li key={i}>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
               ))}
             </ul>
           </CardContent>
