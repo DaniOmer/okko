@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { setPhenology } from '../../../../lib/api';
 import type { PhenologicalStage } from '../../../../lib/api';
 
@@ -17,12 +18,18 @@ export function PhenologyEditor({ cropId, current }: { cropId: string; current: 
             const next = [...current, { name: { fr: name }, startDay: Number(start), endDay: Number(end), order: current.length + 1 }];
             submit(() => setPhenology(cropId, next));
           }}
-          className="space-y-2 text-sm"
+          className="space-y-3 text-sm"
         >
-          <Input className="w-full" placeholder="Nom du stade (ex. Levée)" value={name} onChange={(e)=>setName(e.target.value)} required />
-          <div className="flex gap-1 items-center">
-            <Input className="w-20" placeholder="jour début" value={start} onChange={(e)=>setStart(e.target.value)} required />
-            <Input className="w-20" placeholder="jour fin" value={end} onChange={(e)=>setEnd(e.target.value)} required />
+          <div className="space-y-1">
+            <Label htmlFor="phen-name">Nom du stade *</Label>
+            <Input id="phen-name" className="w-full" placeholder="ex. Levée" value={name} onChange={(e)=>setName(e.target.value)} required />
+          </div>
+          <div className="space-y-1">
+            <Label>Jours après semis — début · fin *</Label>
+            <div className="flex gap-1 items-center">
+              <Input className="w-20" placeholder="début" value={start} onChange={(e)=>setStart(e.target.value)} required />
+              <Input className="w-20" placeholder="fin" value={end} onChange={(e)=>setEnd(e.target.value)} required />
+            </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>

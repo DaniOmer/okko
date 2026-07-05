@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { setRequirements } from '../../../../lib/api';
 
 const n = (v: string): number => Number(v);
@@ -26,26 +27,36 @@ export function RequirementsEditor({ cropId }: { cropId: string }) {
             if (texture) body.edaphic = { ...(body.edaphic ?? {}), texture };
             submit(() => setRequirements(cropId, body));
           }}
-          className="space-y-2 text-sm"
+          className="space-y-3 text-sm"
         >
-          <fieldset className="flex gap-1 items-center"><span className="w-24">Température</span>
-            <Input className="w-16" placeholder="min" value={tMin} onChange={(e)=>setTMin(e.target.value)} />
-            <Input className="w-16" placeholder="opt" value={tOpt} onChange={(e)=>setTOpt(e.target.value)} />
-            <Input className="w-16" placeholder="max" value={tMax} onChange={(e)=>setTMax(e.target.value)} /><span>°C</span>
-          </fieldset>
-          <fieldset className="flex gap-1 items-center"><span className="w-24">Pluviométrie</span>
-            <Input className="w-16" placeholder="min" value={rMin} onChange={(e)=>setRMin(e.target.value)} />
-            <Input className="w-16" placeholder="opt" value={rOpt} onChange={(e)=>setROpt(e.target.value)} />
-            <Input className="w-16" placeholder="max" value={rMax} onChange={(e)=>setRMax(e.target.value)} /><span>mm</span>
-          </fieldset>
-          <fieldset className="flex gap-1 items-center"><span className="w-24">pH du sol</span>
-            <Input className="w-16" placeholder="min" value={phMin} onChange={(e)=>setPhMin(e.target.value)} />
-            <Input className="w-16" placeholder="opt" value={phOpt} onChange={(e)=>setPhOpt(e.target.value)} />
-            <Input className="w-16" placeholder="max" value={phMax} onChange={(e)=>setPhMax(e.target.value)} />
-          </fieldset>
-          <fieldset className="flex gap-1 items-center"><span className="w-24">Texture</span>
-            <Input className="flex-1" placeholder="ex. limono-sableux" value={texture} onChange={(e)=>setTexture(e.target.value)} />
-          </fieldset>
+          <div className="space-y-1">
+            <Label>Température — min · optimal · max (°C)</Label>
+            <div className="flex gap-1 items-center">
+              <Input className="w-16" placeholder="min" value={tMin} onChange={(e)=>setTMin(e.target.value)} />
+              <Input className="w-16" placeholder="opt" value={tOpt} onChange={(e)=>setTOpt(e.target.value)} />
+              <Input className="w-16" placeholder="max" value={tMax} onChange={(e)=>setTMax(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label>Pluviométrie — min · optimal · max (mm)</Label>
+            <div className="flex gap-1 items-center">
+              <Input className="w-16" placeholder="min" value={rMin} onChange={(e)=>setRMin(e.target.value)} />
+              <Input className="w-16" placeholder="opt" value={rOpt} onChange={(e)=>setROpt(e.target.value)} />
+              <Input className="w-16" placeholder="max" value={rMax} onChange={(e)=>setRMax(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label>pH du sol — min · optimal · max</Label>
+            <div className="flex gap-1 items-center">
+              <Input className="w-16" placeholder="min" value={phMin} onChange={(e)=>setPhMin(e.target.value)} />
+              <Input className="w-16" placeholder="opt" value={phOpt} onChange={(e)=>setPhOpt(e.target.value)} />
+              <Input className="w-16" placeholder="max" value={phMax} onChange={(e)=>setPhMax(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="req-texture">Texture du sol</Label>
+            <Input id="req-texture" className="w-full" placeholder="ex. limono-sableux" value={texture} onChange={(e)=>setTexture(e.target.value)} />
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
             <Button type="submit" size="sm" disabled={busy}>Enregistrer</Button>

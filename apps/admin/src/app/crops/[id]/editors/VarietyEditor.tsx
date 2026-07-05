@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { addVariety } from '../../../../lib/api';
 
 export function VarietyEditor({ cropId }: { cropId: string }) {
@@ -19,11 +20,20 @@ export function VarietyEditor({ cropId }: { cropId: string }) {
               traits: traits ? traits.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
             }));
           }}
-          className="space-y-2 text-sm"
+          className="space-y-3 text-sm"
         >
-          <Input className="w-full" placeholder="Nom (fr)" value={name} onChange={(e)=>setName(e.target.value)} required />
-          <Input className="w-full" placeholder="Cycle (jours, optionnel)" value={maturityDays} onChange={(e)=>setMaturityDays(e.target.value)} />
-          <Input className="w-full" placeholder="Traits (séparés par des virgules)" value={traits} onChange={(e)=>setTraits(e.target.value)} />
+          <div className="space-y-1">
+            <Label htmlFor="var-name">Nom de la variété *</Label>
+            <Input id="var-name" className="w-full" placeholder="ex. Obatanpa" value={name} onChange={(e)=>setName(e.target.value)} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="var-maturity">Cycle (jours)</Label>
+            <Input id="var-maturity" className="w-full" placeholder="ex. 120 (optionnel)" value={maturityDays} onChange={(e)=>setMaturityDays(e.target.value)} />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="var-traits">Traits</Label>
+            <Input id="var-traits" className="w-full" placeholder="séparés par des virgules (optionnel)" value={traits} onChange={(e)=>setTraits(e.target.value)} />
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
             <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
