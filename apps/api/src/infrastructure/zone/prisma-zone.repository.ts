@@ -25,6 +25,10 @@ export class PrismaZoneRepository implements ZoneRepository {
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.agroEcologicalZone.delete({ where: { id } });
+  }
+
   private toRow(z: ZoneSnapshot) {
     return {
       id: z.id,

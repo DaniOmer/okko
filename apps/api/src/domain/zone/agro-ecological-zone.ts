@@ -64,6 +64,19 @@ export class AgroEcologicalZone {
     };
   }
 
+  update(fields: { name: TranslatableText; country: string; koppen?: string }): AgroEcologicalZone {
+    return new AgroEcologicalZone(
+      this._id,
+      fields.name,
+      fields.country,
+      fields.koppen,
+      this._altitude,
+      this._annualRainfall,
+      this._notes,
+      this._metadata,
+    );
+  }
+
   static fromSnapshot(s: ZoneSnapshot): AgroEcologicalZone {
     return new AgroEcologicalZone(
       s.id, TranslatableText.create(s.name), s.country, s.koppen,

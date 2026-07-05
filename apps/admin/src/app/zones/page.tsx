@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { listZones } from '../../lib/api';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
+import { ZoneRowActions } from './ZoneRowActions';
 
 export default async function ZonesPage() {
   const zones = await listZones().catch(() => []);
@@ -24,6 +25,7 @@ export default async function ZonesPage() {
               <TableHead>Nom</TableHead>
               <TableHead>Pays</TableHead>
               <TableHead>Köppen</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -32,6 +34,7 @@ export default async function ZonesPage() {
                 <TableCell>{z.name}</TableCell>
                 <TableCell>{z.country}</TableCell>
                 <TableCell>{z.koppen ?? '—'}</TableCell>
+                <TableCell className="text-right"><ZoneRowActions zone={z} /></TableCell>
               </TableRow>
             ))}
           </TableBody>
