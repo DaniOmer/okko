@@ -55,6 +55,22 @@ export async function createZone(input: { name: Record<string, string>; country:
   return res.json();
 }
 
+async function readError(res: Response): Promise<string> {
+  try { const b = await res.json(); return typeof b?.message === 'string' ? b.message : `API ${res.status}`; }
+  catch { return `API ${res.status}`; }
+}
+
+export async function updateZone(id: string, input: { name: Record<string, string>; country: string; koppen?: string }): Promise<Zone> {
+  const res = await fetch(`${BASE}/zones/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  if (!res.ok) throw new Error(await readError(res));
+  return res.json();
+}
+
+export async function deleteZone(id: string): Promise<void> {
+  const res = await fetch(`${BASE}/zones/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await readError(res));
+}
+
 export interface PhenologicalStage { name: Record<string, string>; startDay: number; endDay: number; order: number; }
 export interface TechnicalOperation { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string; }
 export interface CroppingWindow {
@@ -112,6 +128,17 @@ export async function createPest(input: { name: Record<string, string>; type: st
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
+}
+
+export async function updatePest(id: string, input: { name: Record<string, string>; type: string; scientificName?: string }): Promise<Pest> {
+  const res = await fetch(`${BASE}/pests/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  if (!res.ok) throw new Error(await readError(res));
+  return res.json();
+}
+
+export async function deletePest(id: string): Promise<void> {
+  const res = await fetch(`${BASE}/pests/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await readError(res));
 }
 
 export async function getCropHistory(id: string): Promise<AuditRecord[]> {
