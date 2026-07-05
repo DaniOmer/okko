@@ -24,6 +24,8 @@ import { AddVarietyUseCase } from './application/crop/add-variety.use-case';
 import { ListVarietiesUseCase } from './application/crop/list-varieties.use-case';
 import { CreateZoneUseCase } from './application/zone/create-zone.use-case';
 import { ListZonesUseCase } from './application/zone/list-zones.use-case';
+import { UpdateZoneUseCase } from './application/zone/update-zone.use-case';
+import { DeleteZoneUseCase } from './application/zone/delete-zone.use-case';
 import { SetCropZoneSuitabilityUseCase } from './application/zone/set-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from './application/zone/list-crop-zones.use-case';
 import { AddCroppingWindowUseCase } from './application/window/add-cropping-window.use-case';
@@ -37,6 +39,8 @@ import { PEST_REPOSITORY } from './application/pest/pest.repository';
 import { CROP_PEST_CONTROL_REPOSITORY } from './application/pest/crop-pest-control.repository';
 import { CreatePestUseCase } from './application/pest/create-pest.use-case';
 import { ListPestsUseCase } from './application/pest/list-pests.use-case';
+import { UpdatePestUseCase } from './application/pest/update-pest.use-case';
+import { DeletePestUseCase } from './application/pest/delete-pest.use-case';
 import { SetCropPestControlUseCase } from './application/pest/set-crop-pest-control.use-case';
 import { ListCropPestsUseCase } from './application/pest/list-crop-pests.use-case';
 import { PrismaPricePointRepository } from './infrastructure/price/prisma-price-point.repository';
@@ -100,6 +104,16 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
       inject: [ZONE_REPOSITORY],
     },
     {
+      provide: UpdateZoneUseCase,
+      useFactory: (z, a, c) => new UpdateZoneUseCase(z, a, c),
+      inject: [ZONE_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: DeleteZoneUseCase,
+      useFactory: (z, l, a, c) => new DeleteZoneUseCase(z, l, a, c),
+      inject: [ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
       provide: SetCropZoneSuitabilityUseCase,
       useFactory: (cr, z, s, a, c) => new SetCropZoneSuitabilityUseCase(cr, z, s, a, c),
       inject: [CROP_REPOSITORY, ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
@@ -136,6 +150,16 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
       provide: ListPestsUseCase,
       useFactory: (p) => new ListPestsUseCase(p),
       inject: [PEST_REPOSITORY],
+    },
+    {
+      provide: UpdatePestUseCase,
+      useFactory: (p, a, c) => new UpdatePestUseCase(p, a, c),
+      inject: [PEST_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: DeletePestUseCase,
+      useFactory: (p, l, a, c) => new DeletePestUseCase(p, l, a, c),
+      inject: [PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: SetCropPestControlUseCase,
