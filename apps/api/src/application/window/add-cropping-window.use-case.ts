@@ -1,6 +1,7 @@
 import { CroppingWindow, CroppingWindowSnapshot } from '../../domain/window/cropping-window';
 import { TechnicalOperation, TechnicalOperationJSON } from '../../domain/window/technical-operation';
-import { CropRepository } from '../crop/crop.repository';
+import { Crop } from '../../domain/crop/crop';
+import { CropEventStore } from '../crop/crop-event-store';
 import { ZoneRepository } from '../zone/zone.repository';
 import { CroppingWindowRepository } from './cropping-window.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
@@ -24,7 +25,7 @@ export interface AddCroppingWindowInput {
 
 export class AddCroppingWindowUseCase {
   constructor(
-    private readonly crops: CropRepository,
+    private readonly events: CropEventStore,
     private readonly zones: ZoneRepository,
     private readonly windows: CroppingWindowRepository,
     private readonly audit: AuditLogRepository,
@@ -33,7 +34,8 @@ export class AddCroppingWindowUseCase {
   ) {}
 
   async execute(input: AddCroppingWindowInput): Promise<CroppingWindowSnapshot> {
-    if (!(await this.crops.findById(input.cropId))) throw new CropNotFoundError(input.cropId);
+    const stored = await this.events.load(input.cropId);
+    if (stored.length === 0) throw new CropNotFoundError(input.cropId);
     if (!(await this.zones.findById(input.zoneId))) throw new ZoneNotFoundError(input.zoneId);
     const window = CroppingWindow.create({
       id: input.id ?? this.ids.next(),
@@ -44,10 +46,14 @@ export class AddCroppingWindowUseCase {
       notes: input.notes,
     });
     const snap = window.toSnapshot();
+    const crop = Crop.fromEvents(stored);
+    crop.addCroppingWindow(snap);
+    const at = this.clock.nowIso();
+    await this.events.append(input.cropId, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     await this.windows.save(snap);
     await this.audit.record({
       entityType: 'CroppingWindow', entityId: window.id, actor: input.actor,
-      at: this.clock.nowIso(), changes: { created: snap },
+      at, changes: { created: snap },
     });
     return snap;
   }

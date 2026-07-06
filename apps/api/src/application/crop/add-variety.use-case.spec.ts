@@ -24,7 +24,7 @@ describe('AddVarietyUseCase', () => {
       family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
     });
 
-    const add = new AddVarietyUseCase(crops, varieties, audit, clock, ids);
+    const add = new AddVarietyUseCase(events, varieties, audit, clock, ids);
     const v = await add.execute({ cropId: 'c1', name: { fr: 'Obatanpa' }, maturityDays: 120, traits: ['précoce'], actor: 'a' });
     expect(v.cropId).toBe('c1');
     expect(audit.record).toHaveBeenCalled();
@@ -35,10 +35,10 @@ describe('AddVarietyUseCase', () => {
   });
 
   it('throws CropNotFoundError when the crop does not exist', async () => {
-    const crops = new InMemoryCropRepository();
+    const events = new InMemoryCropEventStore();
     const varieties = new InMemoryVarietyRepository();
     const audit = { record: jest.fn() };
-    const add = new AddVarietyUseCase(crops, varieties, audit, clock, ids);
+    const add = new AddVarietyUseCase(events, varieties, audit, clock, ids);
     await expect(add.execute({ cropId: 'nope', name: { fr: 'X' }, actor: 'a' })).rejects.toThrow(CropNotFoundError);
   });
 });

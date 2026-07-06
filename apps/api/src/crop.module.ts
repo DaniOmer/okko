@@ -86,8 +86,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: AddVarietyUseCase,
-      useFactory: (cr, vr, a, c, ids) => new AddVarietyUseCase(cr, vr, a, c, ids),
-      inject: [CROP_REPOSITORY, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+      useFactory: (es, vr, a, c, ids) => new AddVarietyUseCase(es, vr, a, c, ids),
+      inject: [CROP_EVENT_STORE, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
     },
     {
       provide: ListVarietiesUseCase,
@@ -134,8 +134,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: AddCroppingWindowUseCase,
-      useFactory: (cr, z, w, a, c, ids) => new AddCroppingWindowUseCase(cr, z, w, a, c, ids),
-      inject: [CROP_REPOSITORY, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+      useFactory: (es, zr, wr, a, c, ids) => new AddCroppingWindowUseCase(es, zr, wr, a, c, ids),
+      inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
     },
     {
       provide: ListCroppingWindowsUseCase,
@@ -187,8 +187,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: AddPricePointUseCase,
-      useFactory: (cr, pr, a, c, ids) => new AddPricePointUseCase(cr, pr, a, c, ids),
-      inject: [CROP_REPOSITORY, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+      useFactory: (es, pr, a, c, ids) => new AddPricePointUseCase(es, pr, a, c, ids),
+      inject: [CROP_EVENT_STORE, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
     },
     {
       provide: ListCropPricesUseCase,

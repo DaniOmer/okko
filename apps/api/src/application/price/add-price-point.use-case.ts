@@ -1,5 +1,6 @@
 import { PricePoint, PricePointSnapshot } from '../../domain/price/price-point';
-import { CropRepository } from '../crop/crop.repository';
+import { Crop } from '../../domain/crop/crop';
+import { CropEventStore } from '../crop/crop-event-store';
 import { PricePointRepository } from './price-point.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
@@ -19,7 +20,7 @@ export interface AddPricePointInput {
 
 export class AddPricePointUseCase {
   constructor(
-    private readonly crops: CropRepository,
+    private readonly events: CropEventStore,
     private readonly prices: PricePointRepository,
     private readonly audit: AuditLogRepository,
     private readonly clock: Clock,
@@ -27,17 +28,22 @@ export class AddPricePointUseCase {
   ) {}
 
   async execute(input: AddPricePointInput): Promise<PricePointSnapshot> {
-    if (!(await this.crops.findById(input.cropId))) throw new CropNotFoundError(input.cropId);
+    const stored = await this.events.load(input.cropId);
+    if (stored.length === 0) throw new CropNotFoundError(input.cropId);
     const point = PricePoint.create({
       id: input.id ?? this.ids.next(),
       cropId: input.cropId, market: input.market, date: input.date,
       price: input.price, unit: input.unit, currency: input.currency,
     });
     const snap = point.toSnapshot();
+    const crop = Crop.fromEvents(stored);
+    crop.addPricePoint(snap);
+    const at = this.clock.nowIso();
+    await this.events.append(input.cropId, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     await this.prices.save(snap);
     await this.audit.record({
       entityType: 'PricePoint', entityId: point.id, actor: input.actor,
-      at: this.clock.nowIso(), changes: { created: snap },
+      at, changes: { created: snap },
     });
     return snap;
   }

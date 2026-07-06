@@ -26,15 +26,15 @@ async function setup() {
     family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
   });
   await new CreateZoneUseCase(zones, audit, clock, { next: () => 'z1' }).execute({ name: { fr: 'Sahel' }, country: 'BJ', actor: 'a' });
-  return { crops, zones, windows, audit };
+  return { events, zones, windows, audit };
 }
 
 describe('AddCroppingWindowUseCase', () => {
   beforeEach(() => { seq = 0; });
 
   it('adds a window (crop+zone exist) with operations and lists it', async () => {
-    const { crops, zones, windows, audit } = await setup();
-    const uc = new AddCroppingWindowUseCase(crops, zones, windows, audit, clock, ids);
+    const { events, zones, windows, audit } = await setup();
+    const uc = new AddCroppingWindowUseCase(events, zones, windows, audit, clock, ids);
     const out = await uc.execute({
       cropId: 'c1', zoneId: 'z1', season: 'Saison sèche', irrigationRequired: true,
       operations: [{ type: OperationType.PLANTING, label: { fr: 'Semis' }, timingDays: 0, inputs: [] }],
@@ -49,8 +49,8 @@ describe('AddCroppingWindowUseCase', () => {
   });
 
   it('throws CropNotFoundError / ZoneNotFoundError', async () => {
-    const { crops, zones, windows, audit } = await setup();
-    const uc = new AddCroppingWindowUseCase(crops, zones, windows, audit, clock, ids);
+    const { events, zones, windows, audit } = await setup();
+    const uc = new AddCroppingWindowUseCase(events, zones, windows, audit, clock, ids);
     await expect(uc.execute({ cropId: 'nope', zoneId: 'z1', season: 'S', actor: 'a' })).rejects.toThrow(CropNotFoundError);
     await expect(uc.execute({ cropId: 'c1', zoneId: 'nope', season: 'S', actor: 'a' })).rejects.toThrow(ZoneNotFoundError);
   });
