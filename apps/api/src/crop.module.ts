@@ -81,8 +81,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: SetCropRequirementsUseCase,
-      useFactory: (r, a, c) => new SetCropRequirementsUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new SetCropRequirementsUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: AddVarietyUseCase,
@@ -129,8 +129,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     { provide: CROPPING_WINDOW_REPOSITORY, useClass: PrismaCroppingWindowRepository },
     {
       provide: SetCropPhenologyUseCase,
-      useFactory: (r, a, c) => new SetCropPhenologyUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new SetCropPhenologyUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: AddCroppingWindowUseCase,
@@ -177,13 +177,13 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     { provide: PRICE_POINT_REPOSITORY, useClass: PrismaPricePointRepository },
     {
       provide: SetCropNutritionUseCase,
-      useFactory: (r, a, c) => new SetCropNutritionUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new SetCropNutritionUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: SetCropYieldsUseCase,
-      useFactory: (r, a, c) => new SetCropYieldsUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new SetCropYieldsUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: AddPricePointUseCase,

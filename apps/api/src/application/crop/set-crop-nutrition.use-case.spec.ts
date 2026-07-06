@@ -23,7 +23,7 @@ describe('SetCropNutrition / SetCropYields', () => {
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
     await seed(events, repo, audit);
-    const out = await new SetCropNutritionUseCase(repo, audit, clock).execute({
+    const out = await new SetCropNutritionUseCase(events, repo, audit, clock).execute({
       cropId: 'c1', actor: 'a',
       requirements: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }],
     });
@@ -36,7 +36,7 @@ describe('SetCropNutrition / SetCropYields', () => {
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
     await seed(events, repo, audit);
-    const out = await new SetCropYieldsUseCase(repo, audit, clock).execute({
+    const out = await new SetCropYieldsUseCase(events, repo, audit, clock).execute({
       cropId: 'c1', actor: 'a',
       yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }],
     });
@@ -45,9 +45,10 @@ describe('SetCropNutrition / SetCropYields', () => {
   });
 
   it('throws CropNotFoundError when absent', async () => {
+    const events = new InMemoryCropEventStore();
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
-    await expect(new SetCropNutritionUseCase(repo, audit, clock).execute({ cropId: 'x', actor: 'a', requirements: [] }))
+    await expect(new SetCropNutritionUseCase(events, repo, audit, clock).execute({ cropId: 'x', actor: 'a', requirements: [] }))
       .rejects.toThrow(CropNotFoundError);
   });
 });

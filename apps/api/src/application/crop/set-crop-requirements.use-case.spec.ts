@@ -20,7 +20,7 @@ describe('SetCropRequirementsUseCase', () => {
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
     await seed(events, repo, audit);
-    const uc = new SetCropRequirementsUseCase(repo, audit, clock);
+    const uc = new SetCropRequirementsUseCase(events, repo, audit, clock);
     const out = await uc.execute({
       id: 'c1', actor: 'a',
       climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } },
@@ -32,9 +32,10 @@ describe('SetCropRequirementsUseCase', () => {
   });
 
   it('throws CropNotFoundError when the crop is absent', async () => {
+    const events = new InMemoryCropEventStore();
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
-    const uc = new SetCropRequirementsUseCase(repo, audit, clock);
+    const uc = new SetCropRequirementsUseCase(events, repo, audit, clock);
     await expect(uc.execute({ id: 'nope', actor: 'a', climatic: {} })).rejects.toThrow(CropNotFoundError);
   });
 
@@ -43,7 +44,7 @@ describe('SetCropRequirementsUseCase', () => {
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
     await seed(events, repo, audit);
-    const uc = new SetCropRequirementsUseCase(repo, audit, clock);
+    const uc = new SetCropRequirementsUseCase(events, repo, audit, clock);
 
     // First call: set only edaphic
     await uc.execute({
