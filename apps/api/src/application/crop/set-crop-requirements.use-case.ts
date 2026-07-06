@@ -4,6 +4,7 @@ import { EdaphicRequirements, EdaphicRequirementsJSON } from '../../domain/share
 import { CropRepository } from './crop.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
+import { CropEventStore } from './crop-event-store';
 import { CropNotFoundError } from './publish-crop.use-case';
 
 export interface SetCropRequirementsInput {
@@ -15,6 +16,7 @@ export interface SetCropRequirementsInput {
 
 export class SetCropRequirementsUseCase {
   constructor(
+    private readonly events: CropEventStore,
     private readonly crops: CropRepository,
     private readonly audit: AuditLogRepository,
     private readonly clock: Clock,
@@ -25,17 +27,19 @@ export class SetCropRequirementsUseCase {
    * an omitted block is left unchanged.
    */
   async execute(input: SetCropRequirementsInput): Promise<CropSnapshot> {
-    const snap = await this.crops.findById(input.id);
-    if (!snap) throw new CropNotFoundError(input.id);
-    const crop = Crop.fromSnapshot(snap);
+    const stored = await this.events.load(input.id);
+    if (stored.length === 0) throw new CropNotFoundError(input.id);
+    const crop = Crop.fromEvents(stored);
+    const before = crop.toSnapshot();
     if (input.climatic) crop.setClimaticRequirements(ClimaticRequirements.fromJSON(input.climatic));
     if (input.edaphic) crop.setEdaphicRequirements(EdaphicRequirements.fromJSON(input.edaphic));
+    const at = this.clock.nowIso();
+    await this.events.append(input.id, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     const next = crop.toSnapshot();
     await this.crops.save(next);
     await this.audit.record({
-      entityType: 'Crop', entityId: crop.id, actor: input.actor,
-      at: this.clock.nowIso(),
-      changes: { from: { climatic: snap.climatic, edaphic: snap.edaphic }, to: { climatic: next.climatic, edaphic: next.edaphic } },
+      entityType: 'Crop', entityId: crop.id, actor: input.actor, at,
+      changes: { from: { climatic: before.climatic, edaphic: before.edaphic }, to: { climatic: next.climatic, edaphic: next.edaphic } },
     });
     return next;
   }

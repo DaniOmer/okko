@@ -3,6 +3,7 @@ import { AddPricePointUseCase } from './add-price-point.use-case';
 import { ListCropPricesUseCase } from './list-crop-prices.use-case';
 import { CropNotFoundError } from '../crop/publish-crop.use-case';
 import { InMemoryCropRepository } from '../crop/in-memory-crop.repository';
+import { InMemoryCropEventStore } from '../crop/in-memory-crop-event-store';
 import { InMemoryPricePointRepository } from './in-memory-price-point.repository';
 import { CycleType } from '../../domain/crop/cycle-type';
 
@@ -11,10 +12,11 @@ let seq = 0;
 const ids = { next: () => `pp-${++seq}` };
 
 async function setup() {
+  const events = new InMemoryCropEventStore();
   const crops = new InMemoryCropRepository();
   const prices = new InMemoryPricePointRepository();
   const audit = { record: jest.fn() };
-  await new CreateCropUseCase(crops, audit, clock).execute({
+  await new CreateCropUseCase(events, crops, audit, clock).execute({
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays',
     family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
   });

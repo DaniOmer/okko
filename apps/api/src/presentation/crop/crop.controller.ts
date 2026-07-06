@@ -4,6 +4,7 @@ import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
 import { PublishCropUseCase, CropNotFoundError } from '../../application/crop/publish-crop.use-case';
 import { CropStatusError } from '../../domain/crop/crop-status';
+import { ConcurrencyError } from '../../application/crop/crop-event-store';
 import { CROP_REPOSITORY, CropRepository } from '../../application/crop/crop.repository';
 import { toCropDocument } from '../../application/crop/crop-read-model';
 import { CropSnapshot } from '../../domain/crop/crop';
@@ -37,6 +38,13 @@ import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 import { GetCropHistoryUseCase } from '../../application/crop/get-crop-history.use-case';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
+
+function mapCropError(e: unknown, id: string): never {
+  if (e instanceof CropNotFoundError) throw new NotFoundException(id);
+  if (e instanceof CropStatusError) throw new ConflictException((e as Error).message);
+  if (e instanceof ConcurrencyError) throw new ConflictException((e as Error).message);
+  throw e;
+}
 
 @Controller('crops')
 export class CropController {
@@ -87,8 +95,7 @@ export class CropController {
       const snap = await this.updateCrop.execute({ id, actor: ACTOR, ...body });
       return toCropDocument(snap);
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -98,9 +105,7 @@ export class CropController {
       const snap = await this.publishCrop.execute({ id, actor: ACTOR });
       return toCropDocument(snap);
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      if (e instanceof CropStatusError) throw new ConflictException(e.message);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -114,8 +119,7 @@ export class CropController {
       const vars = await this.varieties.listByCrop(id);
       return toCropDocument(snap, { varieties: vars });
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -127,8 +131,7 @@ export class CropController {
     try {
       return await this.addVariety.execute({ cropId: id, actor: ACTOR, ...body });
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -165,8 +168,7 @@ export class CropController {
       const windows = await this.listWindows.execute({ cropId: id });
       return toCropDocument(snap, { varieties: vars, zones, windows });
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -213,8 +215,7 @@ export class CropController {
       const snap = await this.setNutrition.execute({ cropId: id, actor: ACTOR, requirements: body.requirements });
       return this.composeCropDocument(id, snap);
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -224,8 +225,7 @@ export class CropController {
       const snap = await this.setYields.execute({ cropId: id, actor: ACTOR, yields: body.yields });
       return this.composeCropDocument(id, snap);
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -237,8 +237,7 @@ export class CropController {
     try {
       return await this.addPrice.execute({ cropId: id, actor: ACTOR, ...body });
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 
@@ -252,8 +251,7 @@ export class CropController {
     try {
       return await this.getHistory.execute({ cropId: id });
     } catch (e) {
-      if (e instanceof CropNotFoundError) throw new NotFoundException(id);
-      throw e;
+      mapCropError(e, id);
     }
   }
 

@@ -1,17 +1,19 @@
 import { CreateCropUseCase } from './create-crop.use-case';
 import { UpdateCropUseCase } from './update-crop.use-case';
 import { InMemoryCropRepository } from './in-memory-crop.repository';
+import { InMemoryCropEventStore } from './in-memory-crop-event-store';
 import { CycleType } from '../../domain/crop/cycle-type';
 
 const clock = { nowIso: () => '2026-07-02T00:00:00.000Z' };
 
 describe('UpdateCropUseCase', () => {
   it('met à jour commonNames, bumpe la version et audite le diff old→new', async () => {
+    const events = new InMemoryCropEventStore();
     const repo = new InMemoryCropRepository();
     const createAudit = { record: jest.fn() };
     const updateAudit = { record: jest.fn() };
 
-    await new CreateCropUseCase(repo, createAudit, clock).execute({
+    await new CreateCropUseCase(events, repo, createAudit, clock).execute({
       id: 'u1',
       commonNames: { fr: 'Carotte' },
       scientificName: 'Daucus carota',
@@ -20,7 +22,7 @@ describe('UpdateCropUseCase', () => {
       actor: 'admin',
     });
 
-    const result = await new UpdateCropUseCase(repo, updateAudit, clock).execute({
+    const result = await new UpdateCropUseCase(events, repo, updateAudit, clock).execute({
       id: 'u1',
       commonNames: { fr: 'Carotte potagère' },
       actor: 'admin',

@@ -4,6 +4,7 @@ import { SetCropPestControlUseCase, PestNotFoundError } from './set-crop-pest-co
 import { ListCropPestsUseCase } from './list-crop-pests.use-case';
 import { CropNotFoundError } from '../crop/publish-crop.use-case';
 import { InMemoryCropRepository } from '../crop/in-memory-crop.repository';
+import { InMemoryCropEventStore } from '../crop/in-memory-crop-event-store';
 import { InMemoryPestRepository } from './in-memory-pest.repository';
 import { InMemoryCropPestControlRepository } from './in-memory-crop-pest-control.repository';
 import { CycleType } from '../../domain/crop/cycle-type';
@@ -14,11 +15,12 @@ import { ProvenanceSource } from '../../domain/shared/provenance';
 const clock = { nowIso: () => '2026-07-04T00:00:00.000Z' };
 
 async function setup() {
+  const events = new InMemoryCropEventStore();
   const crops = new InMemoryCropRepository();
   const pests = new InMemoryPestRepository();
   const controls = new InMemoryCropPestControlRepository();
   const audit = { record: jest.fn() };
-  await new CreateCropUseCase(crops, audit, clock).execute({
+  await new CreateCropUseCase(events, crops, audit, clock).execute({
     id: 'c1', commonNames: { fr: 'Manguier' }, scientificName: 'Mangifera indica',
     family: 'Anacardiaceae', cycleType: CycleType.PERENNIAL_WOODY_FRUIT, actor: 'a',
   });

@@ -4,6 +4,7 @@ import { SetCropZoneSuitabilityUseCase, ZoneNotFoundError } from './set-crop-zon
 import { ListCropZonesUseCase } from './list-crop-zones.use-case';
 import { CropNotFoundError } from '../crop/publish-crop.use-case';
 import { InMemoryCropRepository } from '../crop/in-memory-crop.repository';
+import { InMemoryCropEventStore } from '../crop/in-memory-crop-event-store';
 import { InMemoryZoneRepository } from './in-memory-zone.repository';
 import { InMemoryCropZoneSuitabilityRepository } from './in-memory-crop-zone-suitability.repository';
 import { CycleType } from '../../domain/crop/cycle-type';
@@ -15,11 +16,12 @@ let seq = 0;
 const ids = { next: () => `zone-${++seq}` };
 
 async function setup() {
+  const events = new InMemoryCropEventStore();
   const crops = new InMemoryCropRepository();
   const zones = new InMemoryZoneRepository();
   const suit = new InMemoryCropZoneSuitabilityRepository();
   const audit = { record: jest.fn() };
-  await new CreateCropUseCase(crops, audit, clock).execute({
+  await new CreateCropUseCase(events, crops, audit, clock).execute({
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays',
     family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
   });

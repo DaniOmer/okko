@@ -4,6 +4,7 @@ import { CycleType } from '../../domain/crop/cycle-type';
 import { CropRepository } from './crop.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
+import { CropEventStore } from './crop-event-store';
 
 export interface CreateCropInput {
   id: string;
@@ -16,6 +17,7 @@ export interface CreateCropInput {
 
 export class CreateCropUseCase {
   constructor(
+    private readonly events: CropEventStore,
     private readonly crops: CropRepository,
     private readonly audit: AuditLogRepository,
     private readonly clock: Clock,
@@ -29,13 +31,15 @@ export class CreateCropUseCase {
       family: input.family,
       cycleType: input.cycleType,
     });
+    const at = this.clock.nowIso();
+    await this.events.append(input.id, 0, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     const snapshot = crop.toSnapshot();
     await this.crops.save(snapshot);
     await this.audit.record({
       entityType: 'Crop',
       entityId: crop.id,
       actor: input.actor,
-      at: this.clock.nowIso(),
+      at,
       changes: { created: snapshot },
     });
     return snapshot;
