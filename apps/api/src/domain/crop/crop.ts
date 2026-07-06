@@ -7,6 +7,11 @@ import { PhenologicalStage, PhenologicalStageJSON } from './phenological-stage';
 import { NutrientRequirement, NutrientRequirementJSON } from './nutrient-requirement';
 import { YieldReference, YieldReferenceJSON } from './yield-reference';
 import { CropEvent } from './crop-event';
+import { VarietySnapshot } from './variety';
+import { CroppingWindowSnapshot } from '../window/cropping-window';
+import { CropZoneSuitabilitySnapshot } from '../zone/crop-zone-suitability';
+import { CropPestControlSnapshot } from '../pest/crop-pest-control';
+import { PricePointSnapshot } from '../price/price-point';
 
 export interface CropSnapshot {
   id: string;
@@ -34,6 +39,11 @@ interface CreateCropProps {
 
 export class Crop {
   private _pending: CropEvent[] = [];
+  private _varieties: VarietySnapshot[] = [];
+  private _windows: CroppingWindowSnapshot[] = [];
+  private _zones: CropZoneSuitabilitySnapshot[] = [];
+  private _pests: CropPestControlSnapshot[] = [];
+  private _prices: PricePointSnapshot[] = [];
 
   private constructor(
     private readonly _id: string,
@@ -87,6 +97,11 @@ export class Crop {
   get phenology(): PhenologicalStage[] { return [...this._phenology]; }
   get nutrition(): NutrientRequirement[] { return [...this._nutrition]; }
   get yields(): YieldReference[] { return [...this._yields]; }
+  get varieties(): VarietySnapshot[] { return [...this._varieties]; }
+  get windows(): CroppingWindowSnapshot[] { return [...this._windows]; }
+  get zones(): CropZoneSuitabilitySnapshot[] { return [...this._zones]; }
+  get pests(): CropPestControlSnapshot[] { return [...this._pests]; }
+  get prices(): PricePointSnapshot[] { return [...this._prices]; }
 
   setPhenology(stages: PhenologicalStage[]): void { this.raise({ type: 'PhenologySet', phenology: stages.map((s) => s.toJSON()) }); }
   setClimaticRequirements(c: ClimaticRequirements): void { this.raise({ type: 'ClimaticRequirementsSet', climatic: c.toJSON() }); }
@@ -97,6 +112,11 @@ export class Crop {
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
   publish(): void { assertCanTransition(this._status, CropStatus.PUBLISHED); this.raise({ type: 'Published' }); }
   archive(): void { assertCanTransition(this._status, CropStatus.ARCHIVED); this.raise({ type: 'Archived' }); }
+  addVariety(v: VarietySnapshot): void { this.raise({ type: 'VarietyAdded', variety: v }); }
+  addCroppingWindow(w: CroppingWindowSnapshot): void { this.raise({ type: 'CroppingWindowAdded', window: w }); }
+  addPricePoint(p: PricePointSnapshot): void { this.raise({ type: 'PricePointAdded', price: p }); }
+  setZoneSuitability(s: CropZoneSuitabilitySnapshot): void { this.raise({ type: 'ZoneSuitabilitySet', suitability: s }); }
+  setPestControl(c: CropPestControlSnapshot): void { this.raise({ type: 'PestControlSet', control: c }); }
 
   private raise(e: CropEvent): void { this.apply(e); this._pending.push(e); }
   pullPendingEvents(): CropEvent[] { const p = this._pending; this._pending = []; return p; }
@@ -113,6 +133,11 @@ export class Crop {
       case 'Published': this._status = CropStatus.PUBLISHED; break;
       case 'Archived': this._status = CropStatus.ARCHIVED; break;
       case 'CropCreated': /* posé au constructeur, jamais rejoué ici */ break;
+      case 'VarietyAdded': this._varieties = [...this._varieties, e.variety]; break;
+      case 'CroppingWindowAdded': this._windows = [...this._windows, e.window]; break;
+      case 'PricePointAdded': this._prices = [...this._prices, e.price]; break;
+      case 'ZoneSuitabilitySet': this._zones = [...this._zones.filter((z) => z.zoneId !== e.suitability.zoneId), e.suitability]; break;
+      case 'PestControlSet': this._pests = [...this._pests.filter((p) => p.pestId !== e.control.pestId), e.control]; break;
     }
   }
 
