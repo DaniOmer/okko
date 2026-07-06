@@ -2,15 +2,17 @@ import { CreateCropUseCase } from './create-crop.use-case';
 import { SetCropPhenologyUseCase } from './set-crop-phenology.use-case';
 import { CropNotFoundError } from './publish-crop.use-case';
 import { InMemoryCropRepository } from './in-memory-crop.repository';
+import { InMemoryCropEventStore } from './in-memory-crop-event-store';
 import { CycleType } from '../../domain/crop/cycle-type';
 
 const clock = { nowIso: () => '2026-07-04T00:00:00.000Z' };
 
 describe('SetCropPhenologyUseCase', () => {
   it('sets phenology and audits', async () => {
+    const events = new InMemoryCropEventStore();
     const repo = new InMemoryCropRepository();
     const audit = { record: jest.fn() };
-    await new CreateCropUseCase(repo, audit, clock).execute({
+    await new CreateCropUseCase(events, repo, audit, clock).execute({
       id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays',
       family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
     });

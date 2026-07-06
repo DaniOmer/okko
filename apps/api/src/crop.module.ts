@@ -9,6 +9,8 @@ import { PrismaCropZoneSuitabilityRepository } from './infrastructure/zone/prism
 import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-cropping-window.repository';
 import { UuidIdGenerator } from './infrastructure/uuid-id-generator';
 import { CROP_REPOSITORY } from './application/crop/crop.repository';
+import { CROP_EVENT_STORE } from './application/crop/crop-event-store';
+import { PrismaCropEventStore } from './infrastructure/crop/prisma-crop-event-store';
 import { AUDIT_LOG_REPOSITORY, AUDIT_LOG_READER } from './application/audit/audit-log.repository';
 import { CLOCK } from './application/shared/clock';
 import { VARIETY_REPOSITORY } from './application/crop/variety.repository';
@@ -57,24 +59,25 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     PrismaService,
     { provide: CLOCK, useClass: SystemClock },
     { provide: CROP_REPOSITORY, useClass: PrismaCropRepository },
+    { provide: CROP_EVENT_STORE, useClass: PrismaCropEventStore },
     { provide: AUDIT_LOG_REPOSITORY, useClass: PrismaAuditLogRepository },
     { provide: AUDIT_LOG_READER, useClass: PrismaAuditLogRepository },
     { provide: VARIETY_REPOSITORY, useClass: PrismaVarietyRepository },
     UuidIdGenerator,
     {
       provide: CreateCropUseCase,
-      useFactory: (r, a, c) => new CreateCropUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new CreateCropUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: UpdateCropUseCase,
-      useFactory: (r, a, c) => new UpdateCropUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new UpdateCropUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: PublishCropUseCase,
-      useFactory: (r, a, c) => new PublishCropUseCase(r, a, c),
-      inject: [CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, r, a, c) => new PublishCropUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: SetCropRequirementsUseCase,

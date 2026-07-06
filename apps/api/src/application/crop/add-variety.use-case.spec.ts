@@ -3,6 +3,7 @@ import { AddVarietyUseCase } from './add-variety.use-case';
 import { ListVarietiesUseCase } from './list-varieties.use-case';
 import { CropNotFoundError } from './publish-crop.use-case';
 import { InMemoryCropRepository } from './in-memory-crop.repository';
+import { InMemoryCropEventStore } from './in-memory-crop-event-store';
 import { InMemoryVarietyRepository } from './in-memory-variety.repository';
 import { CycleType } from '../../domain/crop/cycle-type';
 
@@ -14,10 +15,11 @@ describe('AddVarietyUseCase', () => {
   beforeEach(() => { idSeq = 0; });
 
   it('adds a variety to an existing crop and lists it', async () => {
+    const events = new InMemoryCropEventStore();
     const crops = new InMemoryCropRepository();
     const varieties = new InMemoryVarietyRepository();
     const audit = { record: jest.fn() };
-    await new CreateCropUseCase(crops, audit, clock).execute({
+    await new CreateCropUseCase(events, crops, audit, clock).execute({
       id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays',
       family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
     });
