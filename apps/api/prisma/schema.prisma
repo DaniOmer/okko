@@ -124,3 +124,16 @@ model CropPestControl {
   @@id([cropId, pestId])
   @@index([pestId])
 }
+
+model CropEvent {
+  id        String   @id @default(uuid())
+  streamId  String
+  sequence  Int
+  type      String
+  payload   Json
+  actor     String
+  at        DateTime
+
+  @@unique([streamId, sequence])
+  @@index([streamId])
+}
