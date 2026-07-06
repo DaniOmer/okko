@@ -6,6 +6,7 @@ import { EdaphicRequirements, EdaphicRequirementsJSON } from '../shared/edaphic-
 import { PhenologicalStage, PhenologicalStageJSON } from './phenological-stage';
 import { NutrientRequirement, NutrientRequirementJSON } from './nutrient-requirement';
 import { YieldReference, YieldReferenceJSON } from './yield-reference';
+import { CropEvent } from './crop-event';
 
 export interface CropSnapshot {
   id: string;
@@ -32,6 +33,8 @@ interface CreateCropProps {
 }
 
 export class Crop {
+  private _pending: CropEvent[] = [];
+
   private constructor(
     private readonly _id: string,
     private _commonNames: TranslatableText,
@@ -49,10 +52,26 @@ export class Crop {
   ) {}
 
   static create(props: CreateCropProps): Crop {
-    return new Crop(
+    const crop = new Crop(
       props.id, props.commonNames, props.scientificName, props.family,
       props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
     );
+    crop._pending.push({ type: 'CropCreated', commonNames: props.commonNames.toJSON(), scientificName: props.scientificName, family: props.family, cycleType: props.cycleType });
+    return crop;
+  }
+
+  static fromEvents(stored: { event: CropEvent; streamId: string }[]): Crop {
+    if (stored.length === 0 || stored[0].event.type !== 'CropCreated') {
+      throw new Error('Crop stream must start with CropCreated');
+    }
+    const c = stored[0].event; // type CropCreated
+    const crop = new Crop(
+      stored[0].streamId,
+      TranslatableText.create(c.commonNames), c.scientificName, c.family, c.cycleType,
+      CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
+    );
+    for (let i = 1; i < stored.length; i++) crop.apply(stored[i].event);
+    return crop;
   }
 
   get id(): string { return this._id; }
@@ -69,49 +88,32 @@ export class Crop {
   get nutrition(): NutrientRequirement[] { return [...this._nutrition]; }
   get yields(): YieldReference[] { return [...this._yields]; }
 
-  setPhenology(stages: PhenologicalStage[]): void {
-    this._phenology = [...stages];
-    this._version += 1;
-  }
+  setPhenology(stages: PhenologicalStage[]): void { this.raise({ type: 'PhenologySet', phenology: stages.map((s) => s.toJSON()) }); }
+  setClimaticRequirements(c: ClimaticRequirements): void { this.raise({ type: 'ClimaticRequirementsSet', climatic: c.toJSON() }); }
+  setEdaphicRequirements(e: EdaphicRequirements): void { this.raise({ type: 'EdaphicRequirementsSet', edaphic: e.toJSON() }); }
+  setNutrition(list: NutrientRequirement[]): void { this.raise({ type: 'NutritionSet', nutrition: list.map((n) => n.toJSON()) }); }
+  setYields(list: YieldReference[]): void { this.raise({ type: 'YieldsSet', yields: list.map((y) => y.toJSON()) }); }
+  rename(commonNames: TranslatableText): void { this.raise({ type: 'Renamed', commonNames: commonNames.toJSON() }); }
+  setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
+  publish(): void { assertCanTransition(this._status, CropStatus.PUBLISHED); this.raise({ type: 'Published' }); }
+  archive(): void { assertCanTransition(this._status, CropStatus.ARCHIVED); this.raise({ type: 'Archived' }); }
 
-  setClimaticRequirements(c: ClimaticRequirements): void {
-    this._climatic = c;
-    this._version += 1;
-  }
+  private raise(e: CropEvent): void { this.apply(e); this._pending.push(e); }
+  pullPendingEvents(): CropEvent[] { const p = this._pending; this._pending = []; return p; }
 
-  setEdaphicRequirements(e: EdaphicRequirements): void {
-    this._edaphic = e;
-    this._version += 1;
-  }
-
-  setNutrition(list: NutrientRequirement[]): void {
-    this._nutrition = [...list];
-    this._version += 1;
-  }
-
-  setYields(list: YieldReference[]): void {
-    this._yields = [...list];
-    this._version += 1;
-  }
-
-  rename(commonNames: TranslatableText): void {
-    this._commonNames = commonNames;
-    this._version += 1;
-  }
-
-  setMetadata(key: string, value: unknown): void {
-    this._metadata = { ...this._metadata, [key]: value };
-    this._version += 1;
-  }
-
-  publish(): void {
-    assertCanTransition(this._status, CropStatus.PUBLISHED);
-    this._status = CropStatus.PUBLISHED;
-  }
-
-  archive(): void {
-    assertCanTransition(this._status, CropStatus.ARCHIVED);
-    this._status = CropStatus.ARCHIVED;
+  private apply(e: CropEvent): void {
+    switch (e.type) {
+      case 'ClimaticRequirementsSet': this._climatic = ClimaticRequirements.fromJSON(e.climatic); this._version += 1; break;
+      case 'EdaphicRequirementsSet': this._edaphic = EdaphicRequirements.fromJSON(e.edaphic); this._version += 1; break;
+      case 'PhenologySet': this._phenology = e.phenology.map((j) => PhenologicalStage.fromJSON(j)); this._version += 1; break;
+      case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; break;
+      case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; break;
+      case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; break;
+      case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; break;
+      case 'Published': this._status = CropStatus.PUBLISHED; break;
+      case 'Archived': this._status = CropStatus.ARCHIVED; break;
+      case 'CropCreated': /* posé au constructeur, jamais rejoué ici */ break;
+    }
   }
 
   toSnapshot(): CropSnapshot {
