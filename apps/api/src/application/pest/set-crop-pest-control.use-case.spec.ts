@@ -27,13 +27,13 @@ async function setup() {
   const pest = await new CreatePestUseCase(pests, audit, clock, { next: () => 'p1' }).execute({
     name: { fr: 'Mouche des fruits' }, type: PestType.INSECT, actor: 'a',
   });
-  return { crops, pests, controls, audit, pestId: pest.id };
+  return { events, pests, controls, audit, pestId: pest.id };
 }
 
 describe('SetCropPestControlUseCase', () => {
   it('sets control (crop+pest exist), defaults provenance to MANUAL, audits, and lists with pest name', async () => {
-    const { crops, pests, controls, audit, pestId } = await setup();
-    const uc = new SetCropPestControlUseCase(crops, pests, controls, audit, clock);
+    const { events, pests, controls, audit, pestId } = await setup();
+    const uc = new SetCropPestControlUseCase(events, pests, controls, audit, clock);
     const out = await uc.execute({ cropId: 'c1', pestId, susceptibility: SusceptibilityLevel.HIGH, actor: 'a' });
     expect(out.susceptibility).toBe(SusceptibilityLevel.HIGH);
     expect(out.provenance?.source).toBe(ProvenanceSource.MANUAL);
@@ -46,9 +46,11 @@ describe('SetCropPestControlUseCase', () => {
   });
 
   it('throws CropNotFoundError / PestNotFoundError', async () => {
-    const { crops, pests, controls, audit, pestId } = await setup();
-    const uc = new SetCropPestControlUseCase(crops, pests, controls, audit, clock);
-    await expect(uc.execute({ cropId: 'nope', pestId, susceptibility: SusceptibilityLevel.LOW, actor: 'a' })).rejects.toThrow(CropNotFoundError);
+    const { events, pests, controls, audit, pestId } = await setup();
+    const emptyEvents = new InMemoryCropEventStore();
+    const uc = new SetCropPestControlUseCase(events, pests, controls, audit, clock);
+    const ucEmpty = new SetCropPestControlUseCase(emptyEvents, pests, controls, audit, clock);
+    await expect(ucEmpty.execute({ cropId: 'nope', pestId, susceptibility: SusceptibilityLevel.LOW, actor: 'a' })).rejects.toThrow(CropNotFoundError);
     await expect(uc.execute({ cropId: 'c1', pestId: 'nope', susceptibility: SusceptibilityLevel.LOW, actor: 'a' })).rejects.toThrow(PestNotFoundError);
   });
 });

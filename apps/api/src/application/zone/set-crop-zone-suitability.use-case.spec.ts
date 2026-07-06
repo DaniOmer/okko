@@ -26,15 +26,15 @@ async function setup() {
     family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
   });
   const zone = await new CreateZoneUseCase(zones, audit, clock, ids).execute({ name: { fr: 'Sahel' }, country: 'BJ', actor: 'a' });
-  return { crops, zones, suit, audit, zoneId: zone.id };
+  return { events, zones, suit, audit, zoneId: zone.id };
 }
 
 describe('SetCropZoneSuitabilityUseCase', () => {
   beforeEach(() => { seq = 0; });
 
   it('sets suitability (crop+zone exist), audits, and lists with zone name', async () => {
-    const { crops, zones, suit, audit, zoneId } = await setup();
-    const uc = new SetCropZoneSuitabilityUseCase(crops, zones, suit, audit, clock);
+    const { events, zones, suit, audit, zoneId } = await setup();
+    const uc = new SetCropZoneSuitabilityUseCase(events, zones, suit, audit, clock);
     const out = await uc.execute({ cropId: 'c1', zoneId, rating: SuitabilityRating.SUITABLE, justification: 'ok', actor: 'a' });
     expect(out.rating).toBe(SuitabilityRating.SUITABLE);
     expect(out.provenance?.source).toBe(ProvenanceSource.MANUAL);
@@ -48,15 +48,15 @@ describe('SetCropZoneSuitabilityUseCase', () => {
 
   it('throws CropNotFoundError when the crop is absent', async () => {
     const { zones, suit, audit, zoneId } = await setup();
-    const crops = new InMemoryCropRepository();
-    const uc = new SetCropZoneSuitabilityUseCase(crops, zones, suit, audit, clock);
+    const emptyEvents = new InMemoryCropEventStore();
+    const uc = new SetCropZoneSuitabilityUseCase(emptyEvents, zones, suit, audit, clock);
     await expect(uc.execute({ cropId: 'nope', zoneId, rating: SuitabilityRating.SUITABLE, actor: 'a' }))
       .rejects.toThrow(CropNotFoundError);
   });
 
   it('throws ZoneNotFoundError when the zone is absent', async () => {
-    const { crops, zones, suit, audit } = await setup();
-    const uc = new SetCropZoneSuitabilityUseCase(crops, zones, suit, audit, clock);
+    const { events, zones, suit, audit } = await setup();
+    const uc = new SetCropZoneSuitabilityUseCase(events, zones, suit, audit, clock);
     await expect(uc.execute({ cropId: 'c1', zoneId: 'nope', rating: SuitabilityRating.SUITABLE, actor: 'a' }))
       .rejects.toThrow(ZoneNotFoundError);
   });

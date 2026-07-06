@@ -118,8 +118,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: SetCropZoneSuitabilityUseCase,
-      useFactory: (cr, z, s, a, c) => new SetCropZoneSuitabilityUseCase(cr, z, s, a, c),
-      inject: [CROP_REPOSITORY, ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, z, s, a, c) => new SetCropZoneSuitabilityUseCase(es, z, s, a, c),
+      inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListCropZonesUseCase,
@@ -166,8 +166,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: SetCropPestControlUseCase,
-      useFactory: (cr, p, ctrl, a, c) => new SetCropPestControlUseCase(cr, p, ctrl, a, c),
-      inject: [CROP_REPOSITORY, PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, p, ctrl, a, c) => new SetCropPestControlUseCase(es, p, ctrl, a, c),
+      inject: [CROP_EVENT_STORE, PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListCropPestsUseCase,
