@@ -20,15 +20,15 @@ async function setup() {
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays',
     family: 'Poaceae', cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
   });
-  return { crops, prices, audit };
+  return { events, prices, audit };
 }
 
 describe('AddPricePointUseCase', () => {
   beforeEach(() => { seq = 0; });
 
   it('adds a price point (crop exists) and lists it', async () => {
-    const { crops, prices, audit } = await setup();
-    const out = await new AddPricePointUseCase(crops, prices, audit, clock, ids).execute({
+    const { events, prices, audit } = await setup();
+    const out = await new AddPricePointUseCase(events, prices, audit, clock, ids).execute({
       cropId: 'c1', market: 'Dantokpa', date: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
     expect(out.market).toBe('Dantokpa');
@@ -40,8 +40,8 @@ describe('AddPricePointUseCase', () => {
 
   it('throws CropNotFoundError when the crop does not exist', async () => {
     const { prices, audit } = await setup();
-    const crops = new InMemoryCropRepository();
-    const uc = new AddPricePointUseCase(crops, prices, audit, clock, ids);
+    const events = new InMemoryCropEventStore();
+    const uc = new AddPricePointUseCase(events, prices, audit, clock, ids);
     await expect(uc.execute({ cropId: 'nope', market: 'M', date: '2026-06-01', price: 1, unit: 'u', currency: 'XOF', actor: 'a' }))
       .rejects.toThrow(CropNotFoundError);
   });

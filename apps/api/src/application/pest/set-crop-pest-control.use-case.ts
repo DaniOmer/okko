@@ -2,7 +2,8 @@ import { CropPestControl, CropPestControlSnapshot } from '../../domain/pest/crop
 import { ControlMethod, ControlMethodJSON } from '../../domain/pest/control-method';
 import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 import { Provenance, ProvenanceProps } from '../../domain/shared/provenance';
-import { CropRepository } from '../crop/crop.repository';
+import { Crop } from '../../domain/crop/crop';
+import { CropEventStore } from '../crop/crop-event-store';
 import { PestRepository } from './pest.repository';
 import { CropPestControlRepository } from './crop-pest-control.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
@@ -29,7 +30,7 @@ export interface SetCropPestControlInput {
 
 export class SetCropPestControlUseCase {
   constructor(
-    private readonly crops: CropRepository,
+    private readonly events: CropEventStore,
     private readonly pests: PestRepository,
     private readonly controls: CropPestControlRepository,
     private readonly audit: AuditLogRepository,
@@ -37,7 +38,8 @@ export class SetCropPestControlUseCase {
   ) {}
 
   async execute(input: SetCropPestControlInput): Promise<CropPestControlSnapshot> {
-    if (!(await this.crops.findById(input.cropId))) throw new CropNotFoundError(input.cropId);
+    const stored = await this.events.load(input.cropId);
+    if (stored.length === 0) throw new CropNotFoundError(input.cropId);
     if (!(await this.pests.findById(input.pestId))) throw new PestNotFoundError(input.pestId);
     const provenance = input.provenance
       ? Provenance.fromJSON(input.provenance)
@@ -49,10 +51,14 @@ export class SetCropPestControlUseCase {
       provenance,
     });
     const snap = control.toSnapshot();
+    const crop = Crop.fromEvents(stored);
+    crop.setPestControl(snap);
+    const at = this.clock.nowIso();
+    await this.events.append(input.cropId, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     await this.controls.save(snap);
     await this.audit.record({
       entityType: 'CropPestControl', entityId: `${input.cropId}:${input.pestId}`,
-      actor: input.actor, at: this.clock.nowIso(), changes: { set: snap },
+      actor: input.actor, at, changes: { set: snap },
     });
     return snap;
   }

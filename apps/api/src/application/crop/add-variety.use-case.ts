@@ -1,7 +1,8 @@
 import { Variety, VarietySnapshot } from '../../domain/crop/variety';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { RangeValue } from '../../domain/shared/range-value';
-import { CropRepository } from './crop.repository';
+import { Crop } from '../../domain/crop/crop';
+import { CropEventStore } from './crop-event-store';
 import { VarietyRepository } from './variety.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
@@ -20,7 +21,7 @@ export interface AddVarietyInput {
 
 export class AddVarietyUseCase {
   constructor(
-    private readonly crops: CropRepository,
+    private readonly events: CropEventStore,
     private readonly varieties: VarietyRepository,
     private readonly audit: AuditLogRepository,
     private readonly clock: Clock,
@@ -28,8 +29,8 @@ export class AddVarietyUseCase {
   ) {}
 
   async execute(input: AddVarietyInput): Promise<VarietySnapshot> {
-    const crop = await this.crops.findById(input.cropId);
-    if (!crop) throw new CropNotFoundError(input.cropId);
+    const stored = await this.events.load(input.cropId);
+    if (stored.length === 0) throw new CropNotFoundError(input.cropId);
     const variety = Variety.create({
       id: input.id ?? this.ids.next(),
       cropId: input.cropId,
@@ -39,11 +40,12 @@ export class AddVarietyUseCase {
       traits: input.traits,
     });
     const snap = variety.toSnapshot();
+    const crop = Crop.fromEvents(stored);
+    crop.addVariety(snap);
+    const at = this.clock.nowIso();
+    await this.events.append(input.cropId, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     await this.varieties.save(snap);
-    await this.audit.record({
-      entityType: 'Variety', entityId: variety.id, actor: input.actor,
-      at: this.clock.nowIso(), changes: { created: snap },
-    });
+    await this.audit.record({ entityType: 'Variety', entityId: variety.id, actor: input.actor, at, changes: { created: snap } });
     return snap;
   }
 }

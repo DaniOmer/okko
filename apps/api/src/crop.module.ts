@@ -86,8 +86,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: AddVarietyUseCase,
-      useFactory: (cr, vr, a, c, ids) => new AddVarietyUseCase(cr, vr, a, c, ids),
-      inject: [CROP_REPOSITORY, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+      useFactory: (es, vr, a, c, ids) => new AddVarietyUseCase(es, vr, a, c, ids),
+      inject: [CROP_EVENT_STORE, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
     },
     {
       provide: ListVarietiesUseCase,
@@ -118,8 +118,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: SetCropZoneSuitabilityUseCase,
-      useFactory: (cr, z, s, a, c) => new SetCropZoneSuitabilityUseCase(cr, z, s, a, c),
-      inject: [CROP_REPOSITORY, ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, z, s, a, c) => new SetCropZoneSuitabilityUseCase(es, z, s, a, c),
+      inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListCropZonesUseCase,
@@ -134,8 +134,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: AddCroppingWindowUseCase,
-      useFactory: (cr, z, w, a, c, ids) => new AddCroppingWindowUseCase(cr, z, w, a, c, ids),
-      inject: [CROP_REPOSITORY, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+      useFactory: (es, zr, wr, a, c, ids) => new AddCroppingWindowUseCase(es, zr, wr, a, c, ids),
+      inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
     },
     {
       provide: ListCroppingWindowsUseCase,
@@ -166,8 +166,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: SetCropPestControlUseCase,
-      useFactory: (cr, p, ctrl, a, c) => new SetCropPestControlUseCase(cr, p, ctrl, a, c),
-      inject: [CROP_REPOSITORY, PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (es, p, ctrl, a, c) => new SetCropPestControlUseCase(es, p, ctrl, a, c),
+      inject: [CROP_EVENT_STORE, PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListCropPestsUseCase,
@@ -187,8 +187,8 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
     },
     {
       provide: AddPricePointUseCase,
-      useFactory: (cr, pr, a, c, ids) => new AddPricePointUseCase(cr, pr, a, c, ids),
-      inject: [CROP_REPOSITORY, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+      useFactory: (es, pr, a, c, ids) => new AddPricePointUseCase(es, pr, a, c, ids),
+      inject: [CROP_EVENT_STORE, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
     },
     {
       provide: ListCropPricesUseCase,

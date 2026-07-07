@@ -1,7 +1,8 @@
 import { CropZoneSuitability, CropZoneSuitabilitySnapshot } from '../../domain/zone/crop-zone-suitability';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
 import { Provenance, ProvenanceProps } from '../../domain/shared/provenance';
-import { CropRepository } from '../crop/crop.repository';
+import { Crop } from '../../domain/crop/crop';
+import { CropEventStore } from '../crop/crop-event-store';
 import { ZoneRepository } from './zone.repository';
 import { CropZoneSuitabilityRepository } from './crop-zone-suitability.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
@@ -26,7 +27,7 @@ export interface SetCropZoneSuitabilityInput {
 
 export class SetCropZoneSuitabilityUseCase {
   constructor(
-    private readonly crops: CropRepository,
+    private readonly events: CropEventStore,
     private readonly zones: ZoneRepository,
     private readonly suitabilities: CropZoneSuitabilityRepository,
     private readonly audit: AuditLogRepository,
@@ -34,7 +35,8 @@ export class SetCropZoneSuitabilityUseCase {
   ) {}
 
   async execute(input: SetCropZoneSuitabilityInput): Promise<CropZoneSuitabilitySnapshot> {
-    if (!(await this.crops.findById(input.cropId))) throw new CropNotFoundError(input.cropId);
+    const stored = await this.events.load(input.cropId);
+    if (stored.length === 0) throw new CropNotFoundError(input.cropId);
     if (!(await this.zones.findById(input.zoneId))) throw new ZoneNotFoundError(input.zoneId);
     const provenance = input.provenance
       ? Provenance.fromJSON(input.provenance)
@@ -44,10 +46,14 @@ export class SetCropZoneSuitabilityUseCase {
       provenance,
     });
     const snap = suitability.toSnapshot();
+    const crop = Crop.fromEvents(stored);
+    crop.setZoneSuitability(snap);
+    const at = this.clock.nowIso();
+    await this.events.append(input.cropId, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     await this.suitabilities.save(snap);
     await this.audit.record({
       entityType: 'CropZoneSuitability', entityId: `${input.cropId}:${input.zoneId}`,
-      actor: input.actor, at: this.clock.nowIso(), changes: { set: snap },
+      actor: input.actor, at, changes: { set: snap },
     });
     return snap;
   }
