@@ -30,6 +30,8 @@ export interface CropDocument {
   prices: PricePointSnapshot[];
   completeness: CompletenessReport;
   serializedText: string;
+  hasUnpublishedChanges: boolean;
+  hasPublishedVersion: boolean;
 }
 
 export interface ToCropDocumentOptions {
@@ -112,5 +114,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     cycleType: s.cycleType, status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
     varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, prices, completeness, serializedText: lines.join('\n'),
+    hasUnpublishedChanges: s.hasUnpublishedChanges,
+    hasPublishedVersion: s.hasPublishedVersion,
   };
 }
