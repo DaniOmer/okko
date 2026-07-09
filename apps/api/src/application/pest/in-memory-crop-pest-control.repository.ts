@@ -12,4 +12,7 @@ export class InMemoryCropPestControlRepository implements CropPestControlReposit
   async listByPest(pestId: string): Promise<CropPestControlSnapshot[]> {
     return this.store.filter((c) => c.pestId === pestId);
   }
+  async replaceForCrop(cropId: string, items: CropPestControlSnapshot[]): Promise<void> {
+    this.store = this.store.filter((x) => x.cropId !== cropId).concat(items);
+  }
 }

@@ -55,6 +55,7 @@ import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-c
 import { CropDocumentComposer } from './application/crop/compose-crop-document';
 import { PUBLISHED_CROP_REPOSITORY } from './application/crop/published-crop.repository';
 import { PrismaPublishedCropRepository } from './infrastructure/crop/prisma-published-crop.repository';
+import { DiscardDraftUseCase } from './application/crop/discard-draft.use-case';
 
 @Module({
   controllers: [CropController, ZoneController, PestController],
@@ -208,6 +209,11 @@ import { PrismaPublishedCropRepository } from './infrastructure/crop/prisma-publ
       provide: GetCropHistoryUseCase,
       useFactory: (cr, reader) => new GetCropHistoryUseCase(cr, reader),
       inject: [CROP_REPOSITORY, AUDIT_LOG_READER],
+    },
+    {
+      provide: DiscardDraftUseCase,
+      useFactory: (es, r, v, w, z, p, pr, a, c) => new DiscardDraftUseCase(es, r, v, w, z, p, pr, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, VARIETY_REPOSITORY, CROPPING_WINDOW_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
   ],
 })

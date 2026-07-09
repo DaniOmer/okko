@@ -27,6 +27,13 @@ export class PrismaCropPestControlRepository implements CropPestControlRepositor
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async replaceForCrop(cropId: string, items: CropPestControlSnapshot[]): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.cropPestControl.deleteMany({ where: { cropId } }),
+      ...items.map((c) => this.prisma.cropPestControl.create({ data: this.toRow(c) })),
+    ]);
+  }
+
   private toRow(c: CropPestControlSnapshot) {
     return {
       cropId: c.cropId, pestId: c.pestId, susceptibility: c.susceptibility,

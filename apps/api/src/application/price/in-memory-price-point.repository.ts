@@ -11,4 +11,7 @@ export class InMemoryPricePointRepository implements PricePointRepository {
       .filter((p) => p.cropId === cropId)
       .sort((a, b) => (a.date < b.date ? 1 : -1));
   }
+  async replaceForCrop(cropId: string, items: PricePointSnapshot[]): Promise<void> {
+    this.store = this.store.filter((x) => x.cropId !== cropId).concat(items);
+  }
 }

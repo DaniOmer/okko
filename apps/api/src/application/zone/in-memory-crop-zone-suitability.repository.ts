@@ -12,4 +12,7 @@ export class InMemoryCropZoneSuitabilityRepository implements CropZoneSuitabilit
   async listByZone(zoneId: string): Promise<CropZoneSuitabilitySnapshot[]> {
     return this.store.filter((s) => s.zoneId === zoneId);
   }
+  async replaceForCrop(cropId: string, items: CropZoneSuitabilitySnapshot[]): Promise<void> {
+    this.store = this.store.filter((x) => x.cropId !== cropId).concat(items);
+  }
 }

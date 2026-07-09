@@ -24,6 +24,13 @@ export class PrismaVarietyRepository implements VarietyRepository {
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async replaceForCrop(cropId: string, items: VarietySnapshot[]): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.variety.deleteMany({ where: { cropId } }),
+      ...items.map((v) => this.prisma.variety.create({ data: this.toRow(v) })),
+    ]);
+  }
+
   private toRow(v: VarietySnapshot) {
     return {
       id: v.id,

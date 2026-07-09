@@ -9,4 +9,7 @@ export class InMemoryCroppingWindowRepository implements CroppingWindowRepositor
   async listByCrop(cropId: string): Promise<CroppingWindowSnapshot[]> {
     return this.store.filter((w) => w.cropId === cropId);
   }
+  async replaceForCrop(cropId: string, items: CroppingWindowSnapshot[]): Promise<void> {
+    this.store = this.store.filter((x) => x.cropId !== cropId).concat(items);
+  }
 }

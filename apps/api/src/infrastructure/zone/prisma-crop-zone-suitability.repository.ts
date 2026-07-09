@@ -27,6 +27,13 @@ export class PrismaCropZoneSuitabilityRepository implements CropZoneSuitabilityR
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async replaceForCrop(cropId: string, items: CropZoneSuitabilitySnapshot[]): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.cropZoneSuitability.deleteMany({ where: { cropId } }),
+      ...items.map((s) => this.prisma.cropZoneSuitability.create({ data: this.toRow(s) })),
+    ]);
+  }
+
   private toRow(s: CropZoneSuitabilitySnapshot) {
     return {
       cropId: s.cropId,
