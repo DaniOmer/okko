@@ -1,4 +1,4 @@
-import { Crop } from './crop';
+import { Crop, NoPublishedVersionError } from './crop';
 import { TranslatableText } from '../shared/translatable-text';
 import { CycleType } from './cycle-type';
 import { ClimaticRequirements } from '../shared/climatic-requirements';
@@ -71,5 +71,63 @@ describe('Crop sections event sourcing', () => {
     expect(rebuilt.varieties).toEqual(built.varieties);
     expect(rebuilt.zones).toEqual(built.zones);
     expect(rebuilt.toSnapshot()).toEqual(built.toSnapshot());  // cœur identique
+  });
+});
+
+describe('Crop draft/published editorial safety', () => {
+  const v = (id: string): VarietySnapshot =>
+    ({ id, cropId: 'c1', name: { fr: `V${id}` }, traits: [] } as VarietySnapshot);
+
+  it('publish pose hasPublishedVersion et remet hasUnpublishedChanges à false', () => {
+    const c = make();
+    c.rename(TranslatableText.create({ fr: 'Nouveau' }));
+    expect(c.hasUnpublishedChanges).toBe(true);
+    c.publish();
+    expect(c.hasPublishedVersion).toBe(true);
+    expect(c.hasUnpublishedChanges).toBe(false);
+  });
+
+  it('éditer après publication remet hasUnpublishedChanges à true sans toucher hasPublishedVersion', () => {
+    const c = make();
+    c.publish();
+    c.addVariety(v('a'));
+    expect(c.hasUnpublishedChanges).toBe(true);
+    expect(c.hasPublishedVersion).toBe(true);
+  });
+
+  it('discardDraft restaure cœur + sections à l\'état publié et remet le drapeau à false', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    c.publish();
+    const versionAtPublish = c.version;
+    c.addVariety(v('b'));
+    c.rename(TranslatableText.create({ fr: 'Brouillon modifié' }));
+    expect(c.varieties).toHaveLength(2);
+    c.discardDraft();
+    expect(c.varieties).toEqual([v('a')]);
+    expect(c.version).toBe(versionAtPublish);
+    expect(c.commonNames.toJSON()).toEqual(make().commonNames.toJSON());
+    expect(c.hasUnpublishedChanges).toBe(false);
+  });
+
+  it('discardDraft lève NoPublishedVersionError si jamais publié', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    expect(() => c.discardDraft()).toThrow(NoPublishedVersionError);
+  });
+
+  it('repli déterministe : [Created, éditions, Published, éditions, DraftDiscarded] == état au Published', () => {
+    // Accumulate ALL events in one pass (do not drain mid-stream)
+    const built = make();
+    built.addVariety(v('a'));
+    built.publish();
+    // Snapshot state at publish (without draining the buffer)
+    const atPublish = built.toSnapshot();
+    built.addVariety(v('b'));
+    built.discardDraft();
+    // Reconstruct from the full event stream
+    const rebuilt = Crop.fromEvents(stored(built.pullPendingEvents()));
+    expect(rebuilt.toSnapshot()).toEqual(atPublish);
+    expect(rebuilt.varieties).toEqual([v('a')]);
   });
 });

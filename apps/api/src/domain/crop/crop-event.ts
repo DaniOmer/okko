@@ -25,4 +25,5 @@ export type CropEvent =
   | { type: 'CroppingWindowAdded'; window: CroppingWindowSnapshot }
   | { type: 'ZoneSuitabilitySet'; suitability: CropZoneSuitabilitySnapshot }
   | { type: 'PestControlSet'; control: CropPestControlSnapshot }
-  | { type: 'PricePointAdded'; price: PricePointSnapshot };
+  | { type: 'PricePointAdded'; price: PricePointSnapshot }
+  | { type: 'DraftDiscarded' };
