@@ -139,3 +139,11 @@ model CropEvent {
   @@unique([streamId, sequence])
   @@index([streamId])
 }
+
+model PublishedCrop {
+  cropId      String   @id
+  document    Json
+  version     Int
+  publishedAt DateTime
+  publishedBy String
+}
