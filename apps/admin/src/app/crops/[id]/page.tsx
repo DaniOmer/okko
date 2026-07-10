@@ -40,7 +40,12 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <Badge variant={crop.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, crop.status)}</Badge>
             <span>v{crop.version}</span>
           </div>
-          <PublishButton cropId={params.id} status={crop.status} />
+          <PublishButton
+            cropId={params.id}
+            status={crop.status}
+            hasUnpublishedChanges={crop.hasUnpublishedChanges}
+            hasPublishedVersion={crop.hasPublishedVersion}
+          />
         </div>
         {crop.completeness && <CompletenessRing percent={crop.completeness.percent} />}
       </div>
