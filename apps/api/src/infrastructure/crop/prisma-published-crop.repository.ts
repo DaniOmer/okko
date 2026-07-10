@@ -3,22 +3,30 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CropDocument } from '../../application/crop/crop-read-model';
 import { PublishedCropRecord, PublishedCropRepository, PublishedCropVersion } from '../../application/crop/published-crop.repository';
+import { ConcurrencyError } from '../../application/crop/crop-event-store';
 
 @Injectable()
 export class PrismaPublishedCropRepository implements PublishedCropRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(r: PublishedCropRecord): Promise<void> {
-    await this.prisma.publishedCrop.create({
-      data: {
-        cropId: r.cropId,
-        revision: r.revision,
-        document: r.document as unknown as Prisma.InputJsonValue,
-        version: r.version,
-        publishedAt: new Date(r.publishedAt),
-        publishedBy: r.publishedBy,
-      },
-    });
+    try {
+      await this.prisma.publishedCrop.create({
+        data: {
+          cropId: r.cropId,
+          revision: r.revision,
+          document: r.document as unknown as Prisma.InputJsonValue,
+          version: r.version,
+          publishedAt: new Date(r.publishedAt),
+          publishedBy: r.publishedBy,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        throw new ConcurrencyError(r.revision, r.revision);
+      }
+      throw e;
+    }
   }
 
   async findLatest(cropId: string): Promise<PublishedCropRecord | null> {
