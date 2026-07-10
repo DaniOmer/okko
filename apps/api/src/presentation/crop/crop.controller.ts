@@ -265,9 +265,13 @@ export class CropController {
 
   @Get(':id/published')
   async published(@Param('id') id: string) {
-    const rec = await this.publishedCrops.findByCrop(id);
-    if (!rec) throw new NotFoundException(id);
-    return rec.document;
+    try {
+      const rec = await this.publishedCrops.findByCrop(id);
+      if (!rec) throw new NotFoundException(id);
+      return rec.document;
+    } catch (e) {
+      mapCropError(e, id);
+    }
   }
 
   @Post(':id/discard')

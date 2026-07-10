@@ -216,6 +216,9 @@ export class Crop {
   }
 
   static fromSnapshot(s: CropSnapshot): Crop {
+    // GARDE : fromSnapshot ne restaure pas _publishedCheckpoint.
+    // Ne pas utiliser cette instance comme base pour des mutations (notamment discardDraft).
+    // Tous les chemins de commande reconstruisent via fromEvents.
     const crop = new Crop(
       s.id, TranslatableText.create(s.commonNames), s.scientificName, s.family,
       s.cycleType, s.status, s.version, { ...s.metadata },
