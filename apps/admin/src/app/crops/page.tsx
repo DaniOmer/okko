@@ -42,7 +42,12 @@ export default async function CropsPage({ searchParams }: { searchParams: { q?: 
                   <TableCell className="italic text-muted-foreground">{c.scientificName}</TableCell>
                   <TableCell>{labelOf(CYCLE_TYPE_LABELS, c.cycleType)}</TableCell>
                   <TableCell>
-                    <Badge variant={c.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, c.status)}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={c.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, c.status)}</Badge>
+                      {c.hasUnpublishedChanges && (
+                        <Badge variant="outline" className="border-amber-500 text-amber-700">modifs non publiées</Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">{c.completeness?.percent ?? '—'}%</TableCell>
                 </TableRow>

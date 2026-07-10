@@ -6,6 +6,7 @@ export interface AuditRecord { id: string; entityType: string; entityId: string;
 export interface CropDocument {
   id: string; name: string; scientificName: string; family: string;
   cycleType: string; status: string; version: number;
+  hasUnpublishedChanges: boolean; hasPublishedVersion: boolean;
   completeness: CompletenessReport;
 }
 
@@ -97,6 +98,17 @@ export async function getCrop(id: string): Promise<CropDetail> {
   const res = await fetch(`${BASE}/crops/${id}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
+}
+
+export async function getCropPublished(id: string): Promise<CropDetail> {
+  const res = await fetch(`${BASE}/crops/${id}/published`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(await readError(res));
+  return res.json();
+}
+
+export async function discardDraft(id: string): Promise<void> {
+  const res = await fetch(`${BASE}/crops/${id}/discard`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readError(res));
 }
 
 export async function addVariety(cropId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<Variety> {
