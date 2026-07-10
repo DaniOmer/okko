@@ -11,7 +11,7 @@ export function PublishButton({
   hasPublishedVersion,
 }: {
   cropId: string;
-  status: string;
+  status: string; // passé par la page mais volontairement inutilisé — la logique s'appuie sur les drapeaux
   hasUnpublishedChanges: boolean;
   hasPublishedVersion: boolean;
 }) {
