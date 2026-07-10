@@ -42,7 +42,7 @@ Ce lot s'appuie sur le socle event sourcing déjà en place : l'agrégat `Crop` 
 
 **Préservé :**
 - `GET /crops` et `GET /crops/:id` restent branchés sur le **brouillon/tête** : l'admin continue de voir son travail et de lister toutes les fiches (brouillons compris). **Aucun changement de branchement.**
-- **Statut** : enum `DRAFT/PUBLISHED/ARCHIVED` et transitions inchangés. Éditer une fiche `PUBLISHED` la laisse `PUBLISHED` (comme aujourd'hui).
+- **Statut** : enum `DRAFT/PUBLISHED/ARCHIVED` inchangé. Éditer une fiche `PUBLISHED` la laisse `PUBLISHED` (comme aujourd'hui). **Amendement (2026-07-10, Lot B)** : on ajoute la transition `PUBLISHED→PUBLISHED` (`ALLOWED[PUBLISHED] = [PUBLISHED, ARCHIVED]`) pour permettre de **republier** (re-figer sur place) une fiche déjà publiée — c'est le cœur de la boucle éditoriale et sans elle la version publiée ne pourrait jamais être mise à jour.
 - **`version`** : sémantique inchangée (compteur de mutations de contenu). Aucun « numéro de révision publiée » introduit ici.
 - Édition en place, validation de publication (transition + complétude), `AuditLog` : **intacts**.
 
