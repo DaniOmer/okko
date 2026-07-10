@@ -141,9 +141,12 @@ model CropEvent {
 }
 
 model PublishedCrop {
-  cropId      String   @id
+  cropId      String
+  revision    Int
   document    Json
   version     Int
   publishedAt DateTime
   publishedBy String
+
+  @@id([cropId, revision])
 }

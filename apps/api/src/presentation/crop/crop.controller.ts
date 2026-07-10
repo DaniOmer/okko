@@ -266,8 +266,28 @@ export class CropController {
   @Get(':id/published')
   async published(@Param('id') id: string) {
     try {
-      const rec = await this.publishedCrops.findByCrop(id);
+      const rec = await this.publishedCrops.findLatest(id);
       if (!rec) throw new NotFoundException(id);
+      return rec.document;
+    } catch (e) {
+      mapCropError(e, id);
+    }
+  }
+
+  @Get(':id/versions')
+  async versions(@Param('id') id: string) {
+    try {
+      return await this.publishedCrops.listByCrop(id);
+    } catch (e) {
+      mapCropError(e, id);
+    }
+  }
+
+  @Get(':id/versions/:revision')
+  async version(@Param('id') id: string, @Param('revision') revision: string) {
+    try {
+      const rec = await this.publishedCrops.findRevision(id, Number(revision));
+      if (!rec) throw new NotFoundException(`crop ${id} revision ${revision}`);
       return rec.document;
     } catch (e) {
       mapCropError(e, id);

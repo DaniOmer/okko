@@ -112,13 +112,33 @@ describe('PublishCropUseCase', () => {
     await publish.execute({ id: 'c2', actor: 'a' });
 
     // Assert: frozen document must carry real composed content (the seeded variety)
-    const rec = await localPublished.findByCrop('c2');
+    const rec = await localPublished.findLatest('c2');
     expect(rec).not.toBeNull();
     expect(rec!.document.id).toBe('c2');
     expect(rec!.version).toBeGreaterThanOrEqual(1);
+    expect(rec!.revision).toBe(1);
     // Strengthened: the frozen document must contain the seeded variety — rules out an
     // empty/broken composer silently passing because the variety repo was empty.
     expect(rec!.document.varieties.length).toBeGreaterThan(0);
     expect(rec!.document.varieties[0].id).toBe('v1');
+  });
+
+  it('incrémente la révision à chaque publication', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const audit = { record: jest.fn() };
+    await new CreateCropUseCase(events, repo, audit, clock).execute({
+      id: 'c3',
+      commonNames: { fr: 'Blé' },
+      scientificName: 'Triticum aestivum',
+      family: 'Poaceae',
+      cycleType: CycleType.SEASONAL_ANNUAL,
+      actor: 'a',
+    });
+    const uc = new PublishCropUseCase(events, repo, audit, clock, composer, published);
+    await uc.execute({ id: 'c3', actor: 'admin' });
+    await uc.execute({ id: 'c3', actor: 'admin' }); // republication (PUBLISHED->PUBLISHED autorisé)
+    expect((await published.findLatest('c3'))!.revision).toBe(2);
+    expect((await published.listByCrop('c3')).map((v) => v.revision)).toEqual([2, 1]);
   });
 });

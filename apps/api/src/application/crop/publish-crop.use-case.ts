@@ -33,7 +33,9 @@ export class PublishCropUseCase {
     const next = crop.toSnapshot();
     await this.crops.save(next);
     const document = await this.composer.compose(input.id, next);
-    await this.published.save({ cropId: input.id, document, version: next.version, publishedAt: at, publishedBy: input.actor });
+    const latest = await this.published.findLatest(input.id);
+    const revision = latest ? latest.revision + 1 : 1;
+    await this.published.save({ cropId: input.id, revision, document, version: next.version, publishedAt: at, publishedBy: input.actor });
     await this.audit.record({
       entityType: 'Crop',
       entityId: crop.id,
