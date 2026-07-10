@@ -3,6 +3,8 @@ import { CropRepository } from './crop.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
 import { CropEventStore } from './crop-event-store';
+import { CropDocumentComposer } from './compose-crop-document';
+import { PublishedCropRepository } from './published-crop.repository';
 
 export class CropNotFoundError extends Error {
   constructor(message?: string) {
@@ -17,6 +19,8 @@ export class PublishCropUseCase {
     private readonly crops: CropRepository,
     private readonly audit: AuditLogRepository,
     private readonly clock: Clock,
+    private readonly composer: CropDocumentComposer,
+    private readonly published: PublishedCropRepository,
   ) {}
 
   async execute(input: { id: string; actor: string }): Promise<CropSnapshot> {
@@ -28,6 +32,8 @@ export class PublishCropUseCase {
     await this.events.append(input.id, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     const next = crop.toSnapshot();
     await this.crops.save(next);
+    const document = await this.composer.compose(input.id, next);
+    await this.published.save({ cropId: input.id, document, version: next.version, publishedAt: at, publishedBy: input.actor });
     await this.audit.record({
       entityType: 'Crop',
       entityId: crop.id,

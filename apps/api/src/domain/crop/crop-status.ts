@@ -13,7 +13,7 @@ export enum CropStatus {
 
 const ALLOWED: Record<CropStatus, CropStatus[]> = {
   [CropStatus.DRAFT]: [CropStatus.PUBLISHED],
-  [CropStatus.PUBLISHED]: [CropStatus.ARCHIVED],
+  [CropStatus.PUBLISHED]: [CropStatus.PUBLISHED, CropStatus.ARCHIVED],
   [CropStatus.ARCHIVED]: [CropStatus.DRAFT],
 };
 

@@ -20,6 +20,13 @@ export class PrismaCroppingWindowRepository implements CroppingWindowRepository 
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async replaceForCrop(cropId: string, items: CroppingWindowSnapshot[]): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.croppingWindow.deleteMany({ where: { cropId } }),
+      ...items.map((w) => this.prisma.croppingWindow.create({ data: this.toRow(w) })),
+    ]);
+  }
+
   private toRow(w: CroppingWindowSnapshot): Prisma.CroppingWindowCreateInput {
     return {
       id: w.id, cropId: w.cropId, zoneId: w.zoneId, season: w.season,

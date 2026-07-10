@@ -9,4 +9,7 @@ export class InMemoryVarietyRepository implements VarietyRepository {
   async listByCrop(cropId: string): Promise<VarietySnapshot[]> {
     return this.store.filter((v) => v.cropId === cropId);
   }
+  async replaceForCrop(cropId: string, items: VarietySnapshot[]): Promise<void> {
+    this.store = this.store.filter((x) => x.cropId !== cropId).concat(items);
+  }
 }

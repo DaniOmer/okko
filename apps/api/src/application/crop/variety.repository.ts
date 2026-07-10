@@ -5,4 +5,5 @@ export const VARIETY_REPOSITORY = Symbol('VARIETY_REPOSITORY');
 export interface VarietyRepository {
   save(v: VarietySnapshot): Promise<void>;
   listByCrop(cropId: string): Promise<VarietySnapshot[]>;
+  replaceForCrop(cropId: string, items: VarietySnapshot[]): Promise<void>;
 }

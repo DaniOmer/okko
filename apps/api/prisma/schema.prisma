@@ -20,8 +20,10 @@ model Crop {
   edaphic        Json?
   phenology      Json?
   nutrition      Json?
-  yields         Json?
-  createdAt      DateTime @default(now())
+  yields                Json?
+  hasUnpublishedChanges Boolean  @default(false)
+  hasPublishedVersion   Boolean  @default(false)
+  createdAt             DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
 
@@ -136,4 +138,12 @@ model CropEvent {
 
   @@unique([streamId, sequence])
   @@index([streamId])
+}
+
+model PublishedCrop {
+  cropId      String   @id
+  document    Json
+  version     Int
+  publishedAt DateTime
+  publishedBy String
 }

@@ -13,6 +13,13 @@ import { CropZoneSuitabilitySnapshot } from '../zone/crop-zone-suitability';
 import { CropPestControlSnapshot } from '../pest/crop-pest-control';
 import { PricePointSnapshot } from '../price/price-point';
 
+export class NoPublishedVersionError extends Error {
+  constructor(public readonly cropId: string) {
+    super(`Crop ${cropId} has no published version to revert to`);
+    this.name = 'NoPublishedVersionError';
+  }
+}
+
 export interface CropSnapshot {
   id: string;
   commonNames: Record<string, string>;
@@ -27,6 +34,8 @@ export interface CropSnapshot {
   phenology?: PhenologicalStageJSON[];
   nutrition?: NutrientRequirementJSON[];
   yields?: YieldReferenceJSON[];
+  hasUnpublishedChanges: boolean;
+  hasPublishedVersion: boolean;
 }
 
 interface CreateCropProps {
@@ -44,6 +53,24 @@ export class Crop {
   private _zones: CropZoneSuitabilitySnapshot[] = [];
   private _pests: CropPestControlSnapshot[] = [];
   private _prices: PricePointSnapshot[] = [];
+  private _hasUnpublishedChanges = false;
+  private _hasPublishedVersion = false;
+  private _publishedCheckpoint?: {
+    commonNames: TranslatableText;
+    status: CropStatus;
+    version: number;
+    metadata: Record<string, unknown>;
+    climatic: ClimaticRequirements | undefined;
+    edaphic: EdaphicRequirements | undefined;
+    phenology: PhenologicalStage[];
+    nutrition: NutrientRequirement[];
+    yields: YieldReference[];
+    varieties: VarietySnapshot[];
+    windows: CroppingWindowSnapshot[];
+    zones: CropZoneSuitabilitySnapshot[];
+    pests: CropPestControlSnapshot[];
+    prices: PricePointSnapshot[];
+  };
 
   private constructor(
     private readonly _id: string,
@@ -102,6 +129,8 @@ export class Crop {
   get zones(): CropZoneSuitabilitySnapshot[] { return [...this._zones]; }
   get pests(): CropPestControlSnapshot[] { return [...this._pests]; }
   get prices(): PricePointSnapshot[] { return [...this._prices]; }
+  get hasUnpublishedChanges(): boolean { return this._hasUnpublishedChanges; }
+  get hasPublishedVersion(): boolean { return this._hasPublishedVersion; }
 
   setPhenology(stages: PhenologicalStage[]): void { this.raise({ type: 'PhenologySet', phenology: stages.map((s) => s.toJSON()) }); }
   setClimaticRequirements(c: ClimaticRequirements): void { this.raise({ type: 'ClimaticRequirementsSet', climatic: c.toJSON() }); }
@@ -112,6 +141,10 @@ export class Crop {
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
   publish(): void { assertCanTransition(this._status, CropStatus.PUBLISHED); this.raise({ type: 'Published' }); }
   archive(): void { assertCanTransition(this._status, CropStatus.ARCHIVED); this.raise({ type: 'Archived' }); }
+  discardDraft(): void {
+    if (!this._hasPublishedVersion) throw new NoPublishedVersionError(this._id);
+    this.raise({ type: 'DraftDiscarded' });
+  }
   addVariety(v: VarietySnapshot): void { this.raise({ type: 'VarietyAdded', variety: v }); }
   addCroppingWindow(w: CroppingWindowSnapshot): void { this.raise({ type: 'CroppingWindowAdded', window: w }); }
   addPricePoint(p: PricePointSnapshot): void { this.raise({ type: 'PricePointAdded', price: p }); }
@@ -123,22 +156,43 @@ export class Crop {
 
   private apply(e: CropEvent): void {
     switch (e.type) {
-      case 'ClimaticRequirementsSet': this._climatic = ClimaticRequirements.fromJSON(e.climatic); this._version += 1; break;
-      case 'EdaphicRequirementsSet': this._edaphic = EdaphicRequirements.fromJSON(e.edaphic); this._version += 1; break;
-      case 'PhenologySet': this._phenology = e.phenology.map((j) => PhenologicalStage.fromJSON(j)); this._version += 1; break;
-      case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; break;
-      case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; break;
-      case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; break;
-      case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; break;
-      case 'Published': this._status = CropStatus.PUBLISHED; break;
+      case 'ClimaticRequirementsSet': this._climatic = ClimaticRequirements.fromJSON(e.climatic); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'EdaphicRequirementsSet': this._edaphic = EdaphicRequirements.fromJSON(e.edaphic); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'PhenologySet': this._phenology = e.phenology.map((j) => PhenologicalStage.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'Published': this._status = CropStatus.PUBLISHED; this._hasPublishedVersion = true; this._hasUnpublishedChanges = false; this.captureCheckpoint(); break;
+      case 'DraftDiscarded': this.restoreCheckpoint(); break;
       case 'Archived': this._status = CropStatus.ARCHIVED; break;
       case 'CropCreated': /* posé au constructeur, jamais rejoué ici */ break;
-      case 'VarietyAdded': this._varieties = [...this._varieties, e.variety]; break;
-      case 'CroppingWindowAdded': this._windows = [...this._windows, e.window]; break;
-      case 'PricePointAdded': this._prices = [...this._prices, e.price]; break;
-      case 'ZoneSuitabilitySet': this._zones = [...this._zones.filter((z) => z.zoneId !== e.suitability.zoneId), e.suitability]; break;
-      case 'PestControlSet': this._pests = [...this._pests.filter((p) => p.pestId !== e.control.pestId), e.control]; break;
+      case 'VarietyAdded': this._varieties = [...this._varieties, e.variety]; this._hasUnpublishedChanges = true; break;
+      case 'CroppingWindowAdded': this._windows = [...this._windows, e.window]; this._hasUnpublishedChanges = true; break;
+      case 'PricePointAdded': this._prices = [...this._prices, e.price]; this._hasUnpublishedChanges = true; break;
+      case 'ZoneSuitabilitySet': this._zones = [...this._zones.filter((z) => z.zoneId !== e.suitability.zoneId), e.suitability]; this._hasUnpublishedChanges = true; break;
+      case 'PestControlSet': this._pests = [...this._pests.filter((p) => p.pestId !== e.control.pestId), e.control]; this._hasUnpublishedChanges = true; break;
     }
+  }
+
+  private captureCheckpoint(): void {
+    this._publishedCheckpoint = {
+      commonNames: this._commonNames, status: this._status, version: this._version,
+      metadata: { ...this._metadata }, climatic: this._climatic, edaphic: this._edaphic,
+      phenology: [...this._phenology], nutrition: [...this._nutrition], yields: [...this._yields],
+      varieties: [...this._varieties], windows: [...this._windows], zones: [...this._zones],
+      pests: [...this._pests], prices: [...this._prices],
+    };
+  }
+
+  private restoreCheckpoint(): void {
+    const cp = this._publishedCheckpoint!;
+    this._commonNames = cp.commonNames; this._status = cp.status; this._version = cp.version;
+    this._metadata = { ...cp.metadata }; this._climatic = cp.climatic; this._edaphic = cp.edaphic;
+    this._phenology = [...cp.phenology]; this._nutrition = [...cp.nutrition]; this._yields = [...cp.yields];
+    this._varieties = [...cp.varieties]; this._windows = [...cp.windows]; this._zones = [...cp.zones];
+    this._pests = [...cp.pests]; this._prices = [...cp.prices];
+    this._hasUnpublishedChanges = false;
   }
 
   toSnapshot(): CropSnapshot {
@@ -156,11 +210,16 @@ export class Crop {
       phenology: this._phenology.map((s) => s.toJSON()),
       nutrition: this._nutrition.map((n) => n.toJSON()),
       yields: this._yields.map((y) => y.toJSON()),
+      hasUnpublishedChanges: this._hasUnpublishedChanges,
+      hasPublishedVersion: this._hasPublishedVersion,
     };
   }
 
   static fromSnapshot(s: CropSnapshot): Crop {
-    return new Crop(
+    // GARDE : fromSnapshot ne restaure pas _publishedCheckpoint.
+    // Ne pas utiliser cette instance comme base pour des mutations (notamment discardDraft).
+    // Tous les chemins de commande reconstruisent via fromEvents.
+    const crop = new Crop(
       s.id, TranslatableText.create(s.commonNames), s.scientificName, s.family,
       s.cycleType, s.status, s.version, { ...s.metadata },
       s.climatic ? ClimaticRequirements.fromJSON(s.climatic) : undefined,
@@ -169,5 +228,8 @@ export class Crop {
       (s.nutrition ?? []).map((j) => NutrientRequirement.fromJSON(j)),
       (s.yields ?? []).map((j) => YieldReference.fromJSON(j)),
     );
+    crop._hasUnpublishedChanges = s.hasUnpublishedChanges;
+    crop._hasPublishedVersion = s.hasPublishedVersion;
+    return crop;
   }
 }

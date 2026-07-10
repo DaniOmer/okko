@@ -13,9 +13,16 @@ describe('Crop e2e', () => {
     app = mod.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();
+    await prisma.cropEvent.deleteMany();
+    await prisma.publishedCrop.deleteMany();
     await prisma.crop.deleteMany();
   });
-  afterAll(async () => { await prisma.crop.deleteMany(); await app.close(); });
+  afterAll(async () => {
+    await prisma.cropEvent.deleteMany();
+    await prisma.publishedCrop.deleteMany();
+    await prisma.crop.deleteMany();
+    await app.close();
+  });
 
   it('crée puis publie une culture', async () => {
     const created = await request(app.getHttpServer())
@@ -30,7 +37,7 @@ describe('Crop e2e', () => {
     expect(got.body.status).toBe('PUBLISHED');
     expect(got.body.name).toBe('Ananas');
 
-    // Publishing an already-PUBLISHED crop must return 409 Conflict
-    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(409);
+    // Re-publishing an already-PUBLISHED crop is now allowed (PUBLISHED→PUBLISHED)
+    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
   });
 });

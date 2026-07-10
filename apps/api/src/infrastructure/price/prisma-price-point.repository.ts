@@ -18,6 +18,13 @@ export class PrismaPricePointRepository implements PricePointRepository {
     return rows.map((r) => this.toSnapshot(r));
   }
 
+  async replaceForCrop(cropId: string, items: PricePointSnapshot[]): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.pricePoint.deleteMany({ where: { cropId } }),
+      ...items.map((p) => this.prisma.pricePoint.create({ data: this.toRow(p) })),
+    ]);
+  }
+
   private toRow(p: PricePointSnapshot): Prisma.PricePointCreateInput {
     return {
       id: p.id, cropId: p.cropId, market: p.market, date: p.date,

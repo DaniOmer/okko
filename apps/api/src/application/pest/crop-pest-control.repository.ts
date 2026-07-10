@@ -6,4 +6,5 @@ export interface CropPestControlRepository {
   save(c: CropPestControlSnapshot): Promise<void>;
   listByCrop(cropId: string): Promise<CropPestControlSnapshot[]>;
   listByPest(pestId: string): Promise<CropPestControlSnapshot[]>;
+  replaceForCrop(cropId: string, items: CropPestControlSnapshot[]): Promise<void>;
 }
