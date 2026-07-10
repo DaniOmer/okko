@@ -20,6 +20,30 @@ export class NoPublishedVersionError extends Error {
   }
 }
 
+export class RevisionNotFoundError extends Error {
+  constructor(public readonly cropId: string, public readonly revision: number) {
+    super(`Crop ${cropId} has no published revision ${revision}`);
+    this.name = 'RevisionNotFoundError';
+  }
+}
+
+interface Checkpoint {
+  commonNames: TranslatableText;
+  status: CropStatus;
+  version: number;
+  metadata: Record<string, unknown>;
+  climatic: ClimaticRequirements | undefined;
+  edaphic: EdaphicRequirements | undefined;
+  phenology: PhenologicalStage[];
+  nutrition: NutrientRequirement[];
+  yields: YieldReference[];
+  varieties: VarietySnapshot[];
+  windows: CroppingWindowSnapshot[];
+  zones: CropZoneSuitabilitySnapshot[];
+  pests: CropPestControlSnapshot[];
+  prices: PricePointSnapshot[];
+}
+
 export interface CropSnapshot {
   id: string;
   commonNames: Record<string, string>;
@@ -55,22 +79,8 @@ export class Crop {
   private _prices: PricePointSnapshot[] = [];
   private _hasUnpublishedChanges = false;
   private _hasPublishedVersion = false;
-  private _publishedCheckpoint?: {
-    commonNames: TranslatableText;
-    status: CropStatus;
-    version: number;
-    metadata: Record<string, unknown>;
-    climatic: ClimaticRequirements | undefined;
-    edaphic: EdaphicRequirements | undefined;
-    phenology: PhenologicalStage[];
-    nutrition: NutrientRequirement[];
-    yields: YieldReference[];
-    varieties: VarietySnapshot[];
-    windows: CroppingWindowSnapshot[];
-    zones: CropZoneSuitabilitySnapshot[];
-    pests: CropPestControlSnapshot[];
-    prices: PricePointSnapshot[];
-  };
+  private _publishedRevision = 0;
+  private _checkpoints = new Map<number, Checkpoint>();
 
   private constructor(
     private readonly _id: string,
@@ -145,6 +155,11 @@ export class Crop {
     if (!this._hasPublishedVersion) throw new NoPublishedVersionError(this._id);
     this.raise({ type: 'DraftDiscarded' });
   }
+  restoreDraft(revision: number): void {
+    if (!this._hasPublishedVersion) throw new NoPublishedVersionError(this._id);
+    if (!this._checkpoints.has(revision)) throw new RevisionNotFoundError(this._id, revision);
+    this.raise({ type: 'DraftRestored', revision });
+  }
   addVariety(v: VarietySnapshot): void { this.raise({ type: 'VarietyAdded', variety: v }); }
   addCroppingWindow(w: CroppingWindowSnapshot): void { this.raise({ type: 'CroppingWindowAdded', window: w }); }
   addPricePoint(p: PricePointSnapshot): void { this.raise({ type: 'PricePointAdded', price: p }); }
@@ -163,8 +178,9 @@ export class Crop {
       case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; this._hasUnpublishedChanges = true; break;
-      case 'Published': this._status = CropStatus.PUBLISHED; this._hasPublishedVersion = true; this._hasUnpublishedChanges = false; this.captureCheckpoint(); break;
-      case 'DraftDiscarded': this.restoreCheckpoint(); break;
+      case 'Published': this._status = CropStatus.PUBLISHED; this._hasPublishedVersion = true; this._hasUnpublishedChanges = false; this._publishedRevision += 1; this.captureCheckpoint(); break;
+      case 'DraftDiscarded': this.restoreFromCheckpoint(this._publishedRevision); break;
+      case 'DraftRestored': this.restoreFromCheckpoint(e.revision); break;
       case 'Archived': this._status = CropStatus.ARCHIVED; break;
       case 'CropCreated': /* posé au constructeur, jamais rejoué ici */ break;
       case 'VarietyAdded': this._varieties = [...this._varieties, e.variety]; this._hasUnpublishedChanges = true; break;
@@ -176,23 +192,23 @@ export class Crop {
   }
 
   private captureCheckpoint(): void {
-    this._publishedCheckpoint = {
+    this._checkpoints.set(this._publishedRevision, {
       commonNames: this._commonNames, status: this._status, version: this._version,
       metadata: { ...this._metadata }, climatic: this._climatic, edaphic: this._edaphic,
       phenology: [...this._phenology], nutrition: [...this._nutrition], yields: [...this._yields],
       varieties: [...this._varieties], windows: [...this._windows], zones: [...this._zones],
       pests: [...this._pests], prices: [...this._prices],
-    };
+    });
   }
 
-  private restoreCheckpoint(): void {
-    const cp = this._publishedCheckpoint!;
+  private restoreFromCheckpoint(revision: number): void {
+    const cp = this._checkpoints.get(revision)!;
     this._commonNames = cp.commonNames; this._status = cp.status; this._version = cp.version;
     this._metadata = { ...cp.metadata }; this._climatic = cp.climatic; this._edaphic = cp.edaphic;
     this._phenology = [...cp.phenology]; this._nutrition = [...cp.nutrition]; this._yields = [...cp.yields];
     this._varieties = [...cp.varieties]; this._windows = [...cp.windows]; this._zones = [...cp.zones];
     this._pests = [...cp.pests]; this._prices = [...cp.prices];
-    this._hasUnpublishedChanges = false;
+    this._hasUnpublishedChanges = (revision !== this._publishedRevision);
   }
 
   toSnapshot(): CropSnapshot {
@@ -216,8 +232,8 @@ export class Crop {
   }
 
   static fromSnapshot(s: CropSnapshot): Crop {
-    // GARDE : fromSnapshot ne restaure pas _publishedCheckpoint.
-    // Ne pas utiliser cette instance comme base pour des mutations (notamment discardDraft).
+    // GARDE : fromSnapshot ne restaure pas _checkpoints ni _publishedRevision.
+    // Ne pas utiliser cette instance comme base pour des mutations (notamment discardDraft/restoreDraft).
     // Tous les chemins de commande reconstruisent via fromEvents.
     const crop = new Crop(
       s.id, TranslatableText.create(s.commonNames), s.scientificName, s.family,
