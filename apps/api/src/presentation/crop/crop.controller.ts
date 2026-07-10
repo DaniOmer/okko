@@ -266,7 +266,7 @@ export class CropController {
   @Get(':id/published')
   async published(@Param('id') id: string) {
     try {
-      const rec = await this.publishedCrops.findByCrop(id);
+      const rec = await this.publishedCrops.findLatest(id);
       if (!rec) throw new NotFoundException(id);
       return rec.document;
     } catch (e) {
