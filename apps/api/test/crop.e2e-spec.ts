@@ -13,10 +13,12 @@ describe('Crop e2e', () => {
     app = mod.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();
+    await prisma.cropEvent.deleteMany();
     await prisma.publishedCrop.deleteMany();
     await prisma.crop.deleteMany();
   });
   afterAll(async () => {
+    await prisma.cropEvent.deleteMany();
     await prisma.publishedCrop.deleteMany();
     await prisma.crop.deleteMany();
     await app.close();
