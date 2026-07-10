@@ -36,6 +36,10 @@ import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 import { GetCropHistoryUseCase } from '../../application/crop/get-crop-history.use-case';
+import { PUBLISHED_CROP_REPOSITORY, PublishedCropRepository } from '../../application/crop/published-crop.repository';
+import { DiscardDraftUseCase } from '../../application/crop/discard-draft.use-case';
+import { CropDocumentComposer } from '../../application/crop/compose-crop-document';
+import { NoPublishedVersionError } from '../../domain/crop/crop';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -43,6 +47,7 @@ function mapCropError(e: unknown, id: string): never {
   if (e instanceof CropNotFoundError) throw new NotFoundException(id);
   if (e instanceof CropStatusError) throw new ConflictException((e as Error).message);
   if (e instanceof ConcurrencyError) throw new ConflictException((e as Error).message);
+  if (e instanceof NoPublishedVersionError) throw new ConflictException((e as Error).message);
   throw e;
 }
 
@@ -69,6 +74,9 @@ export class CropController {
     private readonly addPrice: AddPricePointUseCase,
     private readonly listPrices: ListCropPricesUseCase,
     private readonly getHistory: GetCropHistoryUseCase,
+    private readonly discardDraft: DiscardDraftUseCase,
+    private readonly composer: CropDocumentComposer,
+    @Inject(PUBLISHED_CROP_REPOSITORY) private readonly publishedCrops: PublishedCropRepository,
   ) {}
 
   @Post()
@@ -255,12 +263,24 @@ export class CropController {
     }
   }
 
+  @Get(':id/published')
+  async published(@Param('id') id: string) {
+    const rec = await this.publishedCrops.findByCrop(id);
+    if (!rec) throw new NotFoundException(id);
+    return rec.document;
+  }
+
+  @Post(':id/discard')
+  async discard(@Param('id') id: string) {
+    try {
+      const snap = await this.discardDraft.execute({ id, actor: ACTOR });
+      return this.composeCropDocument(id, snap);
+    } catch (e) {
+      mapCropError(e, id);
+    }
+  }
+
   private async composeCropDocument(id: string, snap: CropSnapshot) {
-    const varieties = await this.varieties.listByCrop(id);
-    const zones = await this.listCropZones.execute({ cropId: id });
-    const windows = await this.listWindows.execute({ cropId: id });
-    const pests = await this.listCropPests.execute({ cropId: id });
-    const prices = await this.listPrices.execute({ cropId: id });
-    return toCropDocument(snap, { varieties, zones, windows, pests, prices });
+    return this.composer.compose(id, snap);
   }
 }
