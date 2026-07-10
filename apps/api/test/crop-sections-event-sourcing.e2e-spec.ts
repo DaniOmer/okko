@@ -27,6 +27,7 @@ describe('Crop sections event-sourcing e2e', () => {
     await app.init();
 
     // Clean all tables touched by this suite (FK-safe order)
+    await prisma.publishedCrop.deleteMany();
     await prisma.cropEvent.deleteMany();
     await prisma.pricePoint.deleteMany();
     await prisma.cropPestControl.deleteMany();
@@ -39,6 +40,7 @@ describe('Crop sections event-sourcing e2e', () => {
   });
 
   afterAll(async () => {
+    await prisma.publishedCrop.deleteMany();
     await prisma.cropEvent.deleteMany();
     await prisma.pricePoint.deleteMany();
     await prisma.cropPestControl.deleteMany();

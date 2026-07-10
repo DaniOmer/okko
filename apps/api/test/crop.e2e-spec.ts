@@ -13,9 +13,14 @@ describe('Crop e2e', () => {
     app = mod.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();
+    await prisma.publishedCrop.deleteMany();
     await prisma.crop.deleteMany();
   });
-  afterAll(async () => { await prisma.crop.deleteMany(); await app.close(); });
+  afterAll(async () => {
+    await prisma.publishedCrop.deleteMany();
+    await prisma.crop.deleteMany();
+    await app.close();
+  });
 
   it('crée puis publie une culture', async () => {
     const created = await request(app.getHttpServer())
