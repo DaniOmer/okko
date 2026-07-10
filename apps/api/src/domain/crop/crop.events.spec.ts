@@ -110,6 +110,21 @@ describe('Crop draft/published editorial safety', () => {
     expect(c.hasUnpublishedChanges).toBe(false);
   });
 
+  it('republier re-fige le point de contrôle sur la tête courante', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    c.publish();
+    c.addVariety(v('b'));
+    expect(c.hasUnpublishedChanges).toBe(true);
+    c.publish(); // republication : PUBLISHED -> PUBLISHED autorisé
+    expect(c.hasUnpublishedChanges).toBe(false);
+    expect(c.hasPublishedVersion).toBe(true);
+    // une édition postérieure puis un abandon reviennent à la version RE-publiée (a + b), pas à la 1re
+    c.addVariety(v('c'));
+    c.discardDraft();
+    expect(c.varieties).toEqual([v('a'), v('b')]);
+  });
+
   it('discardDraft lève NoPublishedVersionError si jamais publié', () => {
     const c = make();
     c.addVariety(v('a'));

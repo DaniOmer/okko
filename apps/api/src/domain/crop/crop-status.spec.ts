@@ -25,6 +25,10 @@ describe('CropStatus transitions', () => {
     expect(() => assertCanTransition(CropStatus.ARCHIVED, CropStatus.PUBLISHED)).toThrow(CropStatusError);
   });
 
+  it('autorise PUBLISHED -> PUBLISHED (republication)', () => {
+    expect(() => assertCanTransition(CropStatus.PUBLISHED, CropStatus.PUBLISHED)).not.toThrow();
+  });
+
   it('CropStatusError.name est correctement fixé', () => {
     expect.assertions(1);
     try {

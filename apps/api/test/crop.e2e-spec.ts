@@ -35,7 +35,7 @@ describe('Crop e2e', () => {
     expect(got.body.status).toBe('PUBLISHED');
     expect(got.body.name).toBe('Ananas');
 
-    // Publishing an already-PUBLISHED crop must return 409 Conflict
-    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(409);
+    // Re-publishing an already-PUBLISHED crop is now allowed (PUBLISHED→PUBLISHED)
+    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
   });
 });

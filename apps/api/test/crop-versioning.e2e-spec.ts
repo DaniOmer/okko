@@ -9,7 +9,7 @@ import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
  *
  * Vérifie le parcours complet de sécurité éditoriale :
  *   - publier fige la version ; éditer diverge le brouillon mais pas le publié
- *   - republier met à jour le document figé
+ *   - republier (PUBLISHED→PUBLISHED autorisé) met à jour le document figé
  *   - abandonner ramène le brouillon au publié (y compris une section)
  *   - erreurs : 409 discard sans version publiée ; 404 published sur fiche jamais publiée
  */
@@ -88,46 +88,27 @@ describe('Crop versioning e2e', () => {
     expect(pub2.body.name).toBe('Maïs');
   });
 
-  it('republier est bloqué (status machine PUBLISHED→PUBLISHED interdit) ; /published reste figé', async () => {
-    // Ce test vérifie le comportement réel du modèle de domaine :
-    // la machine d'état DRAFT→PUBLISHED est unidirectionnelle ; une fois publié,
-    // un deuxième POST /publish retourne 409. /published reste figé sur la première version.
-    const created = await request(app.getHttpServer())
-      .post('/crops')
-      .send({
-        commonNames: { fr: 'Mil' },
-        scientificName: 'Pennisetum glaucum',
-        family: 'Poaceae',
-        cycleType: 'SEASONAL_ANNUAL',
-      })
-      .expect(201);
+  it('republier met à jour le document figé', async () => {
+    const created = await request(app.getHttpServer()).post('/crops').send({
+      commonNames: { fr: 'Mil' }, scientificName: 'Pennisetum glaucum', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL',
+    }).expect(201);
     const id = created.body.id;
 
-    // Publier une première fois (DRAFT → PUBLISHED)
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
-
-    // /published contient le document figé
     const pub1 = await request(app.getHttpServer()).get(`/crops/${id}/published`).expect(200);
     expect(pub1.body.name).toBe('Mil');
 
-    // Éditer le brouillon (status reste PUBLISHED, hasUnpublishedChanges=true)
-    await request(app.getHttpServer())
-      .patch(`/crops/${id}`)
-      .send({ commonNames: { fr: 'Mil perlé' } })
-      .expect(200);
+    // éditer le brouillon
+    await request(app.getHttpServer()).patch(`/crops/${id}`).send({ commonNames: { fr: 'Mil perlé' } }).expect(200);
 
-    // Tenter de republier → 409 (transition PUBLISHED→PUBLISHED interdite)
-    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(409);
+    // republier (PUBLISHED -> PUBLISHED désormais autorisé)
+    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
 
-    // /published reste figé sur la valeur d'origine (Mil, pas Mil perlé)
+    // le figé reflète la nouvelle valeur, le brouillon n'a plus de modifs en attente
     const pub2 = await request(app.getHttpServer()).get(`/crops/${id}/published`).expect(200);
-    expect(pub2.body.name).toBe('Mil');
-
-    // Le brouillon a bien les modifications et les drapeaux corrects
+    expect(pub2.body.name).toBe('Mil perlé');
     const draft = await request(app.getHttpServer()).get(`/crops/${id}`).expect(200);
-    expect(draft.body.name).toBe('Mil perlé');
-    expect(draft.body.hasUnpublishedChanges).toBe(true);
-    expect(draft.body.hasPublishedVersion).toBe(true);
+    expect(draft.body.hasUnpublishedChanges).toBe(false);
   });
 
   it('abandonner ramène le brouillon au publié (y compris une section)', async () => {
