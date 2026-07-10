@@ -274,6 +274,18 @@ export class CropController {
     }
   }
 
+  @Get(':id/versions')
+  async versions(@Param('id') id: string) {
+    return this.publishedCrops.listByCrop(id);
+  }
+
+  @Get(':id/versions/:revision')
+  async version(@Param('id') id: string, @Param('revision') revision: string) {
+    const rec = await this.publishedCrops.findRevision(id, Number(revision));
+    if (!rec) throw new NotFoundException(id);
+    return rec.document;
+  }
+
   @Post(':id/discard')
   async discard(@Param('id') id: string) {
     try {
