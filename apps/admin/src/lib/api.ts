@@ -166,6 +166,13 @@ export async function addVariety(cropId: string, input: { name: Record<string, s
   return res.json();
 }
 
+export async function updateVariety(cropId: string, varietyId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<void> {
+  const res = await fetch(`${BASE}/crops/${cropId}/varieties/${varietyId}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+}
+
 export interface Pest { id: string; name: string; type: string; scientificName?: string; }
 export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;

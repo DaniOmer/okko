@@ -4,23 +4,31 @@ import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { addVariety } from '../../../../lib/api';
+import { addVariety, updateVariety } from '../../../../lib/api';
 
-export function VarietyEditor({ cropId }: { cropId: string }) {
-  const [name, setName] = useState(''); const [maturityDays, setMaturityDays] = useState(''); const [traits, setTraits] = useState('');
+export function VarietyEditor({ cropId, initial }: { cropId: string; initial?: { id: string; name: Record<string, string>; maturityDays?: number; traits: string[] } }) {
+  const editing = !!initial;
+  const [name, setName] = useState(initial?.name.fr ?? '');
+  const [maturityDays, setMaturityDays] = useState(initial?.maturityDays != null ? String(initial.maturityDays) : '');
+  const [traits, setTraits] = useState(initial?.traits?.join(', ') ?? '');
   return (
-    <EditorShell label="+ Ajouter une variété">
+    <EditorShell label={editing ? 'Modifier' : '+ Ajouter une variété'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
             submit(async () => {
-              await addVariety(cropId, {
+              const body = {
                 name: { fr: name },
                 maturityDays: maturityDays ? Number(maturityDays) : undefined,
                 traits: traits ? traits.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
-              });
-              setName(''); setMaturityDays(''); setTraits('');
+              };
+              if (editing) {
+                await updateVariety(cropId, initial!.id, body);
+              } else {
+                await addVariety(cropId, body);
+                setName(''); setMaturityDays(''); setTraits('');
+              }
             });
           }}
           className="space-y-3 text-sm"
@@ -39,7 +47,7 @@ export function VarietyEditor({ cropId }: { cropId: string }) {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
           </div>
         </form>
       )}
