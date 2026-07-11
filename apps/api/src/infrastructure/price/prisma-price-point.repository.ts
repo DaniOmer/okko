@@ -14,7 +14,7 @@ export class PrismaPricePointRepository implements PricePointRepository {
   }
 
   async listByCrop(cropId: string): Promise<PricePointSnapshot[]> {
-    const rows = await this.prisma.pricePoint.findMany({ where: { cropId }, orderBy: [{ date: 'desc' }, { createdAt: 'desc' }] });
+    const rows = await this.prisma.pricePoint.findMany({ where: { cropId }, orderBy: [{ periodEnd: 'desc' }, { createdAt: 'desc' }] });
     return rows.map((r) => this.toSnapshot(r));
   }
 
@@ -27,14 +27,16 @@ export class PrismaPricePointRepository implements PricePointRepository {
 
   private toRow(p: PricePointSnapshot): Prisma.PricePointCreateInput {
     return {
-      id: p.id, cropId: p.cropId, market: p.market, date: p.date,
+      id: p.id, cropId: p.cropId, market: p.market,
+      periodStart: p.periodStart, periodEnd: p.periodEnd,
       price: p.price, unit: p.unit, currency: p.currency,
     };
   }
 
   private toSnapshot(row: PrismaPrice): PricePointSnapshot {
     return {
-      id: row.id, cropId: row.cropId, market: row.market, date: row.date,
+      id: row.id, cropId: row.cropId, market: row.market,
+      periodStart: row.periodStart, periodEnd: row.periodEnd,
       price: row.price, unit: row.unit, currency: row.currency,
     };
   }

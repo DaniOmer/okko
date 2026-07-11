@@ -153,7 +153,7 @@ describe('toCropDocument with nutrition, yields and prices', () => {
     hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const prices: PricePointSnapshot[] = [
-    { id: 'pp1', cropId: 'c1', market: 'Dantokpa', date: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' },
+    { id: 'pp1', cropId: 'c1', market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' },
   ];
 
   it('includes nutrition, yields and prices in the document and serialized text', () => {

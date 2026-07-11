@@ -32,7 +32,7 @@ import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 import { ControlMethodJSON } from '../../domain/pest/control-method';
 import { SetCropNutritionUseCase } from '../../application/crop/set-crop-nutrition.use-case';
 import { SetCropYieldsUseCase } from '../../application/crop/set-crop-yields.use-case';
-import { AddPricePointUseCase } from '../../application/price/add-price-point.use-case';
+import { AddPricePointUseCase, InvalidPricePeriodError } from '../../application/price/add-price-point.use-case';
 import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.use-case';
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
@@ -53,6 +53,7 @@ function mapCropError(e: unknown, id: string): never {
   if (e instanceof NoPublishedVersionError) throw new ConflictException((e as Error).message);
   if (e instanceof RevisionNotFoundError) throw new NotFoundException((e as Error).message);
   if (e instanceof IncompleteCropError) throw new UnprocessableEntityException((e as Error).message);
+  if (e instanceof InvalidPricePeriodError) throw new UnprocessableEntityException((e as Error).message);
   if (e instanceof VarietyNotFoundError) throw new NotFoundException((e as Error).message);
   throw e;
 }
@@ -260,7 +261,7 @@ export class CropController {
   @Post(':id/prices')
   async createPrice(
     @Param('id') id: string,
-    @Body() body: { market: string; date: string; price: number; unit: string; currency: string },
+    @Body() body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string },
   ) {
     try {
       return await this.addPrice.execute({ cropId: id, actor: ACTOR, ...body });

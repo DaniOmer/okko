@@ -51,7 +51,7 @@ async function seedComplete(events: InMemoryCropEventStore, cropId: string, { in
     { type: 'ZoneSuitabilitySet', suitability: { zoneId: 'z-seed', cropId, rating: 'SUITABLE' as any } },
     { type: 'CroppingWindowAdded', window: { id: `w-seed-${cropId}`, cropId, zoneId: 'z-seed', season: 'Hivernage', irrigationRequired: false, operations: [] } },
     { type: 'PestControlSet', control: { pestId: 'p-seed', cropId, susceptibility: 'HIGH' as any, sensitiveStages: [], controlMethods: [] } },
-    { type: 'PricePointAdded', price: { id: `pp-seed-${cropId}`, cropId, market: 'Local', date: '2026-01-01', price: 100, unit: 'FCFA/kg', currency: 'XOF' } },
+    { type: 'PricePointAdded', price: { id: `pp-seed-${cropId}`, cropId, market: 'Local', periodStart: '2026-01-01', periodEnd: '2026-01-01', price: 100, unit: 'FCFA/kg', currency: 'XOF' } },
   ];
   await events.append(cropId, stored.length, sectionEvents.map((event) => ({ event, actor, at })));
 }

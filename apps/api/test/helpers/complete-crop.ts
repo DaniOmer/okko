@@ -38,6 +38,6 @@ export async function fillAllSections(app: INestApplication, cropId: string): Pr
     controlMethods: [{ category: 'PREVENTION', description: { fr: 'Désherbage précoce' }, inputs: [] }],
   }).expect(200);
   await request(http).post(`/crops/${cropId}/prices`).send({
-    market: 'Parakou', date: '2026-06-01', price: 200, unit: 'FCFA/kg', currency: 'XOF',
+    market: 'Parakou', periodStart: '2026-06-01', price: 200, unit: 'FCFA/kg', currency: 'XOF',
   }).expect(201);
 }

@@ -7,11 +7,19 @@ import { Clock } from '../shared/clock';
 import { IdGenerator } from '../shared/id-generator';
 import { CropNotFoundError } from '../crop/publish-crop.use-case';
 
+export class InvalidPricePeriodError extends Error {
+  constructor() {
+    super('periodEnd must be >= periodStart');
+    this.name = 'InvalidPricePeriodError';
+  }
+}
+
 export interface AddPricePointInput {
   cropId: string;
   id?: string;
   market: string;
-  date: string;
+  periodStart: string;
+  periodEnd?: string;
   price: number;
   unit: string;
   currency: string;
@@ -30,9 +38,15 @@ export class AddPricePointUseCase {
   async execute(input: AddPricePointInput): Promise<PricePointSnapshot> {
     const stored = await this.events.load(input.cropId);
     if (stored.length === 0) throw new CropNotFoundError(input.cropId);
+
+    const periodStart = input.periodStart;
+    const periodEnd = input.periodEnd || input.periodStart;
+    if (periodEnd < periodStart) throw new InvalidPricePeriodError();
+
     const point = PricePoint.create({
       id: input.id ?? this.ids.next(),
-      cropId: input.cropId, market: input.market, date: input.date,
+      cropId: input.cropId, market: input.market,
+      periodStart, periodEnd,
       price: input.price, unit: input.unit, currency: input.currency,
     });
     const snap = point.toSnapshot();

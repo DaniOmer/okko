@@ -37,7 +37,7 @@ describe('Nutrition, yields & prices e2e', () => {
       .expect(200);
 
     await request(app.getHttpServer()).post(`/crops/${id}/prices`)
-      .send({ market: 'Dantokpa', date: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' })
+      .send({ market: 'Dantokpa', periodStart: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' })
       .expect(201);
 
     const prices = await request(app.getHttpServer()).get(`/crops/${id}/prices`).expect(200);
@@ -52,7 +52,7 @@ describe('Nutrition, yields & prices e2e', () => {
 
   it('returns 404 adding a price for an unknown crop', async () => {
     await request(app.getHttpServer()).post('/crops/does-not-exist/prices')
-      .send({ market: 'M', date: '2026-06-01', price: 1, unit: 'u', currency: 'XOF' })
+      .send({ market: 'M', periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF' })
       .expect(404);
   });
 });

@@ -133,7 +133,7 @@ describe('Crop sections event-sourcing e2e', () => {
       .post(`/crops/${cropId}/prices`)
       .send({
         market: 'Parakou',
-        date: '2026-06-01',
+        periodStart: '2026-06-01',
         price: 200,
         unit: 'FCFA/kg',
         currency: 'XOF',
