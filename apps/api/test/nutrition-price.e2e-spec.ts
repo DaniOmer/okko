@@ -33,7 +33,7 @@ describe('Nutrition, yields & prices e2e', () => {
       .expect(200);
 
     await request(app.getHttpServer()).patch(`/crops/${id}/yields`)
-      .send({ yields: [{ inputLevel: 'MEDIUM', min: 2, average: 4, potential: 6, unit: 't/ha' }] })
+      .send({ yields: [{ inputType: 'CHEMICAL', min: 2, average: 4, potential: 6, unit: 't/ha' }] })
       .expect(200);
 
     await request(app.getHttpServer()).post(`/crops/${id}/prices`)

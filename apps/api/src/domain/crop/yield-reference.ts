@@ -1,7 +1,7 @@
-export enum InputLevel {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
+export enum InputType {
+  CHEMICAL = 'CHEMICAL',
+  ORGANIC = 'ORGANIC',
+  MIXED = 'MIXED',
 }
 
 export class YieldReferenceError extends Error {
@@ -12,7 +12,7 @@ export class YieldReferenceError extends Error {
 }
 
 export interface YieldReferenceJSON {
-  inputLevel: InputLevel;
+  inputType: InputType;
   min: number;
   average: number;
   potential: number;
@@ -21,7 +21,7 @@ export interface YieldReferenceJSON {
 }
 
 interface CreateProps {
-  inputLevel: InputLevel;
+  inputType: InputType;
   min: number;
   average: number;
   potential: number;
@@ -31,7 +31,7 @@ interface CreateProps {
 
 export class YieldReference {
   private constructor(
-    private readonly _inputLevel: InputLevel,
+    private readonly _inputType: InputType,
     private readonly _min: number,
     private readonly _average: number,
     private readonly _potential: number,
@@ -43,10 +43,10 @@ export class YieldReference {
     if (!(props.min <= props.average && props.average <= props.potential)) {
       throw new YieldReferenceError(`Invalid yield: expected min <= average <= potential, got ${props.min}/${props.average}/${props.potential}`);
     }
-    return new YieldReference(props.inputLevel, props.min, props.average, props.potential, props.unit, props.zoneId);
+    return new YieldReference(props.inputType, props.min, props.average, props.potential, props.unit, props.zoneId);
   }
 
-  get inputLevel(): InputLevel { return this._inputLevel; }
+  get inputType(): InputType { return this._inputType; }
   get min(): number { return this._min; }
   get average(): number { return this._average; }
   get potential(): number { return this._potential; }
@@ -55,12 +55,12 @@ export class YieldReference {
 
   toJSON(): YieldReferenceJSON {
     return {
-      inputLevel: this._inputLevel, min: this._min, average: this._average,
+      inputType: this._inputType, min: this._min, average: this._average,
       potential: this._potential, unit: this._unit, zoneId: this._zoneId,
     };
   }
 
   static fromJSON(json: YieldReferenceJSON): YieldReference {
-    return new YieldReference(json.inputLevel, json.min, json.average, json.potential, json.unit, json.zoneId);
+    return new YieldReference(json.inputType, json.min, json.average, json.potential, json.unit, json.zoneId);
   }
 }

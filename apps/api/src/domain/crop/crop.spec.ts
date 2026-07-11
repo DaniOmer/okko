@@ -7,7 +7,7 @@ import { EdaphicRequirements } from '../shared/edaphic-requirements';
 import { RangeValue } from '../shared/range-value';
 import { PhenologicalStage } from './phenological-stage';
 import { NutrientRequirement, NutrientBasis } from './nutrient-requirement';
-import { YieldReference, InputLevel } from './yield-reference';
+import { YieldReference, InputType } from './yield-reference';
 
 const base = () => Crop.create({
   id: 'crop-1',
@@ -136,7 +136,7 @@ describe('Crop nutrition and yields', () => {
 
   it('sets yields and round-trips', () => {
     const c = base();
-    c.setYields([YieldReference.create({ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' })]);
+    c.setYields([YieldReference.create({ inputType: InputType.CHEMICAL, min: 2, average: 4, potential: 6, unit: 't/ha' })]);
     expect(c.version).toBe(2);
     const restored = Crop.fromSnapshot(c.toSnapshot());
     expect(restored.yields[0].average).toBe(4);
