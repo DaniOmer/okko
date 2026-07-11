@@ -21,6 +21,7 @@ export default function NewPestPage() {
     setError(null);
     try {
       await createPest({ name: { fr }, type, scientificName: scientificName || undefined });
+      router.refresh();
       router.push('/pests');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur');

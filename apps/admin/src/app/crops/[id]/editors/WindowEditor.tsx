@@ -28,11 +28,14 @@ export function WindowEditor({ cropId, zones }: { cropId: string; zones: { id: s
           onSubmit={(e) => {
             e.preventDefault();
             if (!zoneId || !season) return;
-            submit(() => addWindow(cropId, {
-              zoneId, season, sowingStart: sowingStart || undefined, sowingEnd: sowingEnd || undefined,
-              irrigationRequired: irrigation,
-              operations: ops.map((o) => ({ type: o.type, label: { fr: o.label }, timingDays: Number(o.timingDays), inputs: [] })),
-            }));
+            submit(async () => {
+              await addWindow(cropId, {
+                zoneId, season, sowingStart: sowingStart || undefined, sowingEnd: sowingEnd || undefined,
+                irrigationRequired: irrigation,
+                operations: ops.map((o) => ({ type: o.type, label: { fr: o.label }, timingDays: Number(o.timingDays), inputs: [] })),
+              });
+              setZoneId(''); setSeason(''); setSowingStart(''); setSowingEnd(''); setIrrigation(false); setOps([]);
+            });
           }}
           className="space-y-3 text-sm"
         >
