@@ -109,7 +109,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.zones.map((z) => (
-                <li key={z.zoneId}>{z.zoneName.fr} — <strong>{labelOf(SUITABILITY_LABELS, z.rating)}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
+                <li key={z.zoneId} className="flex items-center gap-2">
+                  <span>{z.zoneName.fr} — <strong>{labelOf(SUITABILITY_LABELS, z.rating)}</strong>{z.justification ? ` (${z.justification})` : ''}</span>
+                  <ZoneSuitabilityEditor cropId={params.id} zones={zones} initial={{ zoneId: z.zoneId, rating: z.rating, justification: z.justification }} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -159,7 +162,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             {crop.pests.map((p) => (
               <div key={p.pestId} className="mb-3">
-                <p className="font-medium">{p.pestName.fr} — <strong>{labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}</strong> ({labelOf(PEST_TYPE_LABELS, p.type)})</p>
+                <p className="font-medium flex items-center gap-2">
+                  <span>{p.pestName.fr} — <strong>{labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}</strong> ({labelOf(PEST_TYPE_LABELS, p.type)})</span>
+                  <PestControlEditor cropId={params.id} pests={pests} initial={{ pestId: p.pestId, susceptibility: p.susceptibility, threshold: p.threshold, sensitiveStages: p.sensitiveStages, controlMethods: p.controlMethods }} />
+                </p>
                 <ul className="list-disc pl-5">
                   {p.controlMethods.map((m, i) => (
                     <li key={i}>{labelOf(CONTROL_CATEGORY_LABELS, m.category)} : {m.description.fr}</li>

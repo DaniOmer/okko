@@ -8,14 +8,34 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { SUSCEPTIBILITY_LABELS } from '@/lib/labels';
 import { setPestControl } from '../../../../lib/api';
 
-export function PestControlEditor({ cropId, pests }: { cropId: string; pests: { id: string; name: string }[] }) {
-  const [pestId, setPestId] = useState(''); const [susceptibility, setSusceptibility] = useState('MEDIUM');
-  const [threshold, setThreshold] = useState(''); const [stages, setStages] = useState('');
+interface ControlMethod { category: string; description: Record<string, string>; inputs: string[]; }
+interface PestInitial {
+  pestId: string;
+  susceptibility: string;
+  threshold?: string;
+  sensitiveStages: string[];
+  controlMethods: ControlMethod[];
+}
+
+export function PestControlEditor({
+  cropId,
+  pests,
+  initial,
+}: {
+  cropId: string;
+  pests: { id: string; name: string }[];
+  initial?: PestInitial;
+}) {
+  const editing = !!initial;
+  const [pestId, setPestId] = useState(initial?.pestId ?? '');
+  const [susceptibility, setSusceptibility] = useState(initial?.susceptibility ?? 'MEDIUM');
+  const [threshold, setThreshold] = useState(initial?.threshold ?? '');
+  const [stages, setStages] = useState((initial?.sensitiveStages ?? []).join(', '));
   if (pests.length === 0) {
     return <p className="text-sm text-muted-foreground">Créez d&apos;abord un <a href="/pests" className="underline">ravageur</a> pour le rattacher.</p>;
   }
   return (
-    <EditorShell label="+ Rattacher un ravageur / une maladie">
+    <EditorShell label={editing ? 'Modifier' : '+ Rattacher un ravageur / une maladie'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
@@ -26,15 +46,18 @@ export function PestControlEditor({ cropId, pests }: { cropId: string; pests: { 
                 susceptibility,
                 threshold: threshold || undefined,
                 sensitiveStages: stages ? stages.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+                ...(editing ? { controlMethods: initial!.controlMethods } : {}),
               });
-              setPestId(''); setSusceptibility('MEDIUM'); setThreshold(''); setStages('');
+              if (!editing) {
+                setPestId(''); setSusceptibility('MEDIUM'); setThreshold(''); setStages('');
+              }
             });
           }}
           className="space-y-3 text-sm"
         >
           <div className="space-y-1">
             <Label>Ravageur / maladie *</Label>
-            <Select value={pestId} onValueChange={setPestId}>
+            <Select value={pestId} onValueChange={setPestId} disabled={editing}>
               <SelectTrigger><SelectValue placeholder="— Ravageur / maladie —" /></SelectTrigger>
               <SelectContent>
                 {pests.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
@@ -60,7 +83,7 @@ export function PestControlEditor({ cropId, pests }: { cropId: string; pests: { 
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Rattacher</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Rattacher'}</Button>
           </div>
         </form>
       )}

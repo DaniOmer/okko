@@ -176,6 +176,7 @@ export async function updateVariety(cropId: string, varietyId: string, input: { 
 export interface Pest { id: string; name: string; type: string; scientificName?: string; }
 export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;
+  threshold?: string; sensitiveStages: string[];
   controlMethods: { category: string; description: Record<string, string>; inputs: string[] }[];
 }
 
