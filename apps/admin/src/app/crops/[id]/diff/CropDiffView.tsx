@@ -62,7 +62,7 @@ function SectionBlock({ diff }: { diff: SectionDiff }) {
         <div>
           <div className="text-sm font-medium text-green-700">Ajoutés</div>
           <ul className="list-disc pl-5 text-sm text-green-700">
-            {diff.added.map((it, i) => <li key={i}>{itemLabel(diff.section, it)}</li>)}
+            {diff.added.map((it) => <li key={itemLabel(diff.section, it)}>{itemLabel(diff.section, it)}</li>)}
           </ul>
         </div>
       )}
@@ -70,15 +70,15 @@ function SectionBlock({ diff }: { diff: SectionDiff }) {
         <div>
           <div className="text-sm font-medium text-red-700">Supprimés</div>
           <ul className="list-disc pl-5 text-sm text-red-700">
-            {diff.removed.map((it, i) => <li key={i}>{itemLabel(diff.section, it)}</li>)}
+            {diff.removed.map((it) => <li key={itemLabel(diff.section, it)}>{itemLabel(diff.section, it)}</li>)}
           </ul>
         </div>
       )}
       {diff.changed.length > 0 && (
         <div className="space-y-2">
           <div className="text-sm font-medium">Modifiés</div>
-          {diff.changed.map((c, i) => (
-            <div key={i} className="space-y-1">
+          {diff.changed.map((c) => (
+            <div key={c.key} className="space-y-1">
               <div className="text-sm font-medium">{itemLabel(diff.section, c.before)}</div>
               <BeforeAfter before={c.before} after={c.after} />
             </div>
