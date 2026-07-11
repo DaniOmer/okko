@@ -96,7 +96,14 @@ describe('Phenology & windows e2e', () => {
     const zone = await request(app.getHttpServer()).post('/zones')
       .send({ name: { fr: 'Zone test' }, country: 'SN' }).expect(201);
 
-    await request(app.getHttpServer()).put(`/crops/${crop.body.id}/windows/unknown-window-id`)
+    // Create a window so the crop has at least one — ensure we're testing the wrong-id guard, not empty-list
+    await request(app.getHttpServer()).post(`/crops/${crop.body.id}/windows`)
+      .send({ zoneId: zone.body.id, season: 'Saison des pluies', irrigationRequired: false,
+              operations: [{ type: 'PLANTING', label: { fr: 'Semis' }, timingDays: 0, inputs: [] }] })
+      .expect(201);
+
+    // Try to update a different (non-existent) windowId — exercises CroppingWindowNotFoundError guard
+    await request(app.getHttpServer()).put(`/crops/${crop.body.id}/windows/does-not-exist`)
       .send({ zoneId: zone.body.id, season: 'S' })
       .expect(404);
   });
