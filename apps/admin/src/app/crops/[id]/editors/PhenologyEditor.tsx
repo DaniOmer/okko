@@ -7,18 +7,31 @@ import { Label } from '@/components/ui/label';
 import { setPhenology } from '../../../../lib/api';
 import type { PhenologicalStage } from '../../../../lib/api';
 
-export function PhenologyEditor({ cropId, current }: { cropId: string; current: PhenologicalStage[] }) {
-  const [name, setName] = useState(''); const [start, setStart] = useState(''); const [end, setEnd] = useState('');
+export function PhenologyEditor({ cropId, current, editIndex }: { cropId: string; current: PhenologicalStage[]; editIndex?: number }) {
+  const editing = editIndex != null;
+  const [name, setName] = useState(current[editIndex!]?.name.fr ?? '');
+  const [start, setStart] = useState(String(current[editIndex!]?.startDay ?? ''));
+  const [end, setEnd] = useState(String(current[editIndex!]?.endDay ?? ''));
   return (
-    <EditorShell label="+ Ajouter un stade phénologique">
+    <EditorShell label={editing ? 'Modifier' : '+ Ajouter un stade phénologique'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const next = [...current, { name: { fr: name }, startDay: Number(start), endDay: Number(end), order: current.length + 1 }];
+            const nouvelItem = {
+              name: { fr: name },
+              startDay: Number(start),
+              endDay: Number(end),
+              order: editing ? current[editIndex].order : current.length + 1,
+            };
+            const next = editing
+              ? current.map((it, i) => i === editIndex ? nouvelItem : it)
+              : [...current, nouvelItem];
             submit(async () => {
               await setPhenology(cropId, next);
-              setName(''); setStart(''); setEnd('');
+              if (!editing) {
+                setName(''); setStart(''); setEnd('');
+              }
             });
           }}
           className="space-y-3 text-sm"
@@ -36,7 +49,7 @@ export function PhenologyEditor({ cropId, current }: { cropId: string; current: 
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
           </div>
         </form>
       )}

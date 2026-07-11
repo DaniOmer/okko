@@ -9,19 +9,28 @@ import { INPUT_LEVEL_LABELS } from '@/lib/labels';
 import { setYields } from '../../../../lib/api';
 import type { YieldReference } from '../../../../lib/api';
 
-export function YieldsEditor({ cropId, current }: { cropId: string; current: YieldReference[] }) {
-  const [level, setLevel] = useState('MEDIUM');
-  const [min, setMin] = useState(''); const [avg, setAvg] = useState(''); const [pot, setPot] = useState(''); const [unit, setUnit] = useState('t/ha');
+export function YieldsEditor({ cropId, current, editIndex }: { cropId: string; current: YieldReference[]; editIndex?: number }) {
+  const editing = editIndex != null;
+  const [level, setLevel] = useState(current[editIndex!]?.inputLevel ?? 'MEDIUM');
+  const [min, setMin] = useState(String(current[editIndex!]?.min ?? ''));
+  const [avg, setAvg] = useState(String(current[editIndex!]?.average ?? ''));
+  const [pot, setPot] = useState(String(current[editIndex!]?.potential ?? ''));
+  const [unit, setUnit] = useState(current[editIndex!]?.unit ?? 't/ha');
   return (
-    <EditorShell label="+ Ajouter un rendement de référence">
+    <EditorShell label={editing ? 'Modifier' : '+ Ajouter un rendement de référence'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const next = [...current, { inputLevel: level, min: Number(min), average: Number(avg), potential: Number(pot), unit }];
+            const nouvelItem = { inputLevel: level, min: Number(min), average: Number(avg), potential: Number(pot), unit };
+            const next = editing
+              ? current.map((it, i) => i === editIndex ? nouvelItem : it)
+              : [...current, nouvelItem];
             submit(async () => {
               await setYields(cropId, next);
-              setLevel('MEDIUM'); setMin(''); setAvg(''); setPot(''); setUnit('t/ha');
+              if (!editing) {
+                setLevel('MEDIUM'); setMin(''); setAvg(''); setPot(''); setUnit('t/ha');
+              }
             });
           }}
           className="space-y-3 text-sm"
@@ -46,7 +55,7 @@ export function YieldsEditor({ cropId, current }: { cropId: string; current: Yie
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
           </div>
         </form>
       )}

@@ -90,9 +90,12 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <VarietyEditor cropId={params.id} />
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
-            <ul className="list-disc pl-5">
+            <ul>
               {crop.varieties.map((v) => (
-                <li key={v.id}>{v.name.fr}{v.maturityDays ? ` — ${v.maturityDays} j` : ''}</li>
+                <li key={v.id} className="flex items-center gap-2">
+                  <span>{v.name.fr}{v.maturityDays ? ` — ${v.maturityDays} j` : ''}</span>
+                  <VarietyEditor cropId={params.id} initial={v} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -106,7 +109,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.zones.map((z) => (
-                <li key={z.zoneId}>{z.zoneName.fr} — <strong>{labelOf(SUITABILITY_LABELS, z.rating)}</strong>{z.justification ? ` (${z.justification})` : ''}</li>
+                <li key={z.zoneId} className="flex items-center gap-2">
+                  <span>{z.zoneName.fr} — <strong>{labelOf(SUITABILITY_LABELS, z.rating)}</strong>{z.justification ? ` (${z.justification})` : ''}</span>
+                  <ZoneSuitabilityEditor cropId={params.id} zones={zones} initial={{ zoneId: z.zoneId, rating: z.rating, justification: z.justification }} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -119,8 +125,11 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
-              {crop.phenology.map((p) => (
-                <li key={p.order}>{p.name.fr} — J{p.startDay} à J{p.endDay}</li>
+              {crop.phenology.map((p, i) => (
+                <li key={p.order} className="flex items-center gap-2">
+                  <span>{p.name.fr} — J{p.startDay} à J{p.endDay}</span>
+                  <PhenologyEditor cropId={params.id} current={crop.phenology} editIndex={i} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -153,7 +162,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             {crop.pests.map((p) => (
               <div key={p.pestId} className="mb-3">
-                <p className="font-medium">{p.pestName.fr} — <strong>{labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}</strong> ({labelOf(PEST_TYPE_LABELS, p.type)})</p>
+                <p className="font-medium flex items-center gap-2">
+                  <span>{p.pestName.fr} — <strong>{labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}</strong> ({labelOf(PEST_TYPE_LABELS, p.type)})</span>
+                  <PestControlEditor cropId={params.id} pests={pests} initial={{ pestId: p.pestId, susceptibility: p.susceptibility, threshold: p.threshold, sensitiveStages: p.sensitiveStages, controlMethods: p.controlMethods }} />
+                </p>
                 <ul className="list-disc pl-5">
                   {p.controlMethods.map((m, i) => (
                     <li key={i}>{labelOf(CONTROL_CATEGORY_LABELS, m.category)} : {m.description.fr}</li>
@@ -172,7 +184,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.nutrition.map((n, i) => (
-                <li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</li>
+                <li key={i} className="flex items-center gap-2">
+                  <span>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</span>
+                  <NutritionEditor cropId={params.id} current={crop.nutrition} editIndex={i} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -186,7 +201,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.yields.map((y, i) => (
-                <li key={i}>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
+                <li key={i} className="flex items-center gap-2">
+                  <span>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</span>
+                  <YieldsEditor cropId={params.id} current={crop.yields} editIndex={i} />
+                </li>
               ))}
             </ul>
           </CardContent>

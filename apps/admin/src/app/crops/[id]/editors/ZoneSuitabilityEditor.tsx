@@ -8,13 +8,26 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { SUITABILITY_LABELS } from '@/lib/labels';
 import { setZoneSuitability } from '../../../../lib/api';
 
-export function ZoneSuitabilityEditor({ cropId, zones }: { cropId: string; zones: { id: string; name: string }[] }) {
-  const [zoneId, setZoneId] = useState(''); const [rating, setRating] = useState('SUITABLE'); const [justification, setJustification] = useState('');
+interface ZoneInitial { zoneId: string; rating: string; justification?: string; }
+
+export function ZoneSuitabilityEditor({
+  cropId,
+  zones,
+  initial,
+}: {
+  cropId: string;
+  zones: { id: string; name: string }[];
+  initial?: ZoneInitial;
+}) {
+  const editing = !!initial;
+  const [zoneId, setZoneId] = useState(initial?.zoneId ?? '');
+  const [rating, setRating] = useState(initial?.rating ?? 'SUITABLE');
+  const [justification, setJustification] = useState(initial?.justification ?? '');
   if (zones.length === 0) {
     return <p className="text-sm text-muted-foreground">Créez d&apos;abord une <a href="/zones" className="underline">zone</a> pour la rattacher.</p>;
   }
   return (
-    <EditorShell label="+ Rattacher une zone">
+    <EditorShell label={editing ? 'Modifier' : '+ Rattacher une zone'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => { e.preventDefault(); if (!zoneId) return; submit(() => setZoneSuitability(cropId, zoneId, { rating, justification: justification || undefined })); }}
@@ -22,7 +35,7 @@ export function ZoneSuitabilityEditor({ cropId, zones }: { cropId: string; zones
         >
           <div className="space-y-1">
             <Label>Zone *</Label>
-            <Select value={zoneId} onValueChange={setZoneId}>
+            <Select value={zoneId} onValueChange={setZoneId} disabled={editing}>
               <SelectTrigger><SelectValue placeholder="— Choisir une zone —" /></SelectTrigger>
               <SelectContent>
                 {zones.map((z) => <SelectItem key={z.id} value={z.id}>{z.name}</SelectItem>)}
@@ -44,7 +57,7 @@ export function ZoneSuitabilityEditor({ cropId, zones }: { cropId: string; zones
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Rattacher</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Rattacher'}</Button>
           </div>
         </form>
       )}

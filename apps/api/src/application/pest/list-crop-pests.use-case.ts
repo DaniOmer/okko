@@ -10,6 +10,8 @@ export interface CropPestView {
   type: PestType;
   susceptibility: SusceptibilityLevel;
   controlMethods: CropPestControlSnapshot['controlMethods'];
+  sensitiveStages: string[];
+  threshold?: string;
 }
 
 export class ListCropPestsUseCase {
@@ -29,6 +31,8 @@ export class ListCropPestsUseCase {
         type: pest ? pest.type : PestType.OTHER,
         susceptibility: c.susceptibility,
         controlMethods: c.controlMethods,
+        sensitiveStages: c.sensitiveStages,
+        threshold: c.threshold,
       });
     }
     return views;

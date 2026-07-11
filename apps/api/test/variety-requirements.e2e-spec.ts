@@ -45,4 +45,43 @@ describe('Requirements & varieties e2e', () => {
     expect(crop.body.climatic.temperature.optimal).toBe(25);
     expect(crop.body.varieties).toHaveLength(1);
   });
+
+  it('PUT /crops/:id/varieties/:varietyId met à jour la variété', async () => {
+    const created = await request(app.getHttpServer()).post('/crops')
+      .send({ commonNames: { fr: 'Sorgho' }, scientificName: 'Sorghum bicolor', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
+    const cropId = created.body.id;
+
+    await request(app.getHttpServer()).post(`/crops/${cropId}/varieties`)
+      .send({ name: { fr: 'Original' }, maturityDays: 90 })
+      .expect(201);
+
+    const listBefore = await request(app.getHttpServer()).get(`/crops/${cropId}/varieties`).expect(200);
+    const varietyId = listBefore.body[0].id;
+    expect(listBefore.body).toHaveLength(1);
+
+    await request(app.getHttpServer()).put(`/crops/${cropId}/varieties/${varietyId}`)
+      .send({ name: { fr: 'Modifié' }, maturityDays: 99 })
+      .expect(200);
+
+    const listAfter = await request(app.getHttpServer()).get(`/crops/${cropId}/varieties`).expect(200);
+    expect(listAfter.body).toHaveLength(1);
+    expect(listAfter.body[0].name.fr).toBe('Modifié');
+    expect(listAfter.body[0].maturityDays).toBe(99);
+
+    const crop = await request(app.getHttpServer()).get(`/crops/${cropId}`).expect(200);
+    expect(crop.body.varieties).toHaveLength(1);
+    expect(crop.body.varieties[0].name.fr).toBe('Modifié');
+  });
+
+  it('PUT /crops/:id/varieties/:varietyId retourne 404 pour un varietyId inexistant', async () => {
+    const created = await request(app.getHttpServer()).post('/crops')
+      .send({ commonNames: { fr: 'Mil' }, scientificName: 'Pennisetum glaucum', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
+    const cropId = created.body.id;
+
+    await request(app.getHttpServer()).put(`/crops/${cropId}/varieties/inexistant-id`)
+      .send({ name: { fr: 'X' } })
+      .expect(404);
+  });
 });
