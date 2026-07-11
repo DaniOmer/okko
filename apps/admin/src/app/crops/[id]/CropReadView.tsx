@@ -3,6 +3,7 @@ import {
   labelOf, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
   OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS,
 } from '@/lib/labels';
+import { formatDayMonth } from '../../../lib/format';
 import type { CropDetail } from '../../../lib/api';
 
 export function CropReadView({ crop }: { crop: CropDetail }) {
@@ -56,14 +57,19 @@ export function CropReadView({ crop }: { crop: CropDetail }) {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base">Fenêtres de production ({crop.croppingWindows.length})</CardTitle></CardHeader>
         <CardContent className="space-y-1 text-sm">
-          {crop.croppingWindows.map((w) => (
-            <div key={w.id} className="mb-3">
-              <p className="font-medium">{w.season}{w.irrigationRequired ? ' · irrigation requise' : ''}</p>
-              <ul className="list-disc pl-5">
-                {w.operations.map((op, i) => (<li key={i}>J+{op.timingDays} — {op.label.fr} ({labelOf(OPERATION_TYPE_LABELS, op.type)})</li>))}
-              </ul>
-            </div>
-          ))}
+          {crop.croppingWindows.map((w) => {
+            const items = [...w.operations, { type: '__SOWING__', label: { fr: '' }, timingDays: 0, inputs: [] }].sort((a, b) => a.timingDays - b.timingDays);
+            return (
+              <div key={w.id} className="mb-3">
+                <p className="font-medium">{w.season}{w.sowingStart ? ` · semis ${formatDayMonth(w.sowingStart)}${w.sowingEnd ? ` → ${formatDayMonth(w.sowingEnd)}` : ''}` : ''}{w.irrigationRequired ? ' · irrigation requise' : ''}</p>
+                <ul className="list-disc pl-5">
+                  {items.map((op, i) => op.type === '__SOWING__'
+                    ? <li key={`s${i}`} className="font-medium">J0 · Semis</li>
+                    : <li key={i}>J{op.timingDays >= 0 ? '+' : ''}{op.timingDays} — {op.label.fr} ({labelOf(OPERATION_TYPE_LABELS, op.type)})</li>)}
+                </ul>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 
