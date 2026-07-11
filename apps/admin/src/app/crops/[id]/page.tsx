@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
 import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_LEVEL_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
@@ -46,6 +47,11 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             hasUnpublishedChanges={crop.hasUnpublishedChanges}
             hasPublishedVersion={crop.hasPublishedVersion}
           />
+          {crop.hasPublishedVersion && (
+            <Link href={`/crops/${params.id}/versions`} className="text-sm text-primary hover:underline">
+              Historique des versions →
+            </Link>
+          )}
         </div>
         {crop.completeness && <CompletenessRing percent={crop.completeness.percent} />}
       </div>
