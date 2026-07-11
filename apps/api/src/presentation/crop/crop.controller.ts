@@ -300,11 +300,15 @@ export class CropController {
 
   @Get(':id/diff')
   async diff(@Param('id') id: string, @Query('from') from: string, @Query('to') to: string) {
-    const a = await this.publishedCrops.findRevision(id, Number(from));
+    const fromRevision = Number(from);
+    const toRevision = Number(to);
+    if (!Number.isInteger(fromRevision)) throw new NotFoundException(`crop ${id} revision ${from}`);
+    if (!Number.isInteger(toRevision)) throw new NotFoundException(`crop ${id} revision ${to}`);
+    const a = await this.publishedCrops.findRevision(id, fromRevision);
     if (!a) throw new NotFoundException(`crop ${id} revision ${from}`);
-    const b = await this.publishedCrops.findRevision(id, Number(to));
+    const b = await this.publishedCrops.findRevision(id, toRevision);
     if (!b) throw new NotFoundException(`crop ${id} revision ${to}`);
-    return diffCropDocuments(Number(from), Number(to), a.document, b.document);
+    return diffCropDocuments(fromRevision, toRevision, a.document, b.document);
   }
 
   @Post(':id/discard')

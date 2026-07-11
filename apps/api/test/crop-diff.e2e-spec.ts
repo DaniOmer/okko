@@ -88,5 +88,8 @@ describe('Crop diff e2e', () => {
 
     // révision inexistante -> 404
     await request(app.getHttpServer()).get(`/crops/${id}/diff?from=1&to=99`).expect(404);
+
+    // révision non-numérique -> 404
+    await request(app.getHttpServer()).get(`/crops/${id}/diff?from=abc&to=1`).expect(404);
   });
 });
