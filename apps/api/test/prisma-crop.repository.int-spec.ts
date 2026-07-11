@@ -22,7 +22,7 @@ describe('PrismaCropRepository (integration)', () => {
       metadata: { rusticite: 'élevée' },
       hasUnpublishedChanges: true,
       hasPublishedVersion: false,
-      publishedVersion: 0,
+      publishedVersion: 3,
     };
     await repo.save(saved);
     const found = await repo.findById('itest-1');
@@ -36,5 +36,6 @@ describe('PrismaCropRepository (integration)', () => {
     expect(found?.metadata).toEqual({ rusticite: 'élevée' });
     expect(found?.hasUnpublishedChanges).toBe(true);
     expect(found?.hasPublishedVersion).toBe(false);
+    expect(found?.publishedVersion).toBe(3);
   });
 });
