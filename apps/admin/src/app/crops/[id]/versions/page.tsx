@@ -30,6 +30,7 @@ export default async function CropVersionsPage({ params }: { params: { id: strin
                 <TableHead>Publiée le</TableHead>
                 <TableHead>Par</TableHead>
                 <TableHead>Version</TableHead>
+                <TableHead>Note</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -43,6 +44,7 @@ export default async function CropVersionsPage({ params }: { params: { id: strin
                   <TableCell className="text-muted-foreground">{formatDateTime(v.publishedAt)}</TableCell>
                   <TableCell>{v.publishedBy}</TableCell>
                   <TableCell>v{v.version}</TableCell>
+                  <TableCell className="text-muted-foreground">{v.note ?? '—'}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/crops/${params.id}/versions/${v.revision}`}>Voir</Link>
