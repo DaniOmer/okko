@@ -72,7 +72,7 @@ Aucun changement de modèle : `timingDays: number` accepte déjà les négatifs.
 
 ### 5.3 `WindowEditor.tsx` — dates, J±, tri, mode édition
 - **Fenêtre de semis** : `sowingStart`/`sowingEnd` via `DatePicker` (natif). Libellé « Fenêtre de semis (début / fin) ».
-- **Itinéraire** : chaque opération a **type** (`OPERATION_TYPE_LABELS` complété), **libellé**, et **`J±`** (jours / semis) — l'input accepte les **négatifs** (avant semis) ; aide « J0 = semis ; négatif = avant ». Les opérations sont **triées par `timingDays`** à l'affichage dans l'éditeur (le stockage garde l'ordre de saisie).
+- **Itinéraire** : chaque opération a **type** (`OPERATION_TYPE_LABELS` complété), **libellé**, et **`J±`** (jours / semis) — l'input accepte les **négatifs** (avant semis) ; aide « J0 = semis ; négatif = avant ». Un « × » retire une ligne. Les lignes restent en **ordre de saisie dans l'éditeur** (l'édition se fait par index — les trier casserait la saisie) ; le **tri par `timingDays` est fait à l'affichage** (§5.4).
 - **Mode édition** : prop `initial?` (la fenêtre existante) → label « Modifier », champs (zone, saison, dates, irrigation, opérations) pré-remplis, soumission `updateWindow(cropId, initial.id, …)` ; sinon ajout (`addWindow`, avec reset). Bouton `{editing ? 'Enregistrer' : 'Ajouter'}`.
 
 ### 5.4 `page.tsx` & `CropReadView.tsx`
