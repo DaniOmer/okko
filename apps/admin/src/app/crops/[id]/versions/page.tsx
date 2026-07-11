@@ -12,6 +12,11 @@ export default async function CropVersionsPage({ params }: { params: { id: strin
       <div className="space-y-1">
         <Link href={`/crops/${params.id}`} className="text-sm text-primary hover:underline">← Retour à la fiche</Link>
         <h1 className="text-2xl font-bold">Versions publiées</h1>
+        {versions.length >= 2 && (
+          <Link href={`/crops/${params.id}/diff`} className="text-sm text-primary hover:underline">
+            Comparer les versions →
+          </Link>
+        )}
       </div>
       {versions.length === 0 ? (
         <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">Aucune version publiée.</div>
