@@ -19,7 +19,7 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
   const [sowingStart, setSowingStart] = useState(initial?.sowingStart ?? '');
   const [sowingEnd, setSowingEnd] = useState(initial?.sowingEnd ?? '');
   const [irrigation, setIrrigation] = useState(initial?.irrigationRequired ?? false);
-  const [ops, setOps] = useState<Op[]>(initial ? initial.operations.map((o) => ({ type: o.type, label: o.label.fr ?? '', timingDays: String(o.timingDays) })) : []);
+  const [ops, setOps] = useState<Op[]>(initial ? (initial.operations ?? []).map((o) => ({ type: o.type, label: o.label.fr ?? '', timingDays: String(o.timingDays) })) : []);
 
   if (zones.length === 0 && !editing) {
     return <p className="text-sm text-muted-foreground">Créez d&apos;abord une <a href="/zones" className="underline">zone</a> pour ajouter une fenêtre.</p>;
