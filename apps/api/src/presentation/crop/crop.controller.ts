@@ -91,7 +91,8 @@ export class CropController {
 
   @Get()
   async list() {
-    return (await this.crops.list()).map((s) => toCropDocument(s));
+    const snaps = await this.crops.list();
+    return Promise.all(snaps.map((s) => this.composer.compose(s.id, s)));
   }
 
   @Get(':id')
