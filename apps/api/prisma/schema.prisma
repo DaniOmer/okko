@@ -147,6 +147,7 @@ model PublishedCrop {
   version     Int
   publishedAt DateTime
   publishedBy String
+  note        String?
 
   @@id([cropId, revision])
 }

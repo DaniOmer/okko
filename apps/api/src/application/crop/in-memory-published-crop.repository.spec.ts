@@ -4,7 +4,7 @@ import { PublishedCropRecord } from './published-crop.repository';
 const rec = (revision: number): PublishedCropRecord => ({
   cropId: 'c1', revision,
   document: { id: 'c1', name: `v${revision}` } as any,
-  version: revision, publishedAt: `2026-07-10T0${revision}:00:00.000Z`, publishedBy: 'admin',
+  version: revision, publishedAt: `2026-07-10T0${revision}:00:00.000Z`, publishedBy: 'admin', note: null,
 });
 
 describe('InMemoryPublishedCropRepository', () => {
@@ -30,5 +30,14 @@ describe('InMemoryPublishedCropRepository', () => {
     expect(list.map((v) => v.revision)).toEqual([2, 1]);
     expect((list[0] as any).document).toBeUndefined();
     expect(await repo.listByCrop('absent')).toEqual([]);
+  });
+
+  it('porte la note sur le record et dans les métadonnées', async () => {
+    const repo = new InMemoryPublishedCropRepository();
+    await repo.save({ cropId: 'c1', revision: 1, document: { id: 'c1' } as any, version: 1, publishedAt: '2026-07-11T01:00:00.000Z', publishedBy: 'admin', note: 'MAJ prix' });
+    expect((await repo.findLatest('c1'))!.note).toBe('MAJ prix');
+    expect((await repo.findRevision('c1', 1))!.note).toBe('MAJ prix');
+    expect((await repo.listByCrop('c1'))[0].note).toBe('MAJ prix');
+    expect((await repo.listByCrop('c1'))[0]).not.toHaveProperty('document');
   });
 });
