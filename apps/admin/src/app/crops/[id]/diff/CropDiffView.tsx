@@ -62,7 +62,7 @@ function SectionBlock({ diff }: { diff: SectionDiff }) {
         <div>
           <div className="text-sm font-medium text-green-700">Ajoutés</div>
           <ul className="list-disc pl-5 text-sm text-green-700">
-            {diff.added.map((it) => <li key={itemLabel(diff.section, it)}>{itemLabel(diff.section, it)}</li>)}
+            {diff.added.map((it, i) => <li key={`${i}-${itemLabel(diff.section, it)}`}>{itemLabel(diff.section, it)}</li>)}
           </ul>
         </div>
       )}
@@ -70,7 +70,7 @@ function SectionBlock({ diff }: { diff: SectionDiff }) {
         <div>
           <div className="text-sm font-medium text-red-700">Supprimés</div>
           <ul className="list-disc pl-5 text-sm text-red-700">
-            {diff.removed.map((it) => <li key={itemLabel(diff.section, it)}>{itemLabel(diff.section, it)}</li>)}
+            {diff.removed.map((it, i) => <li key={`${i}-${itemLabel(diff.section, it)}`}>{itemLabel(diff.section, it)}</li>)}
           </ul>
         </div>
       )}

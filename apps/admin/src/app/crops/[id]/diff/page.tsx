@@ -21,8 +21,12 @@ export default async function CropDiffPage({
     );
   }
 
-  const to = searchParams.to ? Number(searchParams.to) : versions[0].revision;
-  const from = searchParams.from ? Number(searchParams.from) : versions[1].revision;
+  const parseRev = (raw: string | undefined, fallback: number) => {
+    const n = Number(raw);
+    return raw !== undefined && Number.isInteger(n) ? n : fallback;
+  };
+  const to = parseRev(searchParams.to, versions[0].revision);
+  const from = parseRev(searchParams.from, versions[1].revision);
   const diff = await getCropDiff(params.id, from, to).catch(() => null);
 
   return (
