@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { fillAllSections } from './helpers/complete-crop';
 
 /**
  * E2E — note de publication (E1)
@@ -56,6 +57,7 @@ describe('Crop publish note e2e', () => {
     const id = created.body.id;
 
     // publier avec note
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).send({ note: 'MAJ prix' }).expect(201);
     const v1 = await request(app.getHttpServer()).get(`/crops/${id}/versions`).expect(200);
     expect(v1.body[0].note).toBe('MAJ prix');

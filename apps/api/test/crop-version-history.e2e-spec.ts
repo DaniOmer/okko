@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { fillAllSections } from './helpers/complete-crop';
 
 /**
  * E2E — historique des versions publiées (Lot C1, Task 2)
@@ -55,6 +56,7 @@ describe('Crop version history e2e', () => {
     const id = created.body.id;
 
     // publier v1
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
     // éditer puis republier v2
     await request(app.getHttpServer()).patch(`/crops/${id}`).send({ commonNames: { fr: 'Sorgho commun' } }).expect(200);

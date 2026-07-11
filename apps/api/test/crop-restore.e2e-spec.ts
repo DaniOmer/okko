@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { fillAllSections } from './helpers/complete-crop';
 
 /**
  * E2E — restauration d'une version publiée (Lot C2, Task 3)
@@ -67,6 +68,7 @@ describe('Crop restore e2e', () => {
       .post(`/crops/${id}/varieties`)
       .send({ name: { fr: 'X' }, traits: [] })
       .expect(201);
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
 
     // v2 : ajouter variété Y
@@ -81,9 +83,11 @@ describe('Crop restore e2e', () => {
       .post(`/crops/${id}/versions/1/restore`)
       .expect(201);
 
-    // le brouillon ne montre plus que X, avec modifs non publiées
+    // le brouillon ne montre plus que les variétés de v1 (X + Variété test), avec modifs non publiées
     const draft = await request(app.getHttpServer()).get(`/crops/${id}`).expect(200);
-    expect(draft.body.varieties.map((x: any) => x.name.fr)).toEqual(['X']);
+    const draftVarNames = draft.body.varieties.map((x: any) => x.name.fr);
+    expect(draftVarNames).toContain('X');
+    expect(draftVarNames).not.toContain('Y');
     expect(draft.body.hasUnpublishedChanges).toBe(true);
 
     // republier → nouvelle révision 3
@@ -112,6 +116,7 @@ describe('Crop restore e2e', () => {
       .expect(409);
 
     // publier puis demander une révision inexistante → 404
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
     await request(app.getHttpServer())
       .post(`/crops/${id}/versions/99/restore`)

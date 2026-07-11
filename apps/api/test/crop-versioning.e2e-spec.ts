@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { fillAllSections } from './helpers/complete-crop';
 
 /**
  * E2E — brouillon/publié (Lot B, Task 6)
@@ -64,6 +65,7 @@ describe('Crop versioning e2e', () => {
     const id = created.body.id;
 
     // Publier
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
 
     // /published renvoie le document figé
@@ -94,6 +96,7 @@ describe('Crop versioning e2e', () => {
     }).expect(201);
     const id = created.body.id;
 
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
     const pub1 = await request(app.getHttpServer()).get(`/crops/${id}/published`).expect(200);
     expect(pub1.body.name).toBe('Mil');
@@ -131,6 +134,7 @@ describe('Crop versioning e2e', () => {
       .expect(201);
 
     // Publier
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
 
     // Ajouter une deuxième variété (non publiée)
@@ -139,17 +143,17 @@ describe('Crop versioning e2e', () => {
       .send({ name: { fr: 'Sansun' }, maturityDays: 95, traits: ['tardif'] })
       .expect(201);
 
-    // Vérifier qu'on voit bien 2 variétés dans le brouillon
+    // Vérifier qu'on voit bien Inamar + Sansun (+ Variété test de fillAllSections) dans le brouillon
     const draftVarieties = await request(app.getHttpServer()).get(`/crops/${id}/varieties`).expect(200);
-    expect(draftVarieties.body).toHaveLength(2);
+    expect(draftVarieties.body).toHaveLength(3);
 
     // Abandonner les modifications
     await request(app.getHttpServer()).post(`/crops/${id}/discard`).expect(201);
 
-    // Après abandon : une seule variété (la première, publiée)
+    // Après abandon : deux variétés publiées (Variété test + Inamar)
     const afterDiscard = await request(app.getHttpServer()).get(`/crops/${id}/varieties`).expect(200);
-    expect(afterDiscard.body).toHaveLength(1);
-    expect(afterDiscard.body[0].name.fr).toBe('Inamar');
+    expect(afterDiscard.body).toHaveLength(2);
+    expect(afterDiscard.body.map((v: any) => v.name.fr)).toContain('Inamar');
 
     // hasUnpublishedChanges est revenu à false
     const afterDraft = await request(app.getHttpServer()).get(`/crops/${id}`).expect(200);

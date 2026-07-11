@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { fillAllSections } from './helpers/complete-crop';
 
 /**
  * E2E — diff sémantique entre versions publiées (Lot C3, Task 2)
@@ -57,8 +58,9 @@ describe('Crop diff e2e', () => {
     }).expect(201);
     const id = created.body.id;
 
-    // v1 : nom "Manioc" + variété X
+    // v1 : nom "Manioc" + variété X (+ sections complétées)
     await request(app.getHttpServer()).post(`/crops/${id}/varieties`).send({ name: { fr: 'X' }, traits: [] }).expect(201);
+    await fillAllSections(app, id);
     await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
 
     // v2 : renommer + variété Y en plus
