@@ -60,6 +60,7 @@ export interface CropSnapshot {
   yields?: YieldReferenceJSON[];
   hasUnpublishedChanges: boolean;
   hasPublishedVersion: boolean;
+  publishedVersion: number;
 }
 
 interface CreateCropProps {
@@ -228,6 +229,7 @@ export class Crop {
       yields: this._yields.map((y) => y.toJSON()),
       hasUnpublishedChanges: this._hasUnpublishedChanges,
       hasPublishedVersion: this._hasPublishedVersion,
+      publishedVersion: this._publishedRevision,
     };
   }
 

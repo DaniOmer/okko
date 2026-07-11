@@ -16,10 +16,37 @@ import { CropDocumentComposer } from './compose-crop-document';
 import { ListCroppingWindowsUseCase } from '../window/list-cropping-windows.use-case';
 import { ListCropPricesUseCase } from '../price/list-crop-prices.use-case';
 import { CycleType } from '../../domain/crop/cycle-type';
+import { CropEvent } from '../../domain/crop/crop-event';
+import { NutrientBasis } from '../../domain/crop/nutrient-requirement';
+import { InputLevel } from '../../domain/crop/yield-reference';
 
 const clock = { nowIso: () => '2026-07-09T00:00:00.000Z' };
 let idSeq = 0;
 const ids = { next: () => `var-${++idSeq}` };
+
+/**
+ * Brings a crop to 100% completeness by appending section events directly.
+ * Pass { includeVariety: false } when a variety was already added via AddVarietyUseCase
+ * (to avoid polluting the checkpoint with a duplicate seed variety).
+ */
+async function seedComplete(events: InMemoryCropEventStore, cropId: string, { includeVariety = true } = {}): Promise<void> {
+  const at = clock.nowIso();
+  const actor = 'admin';
+  const stored = await events.load(cropId);
+  const sectionEvents: CropEvent[] = [
+    { type: 'ClimaticRequirementsSet', climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } } },
+    { type: 'EdaphicRequirementsSet', edaphic: { ph: { min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' } } },
+    { type: 'PhenologySet', phenology: [{ name: { fr: 'Levée' }, startDay: 5, endDay: 12, order: 1 }] },
+    { type: 'NutritionSet', nutrition: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }] },
+    { type: 'YieldsSet', yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }] },
+    ...(includeVariety ? [{ type: 'VarietyAdded' as const, variety: { id: `v-seed-${cropId}`, cropId, name: { fr: 'Variété seed' }, traits: [] } }] : []),
+    { type: 'ZoneSuitabilitySet', suitability: { zoneId: 'z-seed', cropId, rating: 'SUITABLE' as any } },
+    { type: 'CroppingWindowAdded', window: { id: `w-seed-${cropId}`, cropId, zoneId: 'z-seed', season: 'Hivernage', irrigationRequired: false, operations: [] } },
+    { type: 'PestControlSet', control: { pestId: 'p-seed', cropId, susceptibility: 'HIGH' as any, sensitiveStages: [], controlMethods: [] } },
+    { type: 'PricePointAdded', price: { id: `pp-seed-${cropId}`, cropId, market: 'Local', date: '2026-01-01', price: 100, unit: 'FCFA/kg', currency: 'XOF' } },
+  ];
+  await events.append(cropId, stored.length, sectionEvents.map((event) => ({ event, actor, at })));
+}
 
 describe('RestoreDraftUseCase', () => {
   beforeEach(() => { idSeq = 0; });
@@ -55,6 +82,7 @@ describe('RestoreDraftUseCase', () => {
     await createCrop(a, 'c1');
     const addVariety = new AddVarietyUseCase(a.events, a.varieties, a.audit, clock, ids);
     await addVariety.execute({ cropId: 'c1', name: { fr: 'X' }, traits: [], actor: 'admin' });
+    await seedComplete(a.events, 'c1', { includeVariety: false });
     const publish = new PublishCropUseCase(a.events, a.crops, a.audit, clock, a.composer, a.published);
     await publish.execute({ id: 'c1', actor: 'admin' });   // rév. 1 = {X}
     await addVariety.execute({ cropId: 'c1', name: { fr: 'Y' }, traits: [], actor: 'admin' });
@@ -71,6 +99,7 @@ describe('RestoreDraftUseCase', () => {
   it('lève RevisionNotFoundError pour une révision inexistante', async () => {
     const a = arrange();
     await createCrop(a, 'c2');
+    await seedComplete(a.events, 'c2');
     await new PublishCropUseCase(a.events, a.crops, a.audit, clock, a.composer, a.published).execute({ id: 'c2', actor: 'admin' });
     const restore = new RestoreDraftUseCase(a.events, a.crops, a.varieties, a.windows, a.zones, a.pests, a.prices, a.audit, clock);
     await expect(restore.execute({ id: 'c2', revision: 99, actor: 'admin' })).rejects.toThrow(RevisionNotFoundError);

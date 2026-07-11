@@ -5,15 +5,7 @@ import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
 import { fillAllSections } from './helpers/complete-crop';
 
-/**
- * E2E — note de publication (E1)
- *
- * Vérifie que :
- *   - publier avec { note } stocke la note et la renvoie dans /versions
- *   - republier sans corps -> note null (rétro-compat)
- *   - les révisions sont renvoyées en ordre décroissant
- */
-describe('Crop publish note e2e', () => {
+describe('Crop completeness — list endpoint (B1)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
@@ -50,24 +42,16 @@ describe('Crop publish note e2e', () => {
     await app.close();
   });
 
-  it('publier avec une note la renvoie dans /versions ; sans corps -> null', async () => {
-    const created = await request(app.getHttpServer()).post('/crops').send({
-      commonNames: { fr: 'Arachide' }, scientificName: 'Arachis hypogaea', family: 'Fabaceae', cycleType: 'SEASONAL_ANNUAL',
-    }).expect(201);
-    const id = created.body.id;
+  it('GET /crops renvoie completeness.percent === 100 quand toutes les sections sont remplies', async () => {
+    const crop = await request(app.getHttpServer())
+      .post('/crops')
+      .send({ commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
 
-    // publier avec note
-    await fillAllSections(app, id);
-    await request(app.getHttpServer()).post(`/crops/${id}/publish`).send({ note: 'MAJ prix' }).expect(201);
-    const v1 = await request(app.getHttpServer()).get(`/crops/${id}/versions`).expect(200);
-    expect(v1.body[0].note).toBe('MAJ prix');
+    await fillAllSections(app, crop.body.id);
 
-    // éditer puis republier SANS corps -> note null
-    await request(app.getHttpServer()).patch(`/crops/${id}`).send({ commonNames: { fr: 'Arachide 2' } }).expect(200);
-    await request(app.getHttpServer()).post(`/crops/${id}/publish`).expect(201);
-    const v2 = await request(app.getHttpServer()).get(`/crops/${id}/versions`).expect(200);
-    expect(v2.body.map((v: any) => v.revision)).toEqual([2, 1]);
-    expect(v2.body[0].note).toBeNull();      // révision 2 (la plus récente), publiée sans note
-    expect(v2.body[1].note).toBe('MAJ prix'); // révision 1
+    const list = await request(app.getHttpServer()).get('/crops').expect(200);
+    const item = list.body.find((c: any) => c.id === crop.body.id);
+    expect(item.completeness.percent).toBe(100);
   });
 });

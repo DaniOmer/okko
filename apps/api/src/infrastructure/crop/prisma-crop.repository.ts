@@ -59,6 +59,7 @@ export class PrismaCropRepository implements CropRepository {
       yields: (row.yields ?? []) as unknown as CropSnapshot['yields'],
       hasUnpublishedChanges: row.hasUnpublishedChanges,
       hasPublishedVersion: row.hasPublishedVersion,
+      publishedVersion: row.publishedVersion,
     };
   }
 }

@@ -16,7 +16,7 @@ const snap = {
   scientificName: 'Daucus carota', family: 'Apiaceae',
   cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED,
   version: 3, metadata: { rusticite: 'élevée' },
-  hasUnpublishedChanges: false, hasPublishedVersion: false,
+  hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
 };
 
 describe('toCropDocument', () => {
@@ -54,7 +54,7 @@ describe('toCropDocument with requirements and varieties', () => {
     cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 4, metadata: {},
     climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } },
     edaphic: { ph: { min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' } },
-    hasUnpublishedChanges: false, hasPublishedVersion: false,
+    hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const varieties: VarietySnapshot[] = [
     { id: 'v1', cropId: 'c1', name: { fr: 'Obatanpa' }, traits: [] },
@@ -80,7 +80,7 @@ describe('toCropDocument with zones', () => {
   const snap = {
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
     cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 5, metadata: {},
-    hasUnpublishedChanges: false, hasPublishedVersion: false,
+    hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const zones: CropZoneView[] = [
     { zoneId: 'z1', zoneName: { fr: 'Sahel' }, rating: SuitabilityRating.SUITABLE },
@@ -102,7 +102,7 @@ describe('toCropDocument with phenology and windows', () => {
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
     cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 6, metadata: {},
     phenology: [{ name: { fr: 'Levée' }, startDay: 5, endDay: 12, order: 1 }],
-    hasUnpublishedChanges: false, hasPublishedVersion: false,
+    hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const windows = [
     { id: 'w1', cropId: 'c1', zoneId: 'z1', season: 'Saison sèche', irrigationRequired: true, operations: [] },
@@ -127,7 +127,7 @@ describe('toCropDocument with pests', () => {
   const snap = {
     id: 'c1', commonNames: { fr: 'Manguier' }, scientificName: 'Mangifera indica', family: 'Anacardiaceae',
     cycleType: CycleType.PERENNIAL_WOODY_FRUIT, status: CropStatus.PUBLISHED, version: 7, metadata: {},
-    hasUnpublishedChanges: false, hasPublishedVersion: false,
+    hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const pests: CropPestView[] = [
     { pestId: 'p1', pestName: { fr: 'Mouche des fruits' }, type: PestType.INSECT, susceptibility: SusceptibilityLevel.HIGH, controlMethods: [] },
@@ -150,7 +150,7 @@ describe('toCropDocument with nutrition, yields and prices', () => {
     cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 8, metadata: {},
     nutrition: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }],
     yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }],
-    hasUnpublishedChanges: false, hasPublishedVersion: false,
+    hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const prices: PricePointSnapshot[] = [
     { id: 'pp1', cropId: 'c1', market: 'Dantokpa', date: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' },
@@ -178,7 +178,7 @@ describe('toCropDocument completeness', () => {
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
     cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 9, metadata: {},
     climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } },
-    hasUnpublishedChanges: false, hasPublishedVersion: false,
+    hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
 
   it('includes a completeness report reflecting filled categories', () => {
@@ -198,7 +198,7 @@ describe('toCropDocument draft flags', () => {
       cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED,
       version: 3, metadata: { rusticite: 'élevée' },
     };
-    const doc = toCropDocument({ ...base, hasUnpublishedChanges: true, hasPublishedVersion: true });
+    const doc = toCropDocument({ ...base, hasUnpublishedChanges: true, hasPublishedVersion: true, publishedVersion: 0 });
     expect(doc.hasUnpublishedChanges).toBe(true);
     expect(doc.hasPublishedVersion).toBe(true);
   });

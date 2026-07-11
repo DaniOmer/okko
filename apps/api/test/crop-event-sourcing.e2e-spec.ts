@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { fillAllSections } from './helpers/complete-crop';
 
 describe('Crop event sourcing e2e', () => {
   let app: INestApplication;
@@ -53,6 +54,7 @@ describe('Crop event sourcing e2e', () => {
       .expect(200);
 
     // 4. Publish
+    await fillAllSections(app, cropId);
     await request(app.getHttpServer())
       .post(`/crops/${cropId}/publish`)
       .expect(201);
@@ -97,6 +99,7 @@ describe('Crop event sourcing e2e', () => {
       .expect(200);
 
     // Publish
+    await fillAllSections(app, cropId);
     await request(app.getHttpServer())
       .post(`/crops/${cropId}/publish`)
       .expect(201);

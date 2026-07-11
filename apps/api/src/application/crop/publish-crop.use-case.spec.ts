@@ -1,5 +1,5 @@
 import { CreateCropUseCase } from './create-crop.use-case';
-import { PublishCropUseCase, CropNotFoundError } from './publish-crop.use-case';
+import { PublishCropUseCase, CropNotFoundError, IncompleteCropError } from './publish-crop.use-case';
 import { InMemoryCropRepository } from './in-memory-crop.repository';
 import { InMemoryCropEventStore } from './in-memory-crop-event-store';
 import { CycleType } from '../../domain/crop/cycle-type';
@@ -13,6 +13,9 @@ import { InMemoryVarietyRepository } from './in-memory-variety.repository';
 import { InMemoryCroppingWindowRepository } from '../window/in-memory-cropping-window.repository';
 import { InMemoryPricePointRepository } from '../price/in-memory-price-point.repository';
 import { AddVarietyUseCase } from './add-variety.use-case';
+import { CropEvent } from '../../domain/crop/crop-event';
+import { NutrientBasis } from '../../domain/crop/nutrient-requirement';
+import { InputLevel } from '../../domain/crop/yield-reference';
 
 const clock = { nowIso: () => '2026-07-02T00:00:00.000Z' };
 
@@ -27,6 +30,32 @@ function makeComposer(varietyRepo: InMemoryVarietyRepository): CropDocumentCompo
   );
 }
 
+/**
+ * Brings a crop to 100% completeness by appending section events directly
+ * to the event store (approach b — no zone/pest repos needed in unit tests).
+ *
+ * Pass { includeVariety: false } when a variety was already added via AddVarietyUseCase
+ * (to avoid polluting the aggregate's _varieties checkpoint with a duplicate seed entry).
+ */
+async function seedComplete(events: InMemoryCropEventStore, cropId: string, { includeVariety = true } = {}): Promise<void> {
+  const at = clock.nowIso();
+  const actor = 'a';
+  const stored = await events.load(cropId);
+  const sectionEvents: CropEvent[] = [
+    { type: 'ClimaticRequirementsSet', climatic: { temperature: { min: 18, optimal: 25, max: 32, unit: '°C' } } },
+    { type: 'EdaphicRequirementsSet', edaphic: { ph: { min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' } } },
+    { type: 'PhenologySet', phenology: [{ name: { fr: 'Levée' }, startDay: 5, endDay: 12, order: 1 }] },
+    { type: 'NutritionSet', nutrition: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }] },
+    { type: 'YieldsSet', yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }] },
+    ...(includeVariety ? [{ type: 'VarietyAdded' as const, variety: { id: `v-seed-${cropId}`, cropId, name: { fr: 'Variété seed' }, traits: [] } }] : []),
+    { type: 'ZoneSuitabilitySet', suitability: { zoneId: 'z-seed', cropId, rating: 'SUITABLE' as any } },
+    { type: 'CroppingWindowAdded', window: { id: `w-seed-${cropId}`, cropId, zoneId: 'z-seed', season: 'Hivernage', irrigationRequired: false, operations: [] } },
+    { type: 'PestControlSet', control: { pestId: 'p-seed', cropId, susceptibility: 'HIGH' as any, sensitiveStages: [], controlMethods: [] } },
+    { type: 'PricePointAdded', price: { id: `pp-seed-${cropId}`, cropId, market: 'Local', date: '2026-01-01', price: 100, unit: 'FCFA/kg', currency: 'XOF' } },
+  ];
+  await events.append(cropId, stored.length, sectionEvents.map((event) => ({ event, actor, at })));
+}
+
 describe('PublishCropUseCase', () => {
   // Each test gets its own fresh instances — no shared mutable state.
   let composer: CropDocumentComposer;
@@ -35,6 +64,23 @@ describe('PublishCropUseCase', () => {
   beforeEach(() => {
     composer = makeComposer(new InMemoryVarietyRepository());
     published = new InMemoryPublishedCropRepository();
+  });
+
+  it('refuse la publication si la fiche est incomplète (< 100%)', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const audit = { record: jest.fn() };
+    await new CreateCropUseCase(events, repo, audit, clock).execute({
+      id: 'ci', commonNames: { fr: 'X' }, scientificName: 'X', family: 'X',
+      cycleType: CycleType.SEASONAL_ANNUAL, actor: 'a',
+    });
+    let caught: unknown;
+    try {
+      await new PublishCropUseCase(events, repo, audit, clock, composer, published).execute({ id: 'ci', actor: 'a' });
+    } catch (e) { caught = e; }
+    expect((caught as Error).name).toBe('IncompleteCropError');
+    expect((caught as any).missing.length).toBeGreaterThan(0);
+    expect(await published.findLatest('ci')).toBeNull();
   });
 
   it('publie une culture existante', async () => {
@@ -50,6 +96,7 @@ describe('PublishCropUseCase', () => {
       cycleType: CycleType.SEASONAL_ANNUAL,
       actor: 'a',
     });
+    await seedComplete(events, 'c1');
 
     const out = await new PublishCropUseCase(events, repo, publishAudit, clock, composer, published).execute({
       id: 'c1',
@@ -107,6 +154,9 @@ describe('PublishCropUseCase', () => {
       actor: 'a',
     });
 
+    // Seed completeness — variety already added via AddVarietyUseCase
+    await seedComplete(events, 'c2', { includeVariety: false });
+
     // Act: publish using the composer wired to the seeded variety repo
     const publish = new PublishCropUseCase(events, crops, audit, clock, localComposer, localPublished);
     await publish.execute({ id: 'c2', actor: 'a' });
@@ -135,9 +185,12 @@ describe('PublishCropUseCase', () => {
       cycleType: CycleType.SEASONAL_ANNUAL,
       actor: 'a',
     });
+    await seedComplete(events, 'c3');
     const uc = new PublishCropUseCase(events, repo, audit, clock, composer, published);
-    await uc.execute({ id: 'c3', actor: 'admin' });
-    await uc.execute({ id: 'c3', actor: 'admin' }); // republication (PUBLISHED->PUBLISHED autorisé)
+    const out1 = await uc.execute({ id: 'c3', actor: 'admin' }); // 1re
+    expect(out1.publishedVersion).toBe(1);
+    const out2 = await uc.execute({ id: 'c3', actor: 'admin' }); // republication (PUBLISHED->PUBLISHED autorisé)
+    expect(out2.publishedVersion).toBe(2);
     expect((await published.findLatest('c3'))!.revision).toBe(2);
     expect((await published.listByCrop('c3')).map((v) => v.revision)).toEqual([2, 1]);
   });
@@ -154,6 +207,7 @@ describe('PublishCropUseCase', () => {
       cycleType: CycleType.SEASONAL_ANNUAL,
       actor: 'a',
     });
+    await seedComplete(events, 'c4');
     const uc = new PublishCropUseCase(events, repo, publishAudit, clock, composer, published);
     await uc.execute({ id: 'c4', actor: 'admin', note: '  MAJ prix  ' });
     expect((await published.findLatest('c4'))!.note).toBe('MAJ prix'); // trim
