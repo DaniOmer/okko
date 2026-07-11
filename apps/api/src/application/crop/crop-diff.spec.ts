@@ -55,6 +55,15 @@ describe('diffCropDocuments', () => {
     expect(d.fields).toEqual([]);
   });
 
+  it('ignore les champs méta/dérivés exclus (statut, version, complétude, drapeaux, serializedText)', () => {
+    const d = diffCropDocuments(1, 2,
+      doc({ status: 'PUBLISHED', version: 1, hasUnpublishedChanges: false, hasPublishedVersion: true, serializedText: 'a', completeness: { categories: {}, filled: 0, total: 0, percent: 0 } }),
+      doc({ status: 'ARCHIVED', version: 9, hasUnpublishedChanges: true, hasPublishedVersion: true, serializedText: 'b', completeness: { categories: { climatic: true }, filled: 1, total: 10, percent: 10 } }),
+    );
+    expect(d.fields).toEqual([]);
+    expect(d.sections).toEqual([]);
+  });
+
   it('deepEqual gère objets imbriqués et tableaux', () => {
     expect(deepEqual({ x: [1, { y: 2 }] }, { x: [1, { y: 2 }] })).toBe(true);
     expect(deepEqual({ x: 1 }, { x: 2 })).toBe(false);

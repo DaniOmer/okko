@@ -13,7 +13,7 @@ export interface CropDiff {
 
 export function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
-  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return a === b;
+  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return false;
   if (Array.isArray(a) || Array.isArray(b)) {
     if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
     return a.every((x, i) => deepEqual(x, b[i]));
@@ -21,8 +21,7 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   const ao = a as Record<string, unknown>;
   const bo = b as Record<string, unknown>;
   const ak = Object.keys(ao);
-  const bk = Object.keys(bo);
-  if (ak.length !== bk.length) return false;
+  if (ak.length !== Object.keys(bo).length) return false;
   return ak.every((k) => Object.prototype.hasOwnProperty.call(bo, k) && deepEqual(ao[k], bo[k]));
 }
 
@@ -66,7 +65,7 @@ export function diffCropDocuments(
     for (const [k, item] of beforeByKey) if (!afterByKey.has(k)) removed.push(item);
     for (const [k, beforeItem] of beforeByKey) {
       const afterItem = afterByKey.get(k);
-      if (afterItem && !deepEqual(beforeItem, afterItem)) changed.push({ key: k, before: beforeItem, after: afterItem });
+      if (afterItem !== undefined && !deepEqual(beforeItem, afterItem)) changed.push({ key: k, before: beforeItem, after: afterItem });
     }
 
     if (added.length || removed.length || changed.length) sections.push({ section, added, removed, changed });
