@@ -7,7 +7,7 @@ const base: CropDocument = {
   climatic: undefined, edaphic: undefined,
   varieties: [], zones: [], phenology: [], croppingWindows: [], pests: [], nutrition: [], yields: [], prices: [],
   completeness: { categories: {}, filled: 0, total: 0, percent: 0 },
-  serializedText: '', hasUnpublishedChanges: false, hasPublishedVersion: true,
+  serializedText: '', hasUnpublishedChanges: false, hasPublishedVersion: true, publishedVersion: 0,
 };
 const doc = (o: Partial<CropDocument>): CropDocument => ({ ...base, ...o });
 const variety = (id: string, maturityDays?: number) => ({ id, cropId: 'c1', name: { fr: id }, maturityDays, traits: [] } as any);
