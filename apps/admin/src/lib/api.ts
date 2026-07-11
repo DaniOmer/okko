@@ -181,7 +181,7 @@ export interface CropPest {
 }
 
 export interface NutrientRequirement { nutrient: string; amount: number; unit: string; basis: string; stage?: string; }
-export interface YieldReference { inputLevel: string; min: number; average: number; potential: number; unit: string; zoneId?: string; }
+export interface YieldReference { inputType: string; min: number; average: number; potential: number; unit: string; zoneId?: string; }
 export interface PricePoint { id: string; cropId: string; market: string; periodStart: string; periodEnd: string; price: number; unit: string; currency: string; }
 
 export async function listPests(): Promise<Pest[]> {
@@ -240,7 +240,7 @@ export function setNutrition(cropId: string, requirements: { nutrient: string; a
   return mutate(`/crops/${cropId}/nutrition`, 'PATCH', { requirements });
 }
 
-export function setYields(cropId: string, yieldsList: { inputLevel: string; min: number; average: number; potential: number; unit: string; zoneId?: string }[]): Promise<unknown> {
+export function setYields(cropId: string, yieldsList: { inputType: string; min: number; average: number; potential: number; unit: string; zoneId?: string }[]): Promise<unknown> {
   return mutate(`/crops/${cropId}/yields`, 'PATCH', { yields: yieldsList });
 }
 

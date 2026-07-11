@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   labelOf, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
-  OPERATION_TYPE_LABELS, INPUT_LEVEL_LABELS, CONTROL_CATEGORY_LABELS,
+  OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS,
 } from '@/lib/labels';
 import type { CropDetail } from '../../../lib/api';
 
@@ -94,7 +94,7 @@ export function CropReadView({ crop }: { crop: CropDetail }) {
         <CardHeader className="pb-3"><CardTitle className="text-base">Rendement ({crop.yields.length})</CardTitle></CardHeader>
         <CardContent className="space-y-1 text-sm">
           <ul className="list-disc pl-5">
-            {crop.yields.map((y, i) => (<li key={i}>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</li>))}
+            {crop.yields.map((y, i) => (<li key={i}>{labelOf(INPUT_TYPE_LABELS, y.inputType)} : {y.min}–{y.average}–{y.potential} {y.unit}{y.zoneId ? ` — zone ${crop.zones.find((z) => z.zoneId === y.zoneId)?.zoneName.fr ?? y.zoneId}` : ''}</li>))}
           </ul>
         </CardContent>
       </Card>
