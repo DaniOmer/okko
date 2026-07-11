@@ -1,9 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { EditorShell } from './EditorShell';
+import { PublishDialog } from './PublishDialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { publishCrop, discardDraft } from '../../../../lib/api';
+import { discardDraft } from '../../../../lib/api';
 
 export function PublishButton({
   cropId,
@@ -17,19 +18,7 @@ export function PublishButton({
 }) {
   // 1) Jamais publiée : premier publish.
   if (!hasPublishedVersion) {
-    return (
-      <EditorShell label="Publier">
-        {({ submit, close, busy }) => (
-          <div className="space-y-2">
-            <p className="text-sm">Publier cette fiche ?</p>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-              <Button size="sm" disabled={busy} onClick={() => submit(() => publishCrop(cropId))}>Confirmer</Button>
-            </div>
-          </div>
-        )}
-      </EditorShell>
-    );
+    return <PublishDialog cropId={cropId} label="Publier" prompt="Publier cette fiche ?" />;
   }
 
   const publishedLink = (
@@ -52,17 +41,7 @@ export function PublishButton({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Badge variant="outline" className="border-amber-500 text-amber-700">Modifications non publiées</Badge>
-      <EditorShell label="Republier">
-        {({ submit, close, busy }) => (
-          <div className="space-y-2">
-            <p className="text-sm">Republier la fiche avec les modifications en cours ?</p>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-              <Button size="sm" disabled={busy} onClick={() => submit(() => publishCrop(cropId))}>Confirmer</Button>
-            </div>
-          </div>
-        )}
-      </EditorShell>
+      <PublishDialog cropId={cropId} label="Republier" prompt="Republier la fiche avec les modifications en cours ?" />
       <EditorShell label="Abandonner">
         {({ submit, close, busy }) => (
           <div className="space-y-2">
