@@ -22,6 +22,7 @@ export default function NewCropPage() {
     setErrorMsg(null);
     try {
       await createCrop({ commonNames: { fr }, scientificName, family, cycleType });
+      router.refresh();
       router.push('/crops');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Une erreur est survenue');

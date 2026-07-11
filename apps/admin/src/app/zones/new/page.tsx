@@ -19,6 +19,7 @@ export default function NewZonePage() {
     setError(null);
     try {
       await createZone({ name: { fr }, country, koppen: koppen || undefined });
+      router.refresh();
       router.push('/zones');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur');
