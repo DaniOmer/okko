@@ -251,6 +251,13 @@ export function addWindow(cropId: string, body: {
   return mutate(`/crops/${cropId}/windows`, 'POST', body);
 }
 
+export function updateWindow(cropId: string, windowId: string, body: {
+  zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean;
+  operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string }[]; notes?: string;
+}): Promise<unknown> {
+  return mutate(`/crops/${cropId}/windows/${windowId}`, 'PUT', body);
+}
+
 export function addPrice(cropId: string, body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
   return mutate(`/crops/${cropId}/prices`, 'POST', body);
 }

@@ -5,36 +5,45 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { DatePicker } from '@/components/date-picker';
 import { OPERATION_TYPE_LABELS, SEASONS } from '@/lib/labels';
-import { addWindow } from '../../../../lib/api';
+import { addWindow, updateWindow } from '../../../../lib/api';
+import type { CroppingWindow } from '../../../../lib/api';
 
 interface Op { type: string; label: string; timingDays: string; }
 
-export function WindowEditor({ cropId, zones }: { cropId: string; zones: { id: string; name: string }[] }) {
-  const [zoneId, setZoneId] = useState('');
-  const [season, setSeason] = useState('');
-  const [sowingStart, setSowingStart] = useState(''); const [sowingEnd, setSowingEnd] = useState('');
-  const [irrigation, setIrrigation] = useState(false);
-  const [ops, setOps] = useState<Op[]>([]);
+export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones: { id: string; name: string }[]; initial?: CroppingWindow }) {
+  const editing = !!initial;
+  const [zoneId, setZoneId] = useState(initial?.zoneId ?? '');
+  const [season, setSeason] = useState(initial?.season ?? '');
+  const [sowingStart, setSowingStart] = useState(initial?.sowingStart ?? '');
+  const [sowingEnd, setSowingEnd] = useState(initial?.sowingEnd ?? '');
+  const [irrigation, setIrrigation] = useState(initial?.irrigationRequired ?? false);
+  const [ops, setOps] = useState<Op[]>(initial ? initial.operations.map((o) => ({ type: o.type, label: o.label.fr ?? '', timingDays: String(o.timingDays) })) : []);
 
-  if (zones.length === 0) {
+  if (zones.length === 0 && !editing) {
     return <p className="text-sm text-muted-foreground">Créez d&apos;abord une <a href="/zones" className="underline">zone</a> pour ajouter une fenêtre.</p>;
   }
 
   return (
-    <EditorShell label="+ Ajouter une fenêtre de production">
+    <EditorShell label={editing ? 'Modifier' : '+ Ajouter une fenêtre de production'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
             if (!zoneId || !season) return;
+            const body = {
+              zoneId, season, sowingStart: sowingStart || undefined, sowingEnd: sowingEnd || undefined,
+              irrigationRequired: irrigation,
+              operations: ops.map((o) => ({ type: o.type, label: { fr: o.label }, timingDays: Number(o.timingDays), inputs: [] })),
+            };
             submit(async () => {
-              await addWindow(cropId, {
-                zoneId, season, sowingStart: sowingStart || undefined, sowingEnd: sowingEnd || undefined,
-                irrigationRequired: irrigation,
-                operations: ops.map((o) => ({ type: o.type, label: { fr: o.label }, timingDays: Number(o.timingDays), inputs: [] })),
-              });
-              setZoneId(''); setSeason(''); setSowingStart(''); setSowingEnd(''); setIrrigation(false); setOps([]);
+              if (editing) {
+                await updateWindow(cropId, initial!.id, body);
+              } else {
+                await addWindow(cropId, body);
+                setZoneId(''); setSeason(''); setSowingStart(''); setSowingEnd(''); setIrrigation(false); setOps([]);
+              }
             });
           }}
           className="space-y-3 text-sm"
@@ -58,18 +67,19 @@ export function WindowEditor({ cropId, zones }: { cropId: string; zones: { id: s
             </Select>
           </div>
           <div className="space-y-1">
-            <Label>Fenêtre de semis (jours de l&apos;année)</Label>
+            <Label>Fenêtre de semis (début / fin)</Label>
             <div className="flex gap-1">
-              <Input className="flex-1" placeholder="début" value={sowingStart} onChange={(e) => setSowingStart(e.target.value)} />
-              <Input className="flex-1" placeholder="fin" value={sowingEnd} onChange={(e) => setSowingEnd(e.target.value)} />
+              <DatePicker value={sowingStart} onChange={setSowingStart} />
+              <DatePicker value={sowingEnd} onChange={setSowingEnd} />
             </div>
           </div>
           <label className="flex gap-2 items-center"><input type="checkbox" checked={irrigation} onChange={(e) => setIrrigation(e.target.checked)} /> Irrigation requise</label>
 
           <div className="border-t pt-2">
             <p className="font-medium">Itinéraire technique ({ops.length} opérations)</p>
+            <p className="text-xs text-muted-foreground">J0 = semis ; négatif = avant le semis (ex. -15).</p>
             {ops.map((o, i) => (
-              <div key={i} className="flex gap-1 my-1">
+              <div key={i} className="flex gap-1 my-1 items-center">
                 <Select value={o.type} onValueChange={(val) => setOps(ops.map((x, j) => j === i ? { ...x, type: val } : x))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -77,7 +87,8 @@ export function WindowEditor({ cropId, zones }: { cropId: string; zones: { id: s
                   </SelectContent>
                 </Select>
                 <Input className="flex-1" placeholder="libellé" value={o.label} onChange={(e) => setOps(ops.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
-                <Input className="w-16" placeholder="J+" value={o.timingDays} onChange={(e) => setOps(ops.map((x, j) => j === i ? { ...x, timingDays: e.target.value } : x))} />
+                <Input className="w-16" placeholder="J±" value={o.timingDays} onChange={(e) => setOps(ops.map((x, j) => j === i ? { ...x, timingDays: e.target.value } : x))} />
+                <Button type="button" variant="ghost" size="sm" onClick={() => setOps(ops.filter((_, j) => j !== i))}>×</Button>
               </div>
             ))}
             <Button type="button" variant="ghost" size="sm" onClick={() => setOps([...ops, { type: 'PLANTING', label: '', timingDays: '0' }])}>+ opération</Button>
@@ -85,7 +96,7 @@ export function WindowEditor({ cropId, zones }: { cropId: string; zones: { id: s
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
           </div>
         </form>
       )}
