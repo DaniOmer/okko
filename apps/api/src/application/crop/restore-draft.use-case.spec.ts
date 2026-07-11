@@ -3,7 +3,7 @@ import { PublishCropUseCase } from './publish-crop.use-case';
 import { AddVarietyUseCase } from './add-variety.use-case';
 import { ListVarietiesUseCase } from './list-varieties.use-case';
 import { RestoreDraftUseCase } from './restore-draft.use-case';
-import { RevisionNotFoundError } from '../../domain/crop/crop';
+import { RevisionNotFoundError, NoPublishedVersionError } from '../../domain/crop/crop';
 import { InMemoryCropRepository } from './in-memory-crop.repository';
 import { InMemoryCropEventStore } from './in-memory-crop-event-store';
 import { InMemoryVarietyRepository } from './in-memory-variety.repository';
@@ -74,5 +74,12 @@ describe('RestoreDraftUseCase', () => {
     await new PublishCropUseCase(a.events, a.crops, a.audit, clock, a.composer, a.published).execute({ id: 'c2', actor: 'admin' });
     const restore = new RestoreDraftUseCase(a.events, a.crops, a.varieties, a.windows, a.zones, a.pests, a.prices, a.audit, clock);
     await expect(restore.execute({ id: 'c2', revision: 99, actor: 'admin' })).rejects.toThrow(RevisionNotFoundError);
+  });
+
+  it('lève NoPublishedVersionError si la culture n\'a jamais été publiée', async () => {
+    const a = arrange();
+    await createCrop(a, 'c9');
+    const restore = new RestoreDraftUseCase(a.events, a.crops, a.varieties, a.windows, a.zones, a.pests, a.prices, a.audit, clock);
+    await expect(restore.execute({ id: 'c9', revision: 1, actor: 'admin' })).rejects.toThrow(NoPublishedVersionError);
   });
 });
