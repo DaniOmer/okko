@@ -1,4 +1,4 @@
-import { Crop, NoPublishedVersionError } from './crop';
+import { Crop, NoPublishedVersionError, RevisionNotFoundError } from './crop';
 import { TranslatableText } from '../shared/translatable-text';
 import { CycleType } from './cycle-type';
 import { ClimaticRequirements } from '../shared/climatic-requirements';
@@ -129,6 +129,65 @@ describe('Crop draft/published editorial safety', () => {
     const c = make();
     c.addVariety(v('a'));
     expect(() => c.discardDraft()).toThrow(NoPublishedVersionError);
+  });
+
+  it('restoreDraft ramène le brouillon à l\'état d\'une révision antérieure et marque des modifs', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    c.publish();                 // révision 1 = {a}
+    c.addVariety(v('b'));
+    c.publish();                 // révision 2 = {a,b}
+    expect(c.hasUnpublishedChanges).toBe(false);
+    c.restoreDraft(1);
+    expect(c.varieties).toEqual([v('a')]);
+    expect(c.hasUnpublishedChanges).toBe(true); // diffère de la dernière publiée (rév. 2)
+  });
+
+  it('restaurer la dernière révision revient à l\'état publié sans modifs (comme un abandon)', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    c.publish();                 // révision 1
+    c.addVariety(v('b'));        // brouillon divergent
+    c.restoreDraft(1);
+    expect(c.varieties).toEqual([v('a')]);
+    expect(c.hasUnpublishedChanges).toBe(false);
+  });
+
+  it('restoreDraft lève NoPublishedVersionError si jamais publié', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    expect(() => c.restoreDraft(1)).toThrow(NoPublishedVersionError);
+  });
+
+  it('restoreDraft lève RevisionNotFoundError hors bornes', () => {
+    const c = make();
+    c.publish();                 // seule la révision 1 existe
+    expect(() => c.restoreDraft(0)).toThrow(RevisionNotFoundError);
+    expect(() => c.restoreDraft(2)).toThrow(RevisionNotFoundError);
+  });
+
+  it('repli déterministe : [Published v1, éditions, Published v2, éditions, DraftRestored(1)] == état à v1', () => {
+    // Un SEUL drain de pullPendingEvents à la fin, pour que le flux rejoué commence bien par CropCreated.
+    const built = make();
+    built.addVariety(v('a'));
+    built.publish();            // v1 = {a}
+    built.addVariety(v('b'));
+    built.publish();            // v2 = {a,b}
+    built.addVariety(v('c'));
+    built.restoreDraft(1);      // retour à {a}
+    const rebuilt = Crop.fromEvents(stored(built.pullPendingEvents()));
+    expect(rebuilt.varieties).toEqual([v('a')]);
+    expect(rebuilt.hasUnpublishedChanges).toBe(true);
+  });
+
+  it('non-régression : DraftDiscarded revient toujours à la dernière version publiée', () => {
+    const c = make();
+    c.addVariety(v('a'));
+    c.publish();
+    c.addVariety(v('b'));
+    c.discardDraft();
+    expect(c.varieties).toEqual([v('a')]);
+    expect(c.hasUnpublishedChanges).toBe(false);
   });
 
   it('repli déterministe : [Created, éditions, Published, éditions, DraftDiscarded] == état au Published', () => {

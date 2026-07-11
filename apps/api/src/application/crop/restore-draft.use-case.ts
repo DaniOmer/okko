@@ -11,7 +11,7 @@ import { CropPestControlRepository } from '../pest/crop-pest-control.repository'
 import { PricePointRepository } from '../price/price-point.repository';
 import { rebuildCropProjections } from './rebuild-crop-projections';
 
-export class DiscardDraftUseCase {
+export class RestoreDraftUseCase {
   constructor(
     private readonly events: CropEventStore,
     private readonly crops: CropRepository,
@@ -24,15 +24,15 @@ export class DiscardDraftUseCase {
     private readonly clock: Clock,
   ) {}
 
-  async execute(input: { id: string; actor: string }): Promise<CropSnapshot> {
+  async execute(input: { id: string; revision: number; actor: string }): Promise<CropSnapshot> {
     const stored = await this.events.load(input.id);
     if (stored.length === 0) throw new CropNotFoundError(input.id);
     const crop = Crop.fromEvents(stored);
-    crop.discardDraft(); // lève NoPublishedVersionError si jamais publié
+    crop.restoreDraft(input.revision); // NoPublishedVersionError / RevisionNotFoundError
     const at = this.clock.nowIso();
     await this.events.append(input.id, stored.length, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));
     const next = await rebuildCropProjections(crop, { crops: this.crops, varieties: this.varieties, windows: this.windows, zones: this.zones, pests: this.pests, prices: this.prices });
-    await this.audit.record({ entityType: 'Crop', entityId: crop.id, actor: input.actor, at, changes: { draftDiscarded: true } });
+    await this.audit.record({ entityType: 'Crop', entityId: crop.id, actor: input.actor, at, changes: { draftRestoredFromRevision: input.revision } });
     return next;
   }
 }
