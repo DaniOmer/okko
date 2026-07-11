@@ -29,14 +29,15 @@ model Crop {
 }
 
 model PricePoint {
-  id        String   @id
-  cropId    String
-  market    String
-  date      String
-  price     Float
-  unit      String
-  currency  String
-  createdAt DateTime @default(now())
+  id          String   @id
+  cropId      String
+  market      String
+  periodStart String
+  periodEnd   String
+  price       Float
+  unit        String
+  currency    String
+  createdAt   DateTime @default(now())
 
   @@index([cropId])
 }

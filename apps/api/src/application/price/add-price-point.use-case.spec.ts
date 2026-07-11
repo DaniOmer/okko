@@ -1,5 +1,5 @@
 import { CreateCropUseCase } from '../crop/create-crop.use-case';
-import { AddPricePointUseCase } from './add-price-point.use-case';
+import { AddPricePointUseCase, InvalidPricePeriodError } from './add-price-point.use-case';
 import { ListCropPricesUseCase } from './list-crop-prices.use-case';
 import { CropNotFoundError } from '../crop/publish-crop.use-case';
 import { InMemoryCropRepository } from '../crop/in-memory-crop.repository';
@@ -26,11 +26,14 @@ async function setup() {
 describe('AddPricePointUseCase', () => {
   beforeEach(() => { seq = 0; });
 
-  it('adds a price point (crop exists) and lists it', async () => {
+  it('stocke la plage (periodStart + periodEnd fournis)', async () => {
     const { events, prices, audit } = await setup();
     const out = await new AddPricePointUseCase(events, prices, audit, clock, ids).execute({
-      cropId: 'c1', market: 'Dantokpa', date: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
+      cropId: 'c1', market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-07',
+      price: 350, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
+    expect(out.periodStart).toBe('2026-06-01');
+    expect(out.periodEnd).toBe('2026-06-07');
     expect(out.market).toBe('Dantokpa');
     expect(audit.record).toHaveBeenCalled();
 
@@ -38,11 +41,30 @@ describe('AddPricePointUseCase', () => {
     expect(list).toHaveLength(1);
   });
 
+  it('fin omise → periodEnd = periodStart', async () => {
+    const { events, prices, audit } = await setup();
+    const out = await new AddPricePointUseCase(events, prices, audit, clock, ids).execute({
+      cropId: 'c1', market: 'Parakou', periodStart: '2026-06-01',
+      price: 200, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
+    });
+    expect(out.periodStart).toBe('2026-06-01');
+    expect(out.periodEnd).toBe('2026-06-01');
+  });
+
+  it('fin < début → InvalidPricePeriodError', async () => {
+    const { events, prices, audit } = await setup();
+    const uc = new AddPricePointUseCase(events, prices, audit, clock, ids);
+    await expect(uc.execute({
+      cropId: 'c1', market: 'M', periodStart: '2026-06-07', periodEnd: '2026-06-01',
+      price: 1, unit: 'u', currency: 'XOF', actor: 'a',
+    })).rejects.toThrow(InvalidPricePeriodError);
+  });
+
   it('throws CropNotFoundError when the crop does not exist', async () => {
     const { prices, audit } = await setup();
     const events = new InMemoryCropEventStore();
     const uc = new AddPricePointUseCase(events, prices, audit, clock, ids);
-    await expect(uc.execute({ cropId: 'nope', market: 'M', date: '2026-06-01', price: 1, unit: 'u', currency: 'XOF', actor: 'a' }))
+    await expect(uc.execute({ cropId: 'nope', market: 'M', periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF', actor: 'a' }))
       .rejects.toThrow(CropNotFoundError);
   });
 });

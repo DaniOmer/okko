@@ -51,6 +51,7 @@ import { PRICE_POINT_REPOSITORY } from './application/price/price-point.reposito
 import { SetCropNutritionUseCase } from './application/crop/set-crop-nutrition.use-case';
 import { SetCropYieldsUseCase } from './application/crop/set-crop-yields.use-case';
 import { AddPricePointUseCase } from './application/price/add-price-point.use-case';
+import { UpdatePricePointUseCase } from './application/price/update-price-point.use-case';
 import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-case';
 import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-case';
 import { CropDocumentComposer } from './application/crop/compose-crop-document';
@@ -206,6 +207,11 @@ import { RestoreDraftUseCase } from './application/crop/restore-draft.use-case';
       provide: AddPricePointUseCase,
       useFactory: (es, pr, a, c, ids) => new AddPricePointUseCase(es, pr, a, c, ids),
       inject: [CROP_EVENT_STORE, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+    },
+    {
+      provide: UpdatePricePointUseCase,
+      useFactory: (es, pr, a, c) => new UpdatePricePointUseCase(es, pr, a, c),
+      inject: [CROP_EVENT_STORE, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListCropPricesUseCase,

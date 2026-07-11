@@ -182,7 +182,7 @@ export interface CropPest {
 
 export interface NutrientRequirement { nutrient: string; amount: number; unit: string; basis: string; stage?: string; }
 export interface YieldReference { inputLevel: string; min: number; average: number; potential: number; unit: string; zoneId?: string; }
-export interface PricePoint { id: string; cropId: string; market: string; date: string; price: number; unit: string; currency: string; }
+export interface PricePoint { id: string; cropId: string; market: string; periodStart: string; periodEnd: string; price: number; unit: string; currency: string; }
 
 export async function listPests(): Promise<Pest[]> {
   const res = await fetch(`${BASE}/pests`, { cache: 'no-store' });
@@ -251,8 +251,12 @@ export function addWindow(cropId: string, body: {
   return mutate(`/crops/${cropId}/windows`, 'POST', body);
 }
 
-export function addPrice(cropId: string, body: { market: string; date: string; price: number; unit: string; currency: string }): Promise<unknown> {
+export function addPrice(cropId: string, body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
   return mutate(`/crops/${cropId}/prices`, 'POST', body);
+}
+
+export function updatePrice(cropId: string, priceId: string, body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
+  return mutate(`/crops/${cropId}/prices/${priceId}`, 'PUT', body);
 }
 
 export function setZoneSuitability(cropId: string, zoneId: string, body: { rating: string; justification?: string }): Promise<unknown> {

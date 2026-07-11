@@ -27,5 +27,6 @@ export type CropEvent =
   | { type: 'ZoneSuitabilitySet'; suitability: CropZoneSuitabilitySnapshot }
   | { type: 'PestControlSet'; control: CropPestControlSnapshot }
   | { type: 'PricePointAdded'; price: PricePointSnapshot }
+  | { type: 'PricePointUpdated'; price: PricePointSnapshot }
   | { type: 'DraftDiscarded' }
   | { type: 'DraftRestored'; revision: number };

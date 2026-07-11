@@ -5,21 +5,42 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/date-picker';
-import { addPrice } from '../../../../lib/api';
+import { addPrice, updatePrice } from '../../../../lib/api';
 
-export function PriceEditor({ cropId }: { cropId: string }) {
-  const [market, setMarket] = useState(''); const [date, setDate] = useState('');
-  const [price, setPrice] = useState(''); const [unit, setUnit] = useState('FCFA/kg'); const [currency, setCurrency] = useState('XOF');
+interface PriceInitial {
+  id: string;
+  market: string;
+  periodStart: string;
+  periodEnd: string;
+  price: number;
+  unit: string;
+  currency: string;
+}
+
+export function PriceEditor({ cropId, initial }: { cropId: string; initial?: PriceInitial }) {
+  const editing = !!initial;
+  const [market, setMarket] = useState(initial?.market ?? '');
+  const [periodStart, setPeriodStart] = useState(initial?.periodStart ?? '');
+  const [periodEnd, setPeriodEnd] = useState(initial?.periodEnd ?? '');
+  const [price, setPrice] = useState(initial ? String(initial.price) : '');
+  const [unit, setUnit] = useState(initial?.unit ?? 'FCFA/kg');
+  const [currency, setCurrency] = useState(initial?.currency ?? 'XOF');
+
   return (
-    <EditorShell label="+ Ajouter un relevé de prix">
+    <EditorShell label={editing ? 'Modifier' : '+ Ajouter un relevé de prix'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (!date) return;
+            if (!periodStart) return;
+            const body = { market, periodStart, periodEnd: periodEnd || undefined, price: Number(price), unit, currency };
             submit(async () => {
-              await addPrice(cropId, { market, date, price: Number(price), unit, currency });
-              setMarket(''); setDate(''); setPrice(''); setUnit('FCFA/kg'); setCurrency('XOF');
+              if (editing) {
+                await updatePrice(cropId, initial!.id, body);
+              } else {
+                await addPrice(cropId, body);
+                setMarket(''); setPeriodStart(''); setPeriodEnd(''); setPrice(''); setUnit('FCFA/kg'); setCurrency('XOF');
+              }
             });
           }}
           className="space-y-3 text-sm"
@@ -30,8 +51,12 @@ export function PriceEditor({ cropId }: { cropId: string }) {
               <Input id="price-market" placeholder="ex. Dantokpa" value={market} onChange={(e)=>setMarket(e.target.value)} required />
             </div>
             <div className="space-y-1">
-              <Label>Date *</Label>
-              <DatePicker value={date} onChange={setDate} />
+              <Label>Début *</Label>
+              <DatePicker value={periodStart} onChange={setPeriodStart} />
+            </div>
+            <div className="space-y-1">
+              <Label>Fin (optionnelle)</Label>
+              <DatePicker value={periodEnd} onChange={setPeriodEnd} />
             </div>
           </div>
           <div className="space-y-1">
@@ -44,7 +69,7 @@ export function PriceEditor({ cropId }: { cropId: string }) {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
           </div>
         </form>
       )}
