@@ -40,7 +40,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{labelOf(CYCLE_TYPE_LABELS, crop.cycleType)}</span>
             <Badge variant={crop.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, crop.status)}</Badge>
-            <span>v{crop.version}</span>
+            <span>{crop.publishedVersion === 0 ? 'Brouillon' : `v${crop.publishedVersion}`}</span>
           </div>
           <PublishButton
             cropId={params.id}

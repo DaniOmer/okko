@@ -15,7 +15,7 @@ export default async function PublishedCropPage({ params }: { params: { id: stri
           {crop.name} <em className="text-base font-normal text-muted-foreground">{crop.scientificName}</em>
         </h1>
         <div className="rounded-md border border-amber-500 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Version publiée (figée) — v{crop.version}. Lecture seule.
+          Version publiée (figée) — v{crop.publishedVersion}. Lecture seule.
         </div>
       </div>
       <CropReadView crop={crop} />
