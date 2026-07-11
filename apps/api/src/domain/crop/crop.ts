@@ -165,6 +165,7 @@ export class Crop {
   updateVariety(v: VarietySnapshot): void { this.raise({ type: 'VarietyUpdated', variety: v }); }
   addCroppingWindow(w: CroppingWindowSnapshot): void { this.raise({ type: 'CroppingWindowAdded', window: w }); }
   addPricePoint(p: PricePointSnapshot): void { this.raise({ type: 'PricePointAdded', price: p }); }
+  updatePricePoint(p: PricePointSnapshot): void { this.raise({ type: 'PricePointUpdated', price: p }); }
   setZoneSuitability(s: CropZoneSuitabilitySnapshot): void { this.raise({ type: 'ZoneSuitabilitySet', suitability: s }); }
   setPestControl(c: CropPestControlSnapshot): void { this.raise({ type: 'PestControlSet', control: c }); }
 
@@ -189,6 +190,7 @@ export class Crop {
       case 'VarietyUpdated': this._varieties = this._varieties.map((x) => (x.id === e.variety.id ? e.variety : x)); this._hasUnpublishedChanges = true; break;
       case 'CroppingWindowAdded': this._windows = [...this._windows, e.window]; this._hasUnpublishedChanges = true; break;
       case 'PricePointAdded': this._prices = [...this._prices, e.price]; this._hasUnpublishedChanges = true; break;
+      case 'PricePointUpdated': this._prices = this._prices.map((x) => x.id === e.price.id ? e.price : x); this._hasUnpublishedChanges = true; break;
       case 'ZoneSuitabilitySet': this._zones = [...this._zones.filter((z) => z.zoneId !== e.suitability.zoneId), e.suitability]; this._hasUnpublishedChanges = true; break;
       case 'PestControlSet': this._pests = [...this._pests.filter((p) => p.pestId !== e.control.pestId), e.control]; this._hasUnpublishedChanges = true; break;
     }

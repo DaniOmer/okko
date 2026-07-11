@@ -55,4 +55,58 @@ describe('Nutrition, yields & prices e2e', () => {
       .send({ market: 'M', periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF' })
       .expect(404);
   });
+
+  describe('PUT /crops/:id/prices/:priceId', () => {
+    it('met à jour un relevé de prix et GET reflète la mise à jour (count inchangé)', async () => {
+      const crop = await request(app.getHttpServer()).post('/crops')
+        .send({ commonNames: { fr: 'Sorgho' }, scientificName: 'Sorghum bicolor', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+        .expect(201);
+      const id = crop.body.id;
+
+      const added = await request(app.getHttpServer()).post(`/crops/${id}/prices`)
+        .send({ market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-07', price: 350, unit: 'FCFA/kg', currency: 'XOF' })
+        .expect(201);
+      const priceId = added.body.id;
+
+      const updated = await request(app.getHttpServer()).put(`/crops/${id}/prices/${priceId}`)
+        .send({ market: 'Parakou', periodStart: '2026-07-01', periodEnd: '2026-07-15', price: 400, unit: 'FCFA/kg', currency: 'XOF' })
+        .expect(200);
+      expect(updated.body.id).toBe(priceId);
+      expect(updated.body.market).toBe('Parakou');
+      expect(updated.body.periodStart).toBe('2026-07-01');
+      expect(updated.body.periodEnd).toBe('2026-07-15');
+      expect(updated.body.price).toBe(400);
+
+      const prices = await request(app.getHttpServer()).get(`/crops/${id}/prices`).expect(200);
+      expect(prices.body).toHaveLength(1);
+      expect(prices.body[0].market).toBe('Parakou');
+    });
+
+    it('returns 404 for an unknown price id', async () => {
+      const crop = await request(app.getHttpServer()).post('/crops')
+        .send({ commonNames: { fr: 'Mil' }, scientificName: 'Pennisetum glaucum', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+        .expect(201);
+      const id = crop.body.id;
+
+      await request(app.getHttpServer()).put(`/crops/${id}/prices/does-not-exist`)
+        .send({ market: 'M', periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF' })
+        .expect(404);
+    });
+
+    it('returns 422 when periodEnd < periodStart', async () => {
+      const crop = await request(app.getHttpServer()).post('/crops')
+        .send({ commonNames: { fr: 'Niébé' }, scientificName: 'Vigna unguiculata', family: 'Fabaceae', cycleType: 'SEASONAL_ANNUAL' })
+        .expect(201);
+      const id = crop.body.id;
+
+      const added = await request(app.getHttpServer()).post(`/crops/${id}/prices`)
+        .send({ market: 'Dantokpa', periodStart: '2026-06-01', price: 350, unit: 'FCFA/kg', currency: 'XOF' })
+        .expect(201);
+      const priceId = added.body.id;
+
+      await request(app.getHttpServer()).put(`/crops/${id}/prices/${priceId}`)
+        .send({ market: 'M', periodStart: '2026-06-07', periodEnd: '2026-06-01', price: 1, unit: 'u', currency: 'XOF' })
+        .expect(422);
+    });
+  });
 });
