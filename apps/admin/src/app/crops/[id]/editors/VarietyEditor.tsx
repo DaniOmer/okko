@@ -14,11 +14,14 @@ export function VarietyEditor({ cropId }: { cropId: string }) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            submit(() => addVariety(cropId, {
-              name: { fr: name },
-              maturityDays: maturityDays ? Number(maturityDays) : undefined,
-              traits: traits ? traits.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
-            }));
+            submit(async () => {
+              await addVariety(cropId, {
+                name: { fr: name },
+                maturityDays: maturityDays ? Number(maturityDays) : undefined,
+                traits: traits ? traits.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
+              });
+              setName(''); setMaturityDays(''); setTraits('');
+            });
           }}
           className="space-y-3 text-sm"
         >

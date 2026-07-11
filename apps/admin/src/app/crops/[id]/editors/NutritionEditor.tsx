@@ -19,7 +19,10 @@ export function NutritionEditor({ cropId, current }: { cropId: string; current: 
           onSubmit={(e) => {
             e.preventDefault();
             const next = [...current, { nutrient, amount: Number(amount), unit, basis, stage: stage || undefined }];
-            submit(() => setNutrition(cropId, next));
+            submit(async () => {
+              await setNutrition(cropId, next);
+              setNutrient(''); setAmount(''); setUnit('kg/ha'); setBasis('PER_HECTARE'); setStage('');
+            });
           }}
           className="space-y-3 text-sm"
         >

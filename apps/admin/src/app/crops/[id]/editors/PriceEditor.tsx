@@ -17,7 +17,10 @@ export function PriceEditor({ cropId }: { cropId: string }) {
           onSubmit={(e) => {
             e.preventDefault();
             if (!date) return;
-            submit(() => addPrice(cropId, { market, date, price: Number(price), unit, currency }));
+            submit(async () => {
+              await addPrice(cropId, { market, date, price: Number(price), unit, currency });
+              setMarket(''); setDate(''); setPrice(''); setUnit('FCFA/kg'); setCurrency('XOF');
+            });
           }}
           className="space-y-3 text-sm"
         >

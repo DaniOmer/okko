@@ -16,7 +16,10 @@ export function PhenologyEditor({ cropId, current }: { cropId: string; current: 
           onSubmit={(e) => {
             e.preventDefault();
             const next = [...current, { name: { fr: name }, startDay: Number(start), endDay: Number(end), order: current.length + 1 }];
-            submit(() => setPhenology(cropId, next));
+            submit(async () => {
+              await setPhenology(cropId, next);
+              setName(''); setStart(''); setEnd('');
+            });
           }}
           className="space-y-3 text-sm"
         >

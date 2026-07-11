@@ -19,7 +19,10 @@ export function YieldsEditor({ cropId, current }: { cropId: string; current: Yie
           onSubmit={(e) => {
             e.preventDefault();
             const next = [...current, { inputLevel: level, min: Number(min), average: Number(avg), potential: Number(pot), unit }];
-            submit(() => setYields(cropId, next));
+            submit(async () => {
+              await setYields(cropId, next);
+              setLevel('MEDIUM'); setMin(''); setAvg(''); setPot(''); setUnit('t/ha');
+            });
           }}
           className="space-y-3 text-sm"
         >

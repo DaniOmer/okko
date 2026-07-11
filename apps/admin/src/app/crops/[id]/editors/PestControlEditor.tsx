@@ -21,11 +21,14 @@ export function PestControlEditor({ cropId, pests }: { cropId: string; pests: { 
           onSubmit={(e) => {
             e.preventDefault();
             if (!pestId) return;
-            submit(() => setPestControl(cropId, pestId, {
-              susceptibility,
-              threshold: threshold || undefined,
-              sensitiveStages: stages ? stages.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
-            }));
+            submit(async () => {
+              await setPestControl(cropId, pestId, {
+                susceptibility,
+                threshold: threshold || undefined,
+                sensitiveStages: stages ? stages.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+              });
+              setPestId(''); setSusceptibility('MEDIUM'); setThreshold(''); setStages('');
+            });
           }}
           className="space-y-3 text-sm"
         >
