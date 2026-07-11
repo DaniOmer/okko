@@ -218,7 +218,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.prices.map((p) => (
-                <li key={p.id}>{p.date} — {p.price} {p.unit} @ {p.market}</li>
+                <li key={p.id} className="flex items-center gap-2">
+                  <span>{p.periodStart === p.periodEnd ? p.periodStart : `${p.periodStart} → ${p.periodEnd}`} — {p.price} {p.unit} @ {p.market}</span>
+                  <PriceEditor cropId={params.id} initial={p} />
+                </li>
               ))}
             </ul>
           </CardContent>
