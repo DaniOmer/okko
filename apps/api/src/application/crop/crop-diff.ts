@@ -1,7 +1,7 @@
 import { CropDocument } from './crop-read-model';
 
 export interface FieldChange { field: string; before: unknown; after: unknown; }
-export interface ItemChange { key: string; before: unknown; after: unknown; }
+export interface ItemChange { key: string; before: unknown; after: unknown; fields: FieldChange[]; }
 export interface SectionDiff { section: string; added: unknown[]; removed: unknown[]; changed: ItemChange[]; }
 export interface CropDiff {
   cropId: string;
@@ -23,6 +23,17 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   const ak = Object.keys(ao);
   if (ak.length !== Object.keys(bo).length) return false;
   return ak.every((k) => Object.prototype.hasOwnProperty.call(bo, k) && deepEqual(ao[k], bo[k]));
+}
+
+function diffObjectFields(before: unknown, after: unknown): FieldChange[] {
+  const b = (before ?? {}) as Record<string, unknown>;
+  const a = (after ?? {}) as Record<string, unknown>;
+  const keys = new Set([...Object.keys(b), ...Object.keys(a)]);
+  const out: FieldChange[] = [];
+  for (const k of keys) {
+    if (!deepEqual(b[k], a[k])) out.push({ field: k, before: b[k], after: a[k] });
+  }
+  return out;
 }
 
 // Champs cœur + sections-valeur : tout devient un FieldChange (avant/après entier).
@@ -65,7 +76,7 @@ export function diffCropDocuments(
     for (const [k, item] of beforeByKey) if (!afterByKey.has(k)) removed.push(item);
     for (const [k, beforeItem] of beforeByKey) {
       const afterItem = afterByKey.get(k);
-      if (afterItem !== undefined && !deepEqual(beforeItem, afterItem)) changed.push({ key: k, before: beforeItem, after: afterItem });
+      if (afterItem !== undefined && !deepEqual(beforeItem, afterItem)) changed.push({ key: k, before: beforeItem, after: afterItem, fields: diffObjectFields(beforeItem, afterItem) });
     }
 
     if (added.length || removed.length || changed.length) sections.push({ section, added, removed, changed });
