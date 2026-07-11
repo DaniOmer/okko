@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCropVersions } from '../../../../lib/api';
+import { formatDateTime } from '../../../../lib/format';
 import { RestoreButton } from './RestoreButton';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +40,7 @@ export default async function CropVersionsPage({ params }: { params: { id: strin
                     v{v.revision}
                     {i === 0 && <Badge variant="secondary" className="ml-2">courante</Badge>}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{v.publishedAt}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDateTime(v.publishedAt)}</TableCell>
                   <TableCell>{v.publishedBy}</TableCell>
                   <TableCell>v{v.version}</TableCell>
                   <TableCell className="text-right space-x-2">

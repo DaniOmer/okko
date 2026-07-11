@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
+import { formatDateTime } from '../../../lib/format';
 import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_LEVEL_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -211,7 +212,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="divide-y">
               {history.map((h) => (
-                <li key={h.id} className="py-2">{h.at} — {h.actor} — {Object.keys(h.changes).join(', ')}</li>
+                <li key={h.id} className="py-2">{formatDateTime(h.at)} — {h.actor} — {Object.keys(h.changes).join(', ')}</li>
               ))}
             </ul>
           </CardContent>
