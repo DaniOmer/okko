@@ -122,8 +122,11 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
-              {crop.phenology.map((p) => (
-                <li key={p.order}>{p.name.fr} — J{p.startDay} à J{p.endDay}</li>
+              {crop.phenology.map((p, i) => (
+                <li key={p.order} className="flex items-center gap-2">
+                  <span>{p.name.fr} — J{p.startDay} à J{p.endDay}</span>
+                  <PhenologyEditor cropId={params.id} current={crop.phenology} editIndex={i} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -175,7 +178,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.nutrition.map((n, i) => (
-                <li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</li>
+                <li key={i} className="flex items-center gap-2">
+                  <span>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</span>
+                  <NutritionEditor cropId={params.id} current={crop.nutrition} editIndex={i} />
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -189,7 +195,10 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.yields.map((y, i) => (
-                <li key={i}>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</li>
+                <li key={i} className="flex items-center gap-2">
+                  <span>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</span>
+                  <YieldsEditor cropId={params.id} current={crop.yields} editIndex={i} />
+                </li>
               ))}
             </ul>
           </CardContent>

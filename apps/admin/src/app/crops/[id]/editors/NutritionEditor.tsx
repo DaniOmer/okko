@@ -9,19 +9,28 @@ import { NUTRITION_BASIS_LABELS } from '@/lib/labels';
 import { setNutrition } from '../../../../lib/api';
 import type { NutrientRequirement } from '../../../../lib/api';
 
-export function NutritionEditor({ cropId, current }: { cropId: string; current: NutrientRequirement[] }) {
-  const [nutrient, setNutrient] = useState(''); const [amount, setAmount] = useState('');
-  const [unit, setUnit] = useState('kg/ha'); const [basis, setBasis] = useState('PER_HECTARE'); const [stage, setStage] = useState('');
+export function NutritionEditor({ cropId, current, editIndex }: { cropId: string; current: NutrientRequirement[]; editIndex?: number }) {
+  const editing = editIndex != null;
+  const [nutrient, setNutrient] = useState(current[editIndex!]?.nutrient ?? '');
+  const [amount, setAmount] = useState(String(current[editIndex!]?.amount ?? ''));
+  const [unit, setUnit] = useState(current[editIndex!]?.unit ?? 'kg/ha');
+  const [basis, setBasis] = useState(current[editIndex!]?.basis ?? 'PER_HECTARE');
+  const [stage, setStage] = useState(current[editIndex!]?.stage ?? '');
   return (
-    <EditorShell label="+ Ajouter un besoin nutritif">
+    <EditorShell label={editing ? 'Modifier' : '+ Ajouter un besoin nutritif'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const next = [...current, { nutrient, amount: Number(amount), unit, basis, stage: stage || undefined }];
+            const nouvelItem = { nutrient, amount: Number(amount), unit, basis, stage: stage || undefined };
+            const next = editing
+              ? current.map((it, i) => i === editIndex ? nouvelItem : it)
+              : [...current, nouvelItem];
             submit(async () => {
               await setNutrition(cropId, next);
-              setNutrient(''); setAmount(''); setUnit('kg/ha'); setBasis('PER_HECTARE'); setStage('');
+              if (!editing) {
+                setNutrient(''); setAmount(''); setUnit('kg/ha'); setBasis('PER_HECTARE'); setStage('');
+              }
             });
           }}
           className="space-y-3 text-sm"
@@ -46,7 +55,7 @@ export function NutritionEditor({ cropId, current }: { cropId: string; current: 
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>Ajouter</Button>
+            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
           </div>
         </form>
       )}
