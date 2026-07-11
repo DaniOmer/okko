@@ -34,14 +34,31 @@ describe('diffCropDocuments', () => {
   it('variété modifiée (même id) -> changed', () => {
     const d = diffCropDocuments(1, 2, doc({ varieties: [variety('X', 120)] }), doc({ varieties: [variety('X', 130)] }));
     expect(d.sections).toEqual([{ section: 'varieties', added: [], removed: [],
-      changed: [{ key: 'X', before: variety('X', 120), after: variety('X', 130) }] }]);
+      changed: [{ key: 'X', before: variety('X', 120), after: variety('X', 130), fields: [{ field: 'maturityDays', before: 120, after: 130 }] }] }]);
   });
 
   it('zone modifiée par zoneId', () => {
     const z = (rating: string) => ({ zoneId: 'z1', zoneName: { fr: 'Zone 1' }, rating } as any);
     const d = diffCropDocuments(1, 2, doc({ zones: [z('SUITABLE')] }), doc({ zones: [z('MARGINAL')] }));
     expect(d.sections).toEqual([{ section: 'zones', added: [], removed: [],
-      changed: [{ key: 'z1', before: z('SUITABLE'), after: z('MARGINAL') }] }]);
+      changed: [{ key: 'z1', before: z('SUITABLE'), after: z('MARGINAL'), fields: [{ field: 'rating', before: 'SUITABLE', after: 'MARGINAL' }] }] }]);
+  });
+
+  it('changed d\'un item porte les sous-champs modifiés (un niveau)', () => {
+    const d = diffCropDocuments(1, 2,
+      doc({ varieties: [variety('X', 120)] }),
+      doc({ varieties: [variety('X', 130)] }));
+    expect(d.sections[0].changed[0].fields).toEqual([{ field: 'maturityDays', before: 120, after: 130 }]);
+    // before/after entiers conservés
+    expect(d.sections[0].changed[0].before).toEqual(variety('X', 120));
+    expect(d.sections[0].changed[0].after).toEqual(variety('X', 130));
+  });
+
+  it('un champ imbriqué modifié est reporté entier (pas de descente)', () => {
+    const vBefore = { id: 'X', cropId: 'c1', name: { fr: 'Obatanpa' }, traits: [] } as any;
+    const vAfter = { id: 'X', cropId: 'c1', name: { fr: 'Obatanpa 2' }, traits: [] } as any;
+    const d = diffCropDocuments(1, 2, doc({ varieties: [vBefore] }), doc({ varieties: [vAfter] }));
+    expect(d.sections[0].changed[0].fields).toEqual([{ field: 'name', before: { fr: 'Obatanpa' }, after: { fr: 'Obatanpa 2' } }]);
   });
 
   it('section sans clé (phenology) comparée comme valeur entière -> fields', () => {
