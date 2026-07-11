@@ -23,6 +23,7 @@ import { SuitabilityRating } from '../../domain/zone/suitability-rating';
 import { ProvenanceProps } from '../../domain/shared/provenance';
 import { SetCropPhenologyUseCase } from '../../application/crop/set-crop-phenology.use-case';
 import { AddCroppingWindowUseCase } from '../../application/window/add-cropping-window.use-case';
+import { UpdateCroppingWindowUseCase, CroppingWindowNotFoundError } from '../../application/window/update-cropping-window.use-case';
 import { ListCroppingWindowsUseCase } from '../../application/window/list-cropping-windows.use-case';
 import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
 import { TechnicalOperationJSON } from '../../domain/window/technical-operation';
@@ -76,6 +77,7 @@ export class CropController {
     private readonly listCropZones: ListCropZonesUseCase,
     private readonly setPhenology: SetCropPhenologyUseCase,
     private readonly addWindow: AddCroppingWindowUseCase,
+    private readonly updateWindowUC: UpdateCroppingWindowUseCase,
     private readonly listWindows: ListCroppingWindowsUseCase,
     private readonly setPestControl: SetCropPestControlUseCase,
     private readonly listCropPests: ListCropPestsUseCase,
@@ -220,6 +222,19 @@ export class CropController {
   @Get(':id/windows')
   async getWindows(@Param('id') id: string) {
     return this.listWindows.execute({ cropId: id });
+  }
+
+  @Put(':id/windows/:windowId')
+  async updateWindow(
+    @Param('id') id: string,
+    @Param('windowId') windowId: string,
+    @Body() body: { zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean; operations?: TechnicalOperationJSON[]; notes?: string },
+  ) {
+    try { return await this.updateWindowUC.execute({ cropId: id, windowId, ...body, actor: ACTOR }); }
+    catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError || e instanceof CroppingWindowNotFoundError) throw new NotFoundException((e as Error).message);
+      throw e;
+    }
   }
 
   @Put(':id/pests/:pestId')

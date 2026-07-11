@@ -32,6 +32,7 @@ import { DeleteZoneUseCase } from './application/zone/delete-zone.use-case';
 import { SetCropZoneSuitabilityUseCase } from './application/zone/set-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from './application/zone/list-crop-zones.use-case';
 import { AddCroppingWindowUseCase } from './application/window/add-cropping-window.use-case';
+import { UpdateCroppingWindowUseCase } from './application/window/update-cropping-window.use-case';
 import { ListCroppingWindowsUseCase } from './application/window/list-cropping-windows.use-case';
 import { CropController } from './presentation/crop/crop.controller';
 import { ZoneController } from './presentation/zone/zone.controller';
@@ -154,6 +155,11 @@ import { RestoreDraftUseCase } from './application/crop/restore-draft.use-case';
       provide: AddCroppingWindowUseCase,
       useFactory: (es, zr, wr, a, c, ids) => new AddCroppingWindowUseCase(es, zr, wr, a, c, ids),
       inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+    },
+    {
+      provide: UpdateCroppingWindowUseCase,
+      useFactory: (es, zr, wr, a, c) => new UpdateCroppingWindowUseCase(es, zr, wr, a, c),
+      inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListCroppingWindowsUseCase,

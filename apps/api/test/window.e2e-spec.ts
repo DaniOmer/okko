@@ -56,4 +56,48 @@ describe('Phenology & windows e2e', () => {
     await request(app.getHttpServer()).post(`/crops/${crop.body.id}/windows`)
       .send({ zoneId: 'nope', season: 'S' }).expect(404);
   });
+
+  it('updates a cropping window (PUT) and GET reflects new values, count unchanged', async () => {
+    const crop = await request(app.getHttpServer()).post('/crops')
+      .send({ commonNames: { fr: 'Sorgho' }, scientificName: 'Sorghum bicolor', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
+    const zone = await request(app.getHttpServer()).post('/zones')
+      .send({ name: { fr: 'Soudano-sahélienne' }, country: 'BF' }).expect(201);
+
+    // Ajouter une fenêtre initiale
+    await request(app.getHttpServer()).post(`/crops/${crop.body.id}/windows`)
+      .send({ zoneId: zone.body.id, season: 'Saison des pluies', irrigationRequired: false,
+              operations: [{ type: 'PLANTING', label: { fr: 'Semis' }, timingDays: 0, inputs: [] }] })
+      .expect(201);
+
+    // Récupérer l'id de la fenêtre
+    const listBefore = await request(app.getHttpServer()).get(`/crops/${crop.body.id}/windows`).expect(200);
+    expect(listBefore.body).toHaveLength(1);
+    const windowId = listBefore.body[0].id;
+
+    // Mettre à jour la fenêtre
+    await request(app.getHttpServer()).put(`/crops/${crop.body.id}/windows/${windowId}`)
+      .send({ zoneId: zone.body.id, season: 'Saison sèche', sowingStart: '2026-06-15',
+              operations: [{ type: 'THINNING', label: { fr: 'Démariage' }, timingDays: 14, inputs: [] }] })
+      .expect(200);
+
+    // Vérifier que le GET reflète la mise à jour et le count est inchangé
+    const listAfter = await request(app.getHttpServer()).get(`/crops/${crop.body.id}/windows`).expect(200);
+    expect(listAfter.body).toHaveLength(1);
+    expect(listAfter.body[0].id).toBe(windowId);
+    expect(listAfter.body[0].season).toBe('Saison sèche');
+    expect(listAfter.body[0].sowingStart).toBe('2026-06-15');
+  });
+
+  it('returns 404 when updating a window with an unknown windowId', async () => {
+    const crop = await request(app.getHttpServer()).post('/crops')
+      .send({ commonNames: { fr: 'Mil' }, scientificName: 'Pennisetum glaucum', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
+    const zone = await request(app.getHttpServer()).post('/zones')
+      .send({ name: { fr: 'Zone test' }, country: 'SN' }).expect(201);
+
+    await request(app.getHttpServer()).put(`/crops/${crop.body.id}/windows/unknown-window-id`)
+      .send({ zoneId: zone.body.id, season: 'S' })
+      .expect(404);
+  });
 });
