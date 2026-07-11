@@ -47,6 +47,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             status={crop.status}
             hasUnpublishedChanges={crop.hasUnpublishedChanges}
             hasPublishedVersion={crop.hasPublishedVersion}
+            completeness={crop.completeness}
           />
           {crop.hasPublishedVersion && (
             <Link href={`/crops/${params.id}/versions`} className="text-sm text-primary hover:underline">

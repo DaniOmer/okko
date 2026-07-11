@@ -10,14 +10,27 @@ export function PublishButton({
   cropId,
   hasUnpublishedChanges,
   hasPublishedVersion,
+  completeness,
 }: {
   cropId: string;
   status: string; // passé par la page mais volontairement inutilisé — la logique s'appuie sur les drapeaux
   hasUnpublishedChanges: boolean;
   hasPublishedVersion: boolean;
+  completeness: { percent: number; categories: Record<string, boolean> };
 }) {
+  const missing = Object.entries(completeness.categories).filter(([, v]) => !v).map(([k]) => k);
+  const incomplete = completeness.percent < 100;
+
   // 1) Jamais publiée : premier publish.
   if (!hasPublishedVersion) {
+    if (incomplete) {
+      return (
+        <div className="space-y-1">
+          <Button size="sm" disabled>Publier</Button>
+          <p className="text-xs text-muted-foreground">Complétez la fiche pour publier — manquant : {missing.join(', ')}</p>
+        </div>
+      );
+    }
     return <PublishDialog cropId={cropId} label="Publier" prompt="Publier cette fiche ?" />;
   }
 
@@ -41,7 +54,14 @@ export function PublishButton({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Badge variant="outline" className="border-amber-500 text-amber-700">Modifications non publiées</Badge>
-      <PublishDialog cropId={cropId} label="Republier" prompt="Republier la fiche avec les modifications en cours ?" />
+      {incomplete ? (
+        <div className="space-y-1">
+          <Button size="sm" disabled>Republier</Button>
+          <p className="text-xs text-muted-foreground">Complétez la fiche pour publier — manquant : {missing.join(', ')}</p>
+        </div>
+      ) : (
+        <PublishDialog cropId={cropId} label="Republier" prompt="Republier la fiche avec les modifications en cours ?" />
+      )}
       <EditorShell label="Abandonner">
         {({ submit, close, busy }) => (
           <div className="space-y-2">
