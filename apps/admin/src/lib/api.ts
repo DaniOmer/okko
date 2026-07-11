@@ -135,6 +135,23 @@ export async function restoreVersion(id: string, revision: number): Promise<void
   if (!res.ok) throw new Error(await readError(res));
 }
 
+export interface FieldChange { field: string; before: unknown; after: unknown; }
+export interface ItemChange { key: string; before: unknown; after: unknown; }
+export interface SectionDiff { section: string; added: unknown[]; removed: unknown[]; changed: ItemChange[]; }
+export interface CropDiff {
+  cropId: string;
+  from: number;
+  to: number;
+  fields: FieldChange[];
+  sections: SectionDiff[];
+}
+
+export async function getCropDiff(id: string, from: number, to: number): Promise<CropDiff> {
+  const res = await fetch(`${BASE}/crops/${id}/diff?from=${from}&to=${to}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(await readError(res));
+  return res.json();
+}
+
 export async function addVariety(cropId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<Variety> {
   const res = await fetch(`${BASE}/crops/${cropId}/varieties`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
