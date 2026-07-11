@@ -38,8 +38,9 @@ import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 import { GetCropHistoryUseCase } from '../../application/crop/get-crop-history.use-case';
 import { PUBLISHED_CROP_REPOSITORY, PublishedCropRepository } from '../../application/crop/published-crop.repository';
 import { DiscardDraftUseCase } from '../../application/crop/discard-draft.use-case';
+import { RestoreDraftUseCase } from '../../application/crop/restore-draft.use-case';
 import { CropDocumentComposer } from '../../application/crop/compose-crop-document';
-import { NoPublishedVersionError } from '../../domain/crop/crop';
+import { NoPublishedVersionError, RevisionNotFoundError } from '../../domain/crop/crop';
 
 const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
 
@@ -48,6 +49,7 @@ function mapCropError(e: unknown, id: string): never {
   if (e instanceof CropStatusError) throw new ConflictException((e as Error).message);
   if (e instanceof ConcurrencyError) throw new ConflictException((e as Error).message);
   if (e instanceof NoPublishedVersionError) throw new ConflictException((e as Error).message);
+  if (e instanceof RevisionNotFoundError) throw new NotFoundException((e as Error).message);
   throw e;
 }
 
@@ -75,6 +77,7 @@ export class CropController {
     private readonly listPrices: ListCropPricesUseCase,
     private readonly getHistory: GetCropHistoryUseCase,
     private readonly discardDraft: DiscardDraftUseCase,
+    private readonly restoreDraft: RestoreDraftUseCase,
     private readonly composer: CropDocumentComposer,
     @Inject(PUBLISHED_CROP_REPOSITORY) private readonly publishedCrops: PublishedCropRepository,
   ) {}
@@ -298,6 +301,16 @@ export class CropController {
   async discard(@Param('id') id: string) {
     try {
       const snap = await this.discardDraft.execute({ id, actor: ACTOR });
+      return this.composeCropDocument(id, snap);
+    } catch (e) {
+      mapCropError(e, id);
+    }
+  }
+
+  @Post(':id/versions/:revision/restore')
+  async restore(@Param('id') id: string, @Param('revision') revision: string) {
+    try {
+      const snap = await this.restoreDraft.execute({ id, revision: Number(revision), actor: ACTOR });
       return this.composeCropDocument(id, snap);
     } catch (e) {
       mapCropError(e, id);
