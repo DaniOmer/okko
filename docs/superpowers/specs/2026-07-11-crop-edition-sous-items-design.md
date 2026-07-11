@@ -15,7 +15,8 @@ Référence backlog : `docs/2026-07-11-backlog-retours-usage.md` (§C1).
 ## 2. Contexte (vérifié)
 
 Capacité de mise à jour par section, aujourd'hui :
-- **Ravageur** (`PestControlSet`) et **zone** (`ZoneSuitabilitySet`) : *upsert par clé* (`pestId` / `zoneId`) — re-soumettre avec la même clé remplace. **API prête.**
+- **Zone** (`ZoneSuitabilitySet`) : *upsert par clé* (`zoneId`) — re-soumettre avec la même clé remplace. **API prête.**
+- **Ravageur** (`PestControlSet`) : *upsert par clé* (`pestId`), mais l'upsert **remplace tout l'enregistrement** et `CropPestView` **n'expose pas** `threshold`/`sensitiveStages` → une édition naïve les écraserait. **Petit ajout API** : les exposer sur la vue (la projection les stocke déjà — simple mapping). L'admin ré-émet aussi `controlMethods` inchangés pour ne pas les perdre.
 - **Nutrition** (`NutritionSet`), **rendement** (`YieldsSet`), **phénologie** (`PhenologySet`) : événement « Set » (remplace la liste entière). Éditer = re-soumettre la liste avec l'item modifié. **API prête.**
 - **Variété** (`VarietyAdded`) : *append-only*, **pas** d'événement de mise à jour → **nécessite un ajout API**. Chaque variété a un `id` stable.
 - **Prix** (`PricePointAdded`, append-only) → reporté à **D5** (plage de dates). **Fenêtre** (append-only) → reporté à **D1** (refonte). **Exclus.**
