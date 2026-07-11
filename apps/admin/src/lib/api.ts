@@ -111,6 +111,30 @@ export async function discardDraft(id: string): Promise<void> {
   if (!res.ok) throw new Error(await readError(res));
 }
 
+export interface CropVersion {
+  revision: number;
+  version: number;
+  publishedAt: string;
+  publishedBy: string;
+}
+
+export async function getCropVersions(id: string): Promise<CropVersion[]> {
+  const res = await fetch(`${BASE}/crops/${id}/versions`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(await readError(res));
+  return res.json();
+}
+
+export async function getCropVersion(id: string, revision: number): Promise<CropDetail> {
+  const res = await fetch(`${BASE}/crops/${id}/versions/${revision}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(await readError(res));
+  return res.json();
+}
+
+export async function restoreVersion(id: string, revision: number): Promise<void> {
+  const res = await fetch(`${BASE}/crops/${id}/versions/${revision}/restore`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readError(res));
+}
+
 export async function addVariety(cropId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<Variety> {
   const res = await fetch(`${BASE}/crops/${cropId}/varieties`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
