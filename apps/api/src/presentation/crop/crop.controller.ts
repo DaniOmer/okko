@@ -112,9 +112,9 @@ export class CropController {
   }
 
   @Post(':id/publish')
-  async publish(@Param('id') id: string) {
+  async publish(@Param('id') id: string, @Body() body?: { note?: string }) {
     try {
-      const snap = await this.publishCrop.execute({ id, actor: ACTOR });
+      const snap = await this.publishCrop.execute({ id, actor: ACTOR, note: body?.note });
       return toCropDocument(snap);
     } catch (e) {
       mapCropError(e, id);
