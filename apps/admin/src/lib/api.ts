@@ -136,7 +136,7 @@ export async function restoreVersion(id: string, revision: number): Promise<void
 }
 
 export interface FieldChange { field: string; before: unknown; after: unknown; }
-export interface ItemChange { key: string; before: unknown; after: unknown; }
+export interface ItemChange { key: string; before: unknown; after: unknown; fields: FieldChange[]; }
 export interface SectionDiff { section: string; added: unknown[]; removed: unknown[]; changed: ItemChange[]; }
 export interface CropDiff {
   cropId: string;

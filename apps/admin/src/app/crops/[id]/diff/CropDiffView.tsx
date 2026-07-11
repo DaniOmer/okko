@@ -80,7 +80,9 @@ function SectionBlock({ diff }: { diff: SectionDiff }) {
           {diff.changed.map((c) => (
             <div key={c.key} className="space-y-1">
               <div className="text-sm font-medium">{itemLabel(diff.section, c.before)}</div>
-              <BeforeAfter before={c.before} after={c.after} />
+              <ul className="space-y-1 text-sm pl-4">
+                {c.fields.map((f, i) => <FieldRow key={i} change={f} />)}
+              </ul>
             </div>
           ))}
         </div>
