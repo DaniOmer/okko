@@ -23,6 +23,7 @@ import { PublishCropUseCase } from './application/crop/publish-crop.use-case';
 import { SetCropRequirementsUseCase } from './application/crop/set-crop-requirements.use-case';
 import { SetCropPhenologyUseCase } from './application/crop/set-crop-phenology.use-case';
 import { AddVarietyUseCase } from './application/crop/add-variety.use-case';
+import { UpdateVarietyUseCase } from './application/crop/update-variety.use-case';
 import { ListVarietiesUseCase } from './application/crop/list-varieties.use-case';
 import { CreateZoneUseCase } from './application/zone/create-zone.use-case';
 import { ListZonesUseCase } from './application/zone/list-zones.use-case';
@@ -99,6 +100,11 @@ import { RestoreDraftUseCase } from './application/crop/restore-draft.use-case';
       provide: AddVarietyUseCase,
       useFactory: (es, vr, a, c, ids) => new AddVarietyUseCase(es, vr, a, c, ids),
       inject: [CROP_EVENT_STORE, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK, UuidIdGenerator],
+    },
+    {
+      provide: UpdateVarietyUseCase,
+      useFactory: (es, vr, a, c) => new UpdateVarietyUseCase(es, vr, a, c),
+      inject: [CROP_EVENT_STORE, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: ListVarietiesUseCase,

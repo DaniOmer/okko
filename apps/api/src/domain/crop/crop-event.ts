@@ -22,6 +22,7 @@ export type CropEvent =
   | { type: 'Published' }
   | { type: 'Archived' }
   | { type: 'VarietyAdded'; variety: VarietySnapshot }
+  | { type: 'VarietyUpdated'; variety: VarietySnapshot }
   | { type: 'CroppingWindowAdded'; window: CroppingWindowSnapshot }
   | { type: 'ZoneSuitabilitySet'; suitability: CropZoneSuitabilitySnapshot }
   | { type: 'PestControlSet'; control: CropPestControlSnapshot }

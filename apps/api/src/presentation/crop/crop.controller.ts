@@ -11,6 +11,7 @@ import { CropSnapshot } from '../../domain/crop/crop';
 import { CycleType } from '../../domain/crop/cycle-type';
 import { SetCropRequirementsUseCase } from '../../application/crop/set-crop-requirements.use-case';
 import { AddVarietyUseCase } from '../../application/crop/add-variety.use-case';
+import { UpdateVarietyUseCase, VarietyNotFoundError } from '../../application/crop/update-variety.use-case';
 import { ListVarietiesUseCase } from '../../application/crop/list-varieties.use-case';
 import { VARIETY_REPOSITORY, VarietyRepository } from '../../application/crop/variety.repository';
 import { ClimaticRequirementsJSON } from '../../domain/shared/climatic-requirements';
@@ -52,6 +53,7 @@ function mapCropError(e: unknown, id: string): never {
   if (e instanceof NoPublishedVersionError) throw new ConflictException((e as Error).message);
   if (e instanceof RevisionNotFoundError) throw new NotFoundException((e as Error).message);
   if (e instanceof IncompleteCropError) throw new UnprocessableEntityException((e as Error).message);
+  if (e instanceof VarietyNotFoundError) throw new NotFoundException((e as Error).message);
   throw e;
 }
 
@@ -64,6 +66,7 @@ export class CropController {
     @Inject(CROP_REPOSITORY) private readonly crops: CropRepository,
     private readonly setRequirements: SetCropRequirementsUseCase,
     private readonly addVariety: AddVarietyUseCase,
+    private readonly updateVarietyUC: UpdateVarietyUseCase,
     private readonly listVarieties: ListVarietiesUseCase,
     @Inject(VARIETY_REPOSITORY) private readonly varieties: VarietyRepository,
     private readonly setSuitability: SetCropZoneSuitabilityUseCase,
@@ -152,6 +155,17 @@ export class CropController {
   @Get(':id/varieties')
   async getVarieties(@Param('id') id: string) {
     return this.listVarieties.execute({ cropId: id });
+  }
+
+  @Put(':id/varieties/:varietyId')
+  async updateVariety(
+    @Param('id') id: string,
+    @Param('varietyId') varietyId: string,
+    @Body() body: { name: Record<string, string>; maturityDays?: number; traits?: string[] },
+  ) {
+    try {
+      return await this.updateVarietyUC.execute({ cropId: id, varietyId, ...body, actor: ACTOR });
+    } catch (e) { mapCropError(e, id); }
   }
 
   @Put(':id/zones/:zoneId')
