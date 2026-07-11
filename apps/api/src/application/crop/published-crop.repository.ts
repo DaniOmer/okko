@@ -9,6 +9,7 @@ export interface PublishedCropRecord {
   version: number;
   publishedAt: string;
   publishedBy: string;
+  note: string | null;
 }
 
 export interface PublishedCropVersion {
@@ -16,6 +17,7 @@ export interface PublishedCropVersion {
   version: number;
   publishedAt: string;
   publishedBy: string;
+  note: string | null;
 }
 
 export interface PublishedCropRepository {

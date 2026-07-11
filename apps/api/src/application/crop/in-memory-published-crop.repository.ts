@@ -21,6 +21,6 @@ export class InMemoryPublishedCropRepository implements PublishedCropRepository 
     return this.store
       .filter((r) => r.cropId === cropId)
       .sort((a, b) => b.revision - a.revision)
-      .map((r) => ({ revision: r.revision, version: r.version, publishedAt: r.publishedAt, publishedBy: r.publishedBy }));
+      .map((r) => ({ revision: r.revision, version: r.version, publishedAt: r.publishedAt, publishedBy: r.publishedBy, note: r.note }));
   }
 }

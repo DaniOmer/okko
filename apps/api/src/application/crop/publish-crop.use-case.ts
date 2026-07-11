@@ -23,7 +23,7 @@ export class PublishCropUseCase {
     private readonly published: PublishedCropRepository,
   ) {}
 
-  async execute(input: { id: string; actor: string }): Promise<CropSnapshot> {
+  async execute(input: { id: string; actor: string; note?: string }): Promise<CropSnapshot> {
     const stored = await this.events.load(input.id);
     if (stored.length === 0) throw new CropNotFoundError(input.id);
     const crop = Crop.fromEvents(stored);
@@ -35,7 +35,8 @@ export class PublishCropUseCase {
     const document = await this.composer.compose(input.id, next);
     const latest = await this.published.findLatest(input.id);
     const revision = latest ? latest.revision + 1 : 1;
-    await this.published.save({ cropId: input.id, revision, document, version: next.version, publishedAt: at, publishedBy: input.actor });
+    const note = input.note?.trim() || null;
+    await this.published.save({ cropId: input.id, revision, document, version: next.version, publishedAt: at, publishedBy: input.actor, note });
     await this.audit.record({
       entityType: 'Crop',
       entityId: crop.id,

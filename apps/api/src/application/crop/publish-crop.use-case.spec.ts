@@ -141,4 +141,27 @@ describe('PublishCropUseCase', () => {
     expect((await published.findLatest('c3'))!.revision).toBe(2);
     expect((await published.listByCrop('c3')).map((v) => v.revision)).toEqual([2, 1]);
   });
+
+  it('enregistre la note de publication (vide -> null)', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const publishAudit = { record: jest.fn() };
+    await new CreateCropUseCase(events, repo, publishAudit, clock).execute({
+      id: 'c4',
+      commonNames: { fr: 'Sorgho' },
+      scientificName: 'Sorghum bicolor',
+      family: 'Poaceae',
+      cycleType: CycleType.SEASONAL_ANNUAL,
+      actor: 'a',
+    });
+    const uc = new PublishCropUseCase(events, repo, publishAudit, clock, composer, published);
+    await uc.execute({ id: 'c4', actor: 'admin', note: '  MAJ prix  ' });
+    expect((await published.findLatest('c4'))!.note).toBe('MAJ prix'); // trim
+    // republier sans note -> null
+    await uc.execute({ id: 'c4', actor: 'admin' });
+    expect((await published.findLatest('c4'))!.note).toBeNull();
+    // note vide -> null
+    await uc.execute({ id: 'c4', actor: 'admin', note: '   ' });
+    expect((await published.findLatest('c4'))!.note).toBeNull();
+  });
 });

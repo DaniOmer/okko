@@ -19,6 +19,7 @@ export class PrismaPublishedCropRepository implements PublishedCropRepository {
           version: r.version,
           publishedAt: new Date(r.publishedAt),
           publishedBy: r.publishedBy,
+          note: r.note,
         },
       });
     } catch (e) {
@@ -43,12 +44,12 @@ export class PrismaPublishedCropRepository implements PublishedCropRepository {
     const rows = await this.prisma.publishedCrop.findMany({
       where: { cropId },
       orderBy: { revision: 'desc' },
-      select: { revision: true, version: true, publishedAt: true, publishedBy: true },
+      select: { revision: true, version: true, publishedAt: true, publishedBy: true, note: true },
     });
-    return rows.map((r) => ({ revision: r.revision, version: r.version, publishedAt: r.publishedAt.toISOString(), publishedBy: r.publishedBy }));
+    return rows.map((r) => ({ revision: r.revision, version: r.version, publishedAt: r.publishedAt.toISOString(), publishedBy: r.publishedBy, note: r.note }));
   }
 
-  private toRecord(row: { cropId: string; revision: number; document: unknown; version: number; publishedAt: Date; publishedBy: string }): PublishedCropRecord {
+  private toRecord(row: { cropId: string; revision: number; document: unknown; version: number; publishedAt: Date; publishedBy: string; note: string | null }): PublishedCropRecord {
     return {
       cropId: row.cropId,
       revision: row.revision,
@@ -56,6 +57,7 @@ export class PrismaPublishedCropRepository implements PublishedCropRepository {
       version: row.version,
       publishedAt: row.publishedAt.toISOString(),
       publishedBy: row.publishedBy,
+      note: row.note,
     };
   }
 }
