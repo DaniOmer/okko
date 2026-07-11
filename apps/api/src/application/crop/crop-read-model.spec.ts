@@ -130,7 +130,7 @@ describe('toCropDocument with pests', () => {
     hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const pests: CropPestView[] = [
-    { pestId: 'p1', pestName: { fr: 'Mouche des fruits' }, type: PestType.INSECT, susceptibility: SusceptibilityLevel.HIGH, controlMethods: [] },
+    { pestId: 'p1', pestName: { fr: 'Mouche des fruits' }, type: PestType.INSECT, susceptibility: SusceptibilityLevel.HIGH, controlMethods: [], sensitiveStages: [] },
   ];
 
   it('includes pests in the document and serialized text', () => {

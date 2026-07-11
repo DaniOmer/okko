@@ -121,6 +121,7 @@ describe('Crop sections event-sourcing e2e', () => {
       .send({
         susceptibility: 'HIGH',
         sensitiveStages: ['tallage'],
+        threshold: '5%',
         controlMethods: [
           { category: 'PREVENTION', description: { fr: 'Désherbage précoce' }, inputs: [] },
         ],
@@ -222,5 +223,10 @@ describe('Crop sections event-sourcing e2e', () => {
     // Price
     expect(Array.isArray(doc.body.prices)).toBe(true);
     expect(doc.body.prices.length).toBeGreaterThanOrEqual(1);
+
+    // Task 2: Verify that threshold and sensitiveStages are exposed on the pest view
+    const firstPest = doc.body.pests[0];
+    expect(firstPest.sensitiveStages).toEqual(['tallage']);
+    expect(firstPest.threshold).toBe('5%');
   });
 });
