@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
-import { formatDateTime } from '../../../lib/format';
+import { formatDateTime, formatDayMonth } from '../../../lib/format';
 import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -141,16 +141,27 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <WindowEditor cropId={params.id} zones={zones} />
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
-            {crop.croppingWindows.map((w) => (
-              <div key={w.id} className="mb-3">
-                <p className="font-medium">{w.season}{w.irrigationRequired ? ' · irrigation requise' : ''}</p>
-                <ul className="list-disc pl-5">
-                  {w.operations.map((op, i) => (
-                    <li key={i}>J+{op.timingDays} — {op.label.fr} ({labelOf(OPERATION_TYPE_LABELS, op.type)})</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {crop.croppingWindows.map((w) => {
+              const sorted = [...w.operations].sort((a, b) => a.timingDays - b.timingDays);
+              const items = [...sorted, { type: '__SOWING__', label: { fr: '' }, timingDays: 0, inputs: [] }].sort((a, b) => a.timingDays - b.timingDays);
+              return (
+                <div key={w.id} className="mb-3">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">
+                      {w.season}
+                      {w.sowingStart ? ` · semis ${formatDayMonth(w.sowingStart)}${w.sowingEnd ? ` → ${formatDayMonth(w.sowingEnd)}` : ''}` : ''}
+                      {w.irrigationRequired ? ' · irrigation requise' : ''}
+                    </p>
+                    <WindowEditor cropId={params.id} zones={zones} initial={w} />
+                  </div>
+                  <ul className="list-disc pl-5">
+                    {items.map((op, i) => op.type === '__SOWING__'
+                      ? <li key={`s${i}`} className="font-medium">J0 · Semis</li>
+                      : <li key={i}>J{op.timingDays >= 0 ? '+' : ''}{op.timingDays} — {op.label.fr} ({labelOf(OPERATION_TYPE_LABELS, op.type)})</li>)}
+                  </ul>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
