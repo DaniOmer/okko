@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, NotFoundException, ConflictException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
@@ -37,6 +37,7 @@ import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement'
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 import { GetCropHistoryUseCase } from '../../application/crop/get-crop-history.use-case';
 import { PUBLISHED_CROP_REPOSITORY, PublishedCropRepository } from '../../application/crop/published-crop.repository';
+import { diffCropDocuments } from '../../application/crop/crop-diff';
 import { DiscardDraftUseCase } from '../../application/crop/discard-draft.use-case';
 import { RestoreDraftUseCase } from '../../application/crop/restore-draft.use-case';
 import { CropDocumentComposer } from '../../application/crop/compose-crop-document';
@@ -295,6 +296,19 @@ export class CropController {
     } catch (e) {
       mapCropError(e, id);
     }
+  }
+
+  @Get(':id/diff')
+  async diff(@Param('id') id: string, @Query('from') from: string, @Query('to') to: string) {
+    const fromRevision = Number(from);
+    const toRevision = Number(to);
+    if (!Number.isInteger(fromRevision)) throw new NotFoundException(`crop ${id} revision ${from}`);
+    if (!Number.isInteger(toRevision)) throw new NotFoundException(`crop ${id} revision ${to}`);
+    const a = await this.publishedCrops.findRevision(id, fromRevision);
+    if (!a) throw new NotFoundException(`crop ${id} revision ${from}`);
+    const b = await this.publishedCrops.findRevision(id, toRevision);
+    if (!b) throw new NotFoundException(`crop ${id} revision ${to}`);
+    return diffCropDocuments(fromRevision, toRevision, a.document, b.document);
   }
 
   @Post(':id/discard')
