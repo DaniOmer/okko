@@ -160,6 +160,13 @@ describe('Crop versioning e2e', () => {
     expect(afterDraft.body.hasUnpublishedChanges).toBe(false);
   });
 
+  it('refuse la publication d\'une fiche incomplète (422)', async () => {
+    const crop = await request(app.getHttpServer()).post('/crops')
+      .send({ commonNames: { fr: 'Vide' }, scientificName: 'X', family: 'X', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
+    await request(app.getHttpServer()).post(`/crops/${crop.body.id}/publish`).expect(422);
+  });
+
   it('abandonner sans version publiée -> 409 ; /published sur fiche jamais publiée -> 404', async () => {
     const created = await request(app.getHttpServer())
       .post('/crops')

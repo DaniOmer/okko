@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, UnprocessableEntityException, Inject } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
-import { PublishCropUseCase, CropNotFoundError } from '../../application/crop/publish-crop.use-case';
+import { PublishCropUseCase, CropNotFoundError, IncompleteCropError } from '../../application/crop/publish-crop.use-case';
 import { CropStatusError } from '../../domain/crop/crop-status';
 import { ConcurrencyError } from '../../application/crop/crop-event-store';
 import { CROP_REPOSITORY, CropRepository } from '../../application/crop/crop.repository';
@@ -51,6 +51,7 @@ function mapCropError(e: unknown, id: string): never {
   if (e instanceof ConcurrencyError) throw new ConflictException((e as Error).message);
   if (e instanceof NoPublishedVersionError) throw new ConflictException((e as Error).message);
   if (e instanceof RevisionNotFoundError) throw new NotFoundException((e as Error).message);
+  if (e instanceof IncompleteCropError) throw new UnprocessableEntityException((e as Error).message);
   throw e;
 }
 
