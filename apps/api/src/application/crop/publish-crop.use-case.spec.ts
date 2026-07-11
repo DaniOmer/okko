@@ -15,7 +15,7 @@ import { InMemoryPricePointRepository } from '../price/in-memory-price-point.rep
 import { AddVarietyUseCase } from './add-variety.use-case';
 import { CropEvent } from '../../domain/crop/crop-event';
 import { NutrientBasis } from '../../domain/crop/nutrient-requirement';
-import { InputLevel } from '../../domain/crop/yield-reference';
+import { InputType } from '../../domain/crop/yield-reference';
 
 const clock = { nowIso: () => '2026-07-02T00:00:00.000Z' };
 
@@ -46,7 +46,7 @@ async function seedComplete(events: InMemoryCropEventStore, cropId: string, { in
     { type: 'EdaphicRequirementsSet', edaphic: { ph: { min: 5.5, optimal: 6.5, max: 7.5, unit: 'pH' } } },
     { type: 'PhenologySet', phenology: [{ name: { fr: 'Levée' }, startDay: 5, endDay: 12, order: 1 }] },
     { type: 'NutritionSet', nutrition: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }] },
-    { type: 'YieldsSet', yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }] },
+    { type: 'YieldsSet', yields: [{ inputType: InputType.CHEMICAL, min: 2, average: 4, potential: 6, unit: 't/ha' }] },
     ...(includeVariety ? [{ type: 'VarietyAdded' as const, variety: { id: `v-seed-${cropId}`, cropId, name: { fr: 'Variété seed' }, traits: [] } }] : []),
     { type: 'ZoneSuitabilitySet', suitability: { zoneId: 'z-seed', cropId, rating: 'SUITABLE' as any } },
     { type: 'CroppingWindowAdded', window: { id: `w-seed-${cropId}`, cropId, zoneId: 'z-seed', season: 'Hivernage', irrigationRequired: false, operations: [] } },

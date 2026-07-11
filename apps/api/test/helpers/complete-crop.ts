@@ -15,7 +15,7 @@ export async function fillAllSections(app: INestApplication, cropId: string): Pr
     requirements: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: 'PER_HECTARE' }],
   }).expect(200);
   await request(http).patch(`/crops/${cropId}/yields`).send({
-    yields: [{ inputLevel: 'MEDIUM', min: 2, average: 4, potential: 6, unit: 't/ha' }],
+    yields: [{ inputType: 'CHEMICAL', min: 2, average: 4, potential: 6, unit: 't/ha' }],
   }).expect(200);
   await request(http).post(`/crops/${cropId}/varieties`).send({
     name: { fr: 'Variété test' }, maturityDays: 90, traits: ['précoce'],

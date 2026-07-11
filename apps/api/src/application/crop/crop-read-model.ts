@@ -92,7 +92,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     lines.push(`Nutrition : ${nutrition.map((n) => `${n.nutrient} ${n.amount}${n.unit}`).join(', ')}`);
   }
   if (yields.length > 0) {
-    lines.push(`Rendement : ${yields.map((y) => `${y.inputLevel} ${y.min}-${y.average}-${y.potential} ${y.unit}`).join(', ')}`);
+    lines.push(`Rendement : ${yields.map((y) => `${y.inputType} ${y.min}-${y.average}-${y.potential} ${y.unit}`).join(', ')}`);
   }
   if (prices.length > 0) {
     const latest = prices[0];

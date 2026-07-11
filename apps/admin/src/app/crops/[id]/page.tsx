@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
 import { formatDateTime } from '../../../lib/format';
-import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_LEVEL_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
+import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CompletenessRing } from '@/components/completeness-ring';
@@ -196,14 +196,14 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-base">Rendement ({crop.yields.length})</CardTitle>
-            <YieldsEditor cropId={params.id} current={crop.yields} />
+            <YieldsEditor cropId={params.id} current={crop.yields} zones={crop.zones} />
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.yields.map((y, i) => (
                 <li key={i} className="flex items-center gap-2">
-                  <span>{labelOf(INPUT_LEVEL_LABELS, y.inputLevel)} : {y.min}–{y.average}–{y.potential} {y.unit}</span>
-                  <YieldsEditor cropId={params.id} current={crop.yields} editIndex={i} />
+                  <span>{labelOf(INPUT_TYPE_LABELS, y.inputType)} : {y.min}–{y.average}–{y.potential} {y.unit}{y.zoneId ? ` — zone ${crop.zones.find((z) => z.zoneId === y.zoneId)?.zoneName.fr ?? y.zoneId}` : ''}</span>
+                  <YieldsEditor cropId={params.id} current={crop.yields} zones={crop.zones} editIndex={i} />
                 </li>
               ))}
             </ul>

@@ -9,7 +9,7 @@ import { PestType } from '../../domain/pest/pest-type';
 import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 import { PricePointSnapshot } from '../../domain/price/price-point';
 import { NutrientBasis } from '../../domain/crop/nutrient-requirement';
-import { InputLevel } from '../../domain/crop/yield-reference';
+import { InputType } from '../../domain/crop/yield-reference';
 
 const snap = {
   id: 'c1', commonNames: { fr: 'Carotte', en: 'Carrot' },
@@ -149,7 +149,7 @@ describe('toCropDocument with nutrition, yields and prices', () => {
     id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
     cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.PUBLISHED, version: 8, metadata: {},
     nutrition: [{ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }],
-    yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }],
+    yields: [{ inputType: InputType.CHEMICAL, min: 2, average: 4, potential: 6, unit: 't/ha' }],
     hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
   };
   const prices: PricePointSnapshot[] = [

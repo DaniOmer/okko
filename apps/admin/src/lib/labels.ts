@@ -26,10 +26,10 @@ export const OPERATION_TYPE_LABELS: Record<string, string> = {
   OTHER: 'Autre',
 };
 
-export const INPUT_LEVEL_LABELS: Record<string, string> = {
-  LOW: 'Faible',
-  MEDIUM: 'Moyen',
-  HIGH: 'Élevé',
+export const INPUT_TYPE_LABELS: Record<string, string> = {
+  CHEMICAL: 'Chimique',
+  ORGANIC: 'Bio',
+  MIXED: 'Combinaison',
 };
 
 export const SUSCEPTIBILITY_LABELS: Record<string, string> = {

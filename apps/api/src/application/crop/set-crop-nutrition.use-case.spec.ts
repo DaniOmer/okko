@@ -6,7 +6,7 @@ import { InMemoryCropRepository } from './in-memory-crop.repository';
 import { InMemoryCropEventStore } from './in-memory-crop-event-store';
 import { CycleType } from '../../domain/crop/cycle-type';
 import { NutrientBasis } from '../../domain/crop/nutrient-requirement';
-import { InputLevel } from '../../domain/crop/yield-reference';
+import { InputType } from '../../domain/crop/yield-reference';
 
 const clock = { nowIso: () => '2026-07-04T00:00:00.000Z' };
 
@@ -38,7 +38,7 @@ describe('SetCropNutrition / SetCropYields', () => {
     await seed(events, repo, audit);
     const out = await new SetCropYieldsUseCase(events, repo, audit, clock).execute({
       cropId: 'c1', actor: 'a',
-      yields: [{ inputLevel: InputLevel.MEDIUM, min: 2, average: 4, potential: 6, unit: 't/ha' }],
+      yields: [{ inputType: InputType.CHEMICAL, min: 2, average: 4, potential: 6, unit: 't/ha' }],
     });
     expect(out.yields).toHaveLength(1);
     expect(audit.record).toHaveBeenCalled();
