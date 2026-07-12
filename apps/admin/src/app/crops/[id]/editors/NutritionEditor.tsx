@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { NUTRITION_BASIS_LABELS } from '@/lib/labels';
+import { NUTRITION_BASIS_LABELS, stageWithRange } from '@/lib/labels';
 import { setNutrition } from '../../../../lib/api';
 import type { NutrientRequirement } from '../../../../lib/api';
 
-export function NutritionEditor({ cropId, current, editIndex }: { cropId: string; current: NutrientRequirement[]; editIndex?: number }) {
+export function NutritionEditor({ cropId, current, phenology, editIndex }: { cropId: string; current: NutrientRequirement[]; phenology: { name: Record<string, string>; startDay: number; endDay: number }[]; editIndex?: number }) {
   const editing = editIndex != null;
   const [nutrient, setNutrient] = useState(current[editIndex!]?.nutrient ?? '');
   const [amount, setAmount] = useState(String(current[editIndex!]?.amount ?? ''));
@@ -51,7 +51,14 @@ export function NutritionEditor({ cropId, current, editIndex }: { cropId: string
           </div>
           <div className="space-y-1">
             <Label>Stade (optionnel)</Label>
-            <Input placeholder="stade (optionnel)" value={stage} onChange={(e) => setStage(e.target.value)} />
+            <Select value={stage || 'NONE'} onValueChange={(v) => setStage(v === 'NONE' ? '' : v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NONE">Aucun / général</SelectItem>
+                {phenology.map((p) => <SelectItem key={p.name.fr} value={p.name.fr}>{stageWithRange(p.name.fr, phenology)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {phenology.length === 0 && <p className="text-xs text-muted-foreground">Définissez la phénologie pour cibler un stade.</p>}
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
