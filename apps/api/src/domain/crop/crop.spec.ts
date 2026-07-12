@@ -1,7 +1,7 @@
 import { Crop } from './crop';
 import { TranslatableText } from '../shared/translatable-text';
 import { CycleType } from './cycle-type';
-import { CropStatus, CropStatusError } from './crop-status';
+import { CropStatus } from './crop-status';
 import { ClimaticRequirements } from '../shared/climatic-requirements';
 import { EdaphicRequirements } from '../shared/edaphic-requirements';
 import { RangeValue } from '../shared/range-value';
