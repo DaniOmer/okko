@@ -83,10 +83,10 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
             </Select>
           </div>
           <div className="space-y-1 border rounded p-2 bg-muted/30">
-            <p className="font-medium text-xs">Importer depuis le calendrier FAO</p>
+            <p className="font-medium text-xs">Importer depuis le calendrier cultural</p>
             <div className="relative">
               <Input
-                placeholder="Rechercher une culture FAO…"
+                placeholder="Rechercher une culture…"
                 value={faoQuery}
                 onChange={(e) => { setFaoQuery(e.target.value); setFaoPicked(null); setImportMsg(''); }}
               />
@@ -118,16 +118,16 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
                   if (s) {
                     setSowingStart(s.sowingStart);
                     setSowingEnd(s.sowingEnd);
-                    setImportMsg('Importé depuis FAO — relisez puis enregistrez.');
+                    setImportMsg('Importé depuis le calendrier cultural — relisez puis enregistrez.');
                   } else {
-                    setImportMsg('Source FAO indisponible — saisie manuelle.');
+                    setImportMsg('Pas de calendrier disponible pour cette culture/ce pays — saisie manuelle.');
                   }
                 } finally {
                   setImporting(false);
                 }
               }}
             >
-              {importing ? 'Import…' : 'Importer le calendrier FAO'}
+              {importing ? 'Import…' : 'Importer le calendrier cultural'}
             </Button>
             {importMsg && <p className="text-xs text-muted-foreground">{importMsg}</p>}
           </div>
