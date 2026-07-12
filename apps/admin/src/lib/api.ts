@@ -276,3 +276,7 @@ export function setPestControl(cropId: string, pestId: string, body: {
 }): Promise<unknown> {
   return mutate(`/crops/${cropId}/pests/${pestId}`, 'PUT', body);
 }
+
+export function updateCrop(id: string, body: { commonNames?: Record<string, string>; scientificName?: string; family?: string; cycleType?: string }): Promise<unknown> {
+  return mutate(`/crops/${id}`, 'PATCH', body);
+}
