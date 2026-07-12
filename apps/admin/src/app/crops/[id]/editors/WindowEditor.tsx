@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EditorShell } from './EditorShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { DatePicker } from '@/components/date-picker';
 import { OPERATION_TYPE_LABELS, SEASONS } from '@/lib/labels';
-import { addWindow, updateWindow } from '../../../../lib/api';
+import { addWindow, updateWindow, searchFaoCrops, getCalendarSuggestion } from '../../../../lib/api';
 import type { CroppingWindow } from '../../../../lib/api';
 
 interface Op { type: string; label: string; timingDays: string; }
@@ -20,6 +20,22 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
   const [sowingEnd, setSowingEnd] = useState(initial?.sowingEnd ?? '');
   const [irrigation, setIrrigation] = useState(initial?.irrigationRequired ?? false);
   const [ops, setOps] = useState<Op[]>(initial ? (initial.operations ?? []).map((o) => ({ type: o.type, label: o.label.fr ?? '', timingDays: String(o.timingDays) })) : []);
+
+  // FAO import state
+  const [faoQuery, setFaoQuery] = useState('');
+  const [faoResults, setFaoResults] = useState<{ code: string; nameFr: string; nameEn: string }[]>([]);
+  const [faoPicked, setFaoPicked] = useState<{ code: string; nameFr: string } | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState('');
+
+  useEffect(() => {
+    if (!faoQuery || faoPicked) { setFaoResults([]); return; }
+    const timer = setTimeout(async () => {
+      const results = await searchFaoCrops(faoQuery);
+      setFaoResults(results);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [faoQuery, faoPicked]);
 
   if (zones.length === 0 && !editing) {
     return <p className="text-sm text-muted-foreground">Créez d&apos;abord une <a href="/zones" className="underline">zone</a> pour ajouter une fenêtre.</p>;
@@ -66,6 +82,56 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-1 border rounded p-2 bg-muted/30">
+            <p className="font-medium text-xs">Importer depuis le calendrier FAO</p>
+            <div className="relative">
+              <Input
+                placeholder="Rechercher une culture FAO…"
+                value={faoQuery}
+                onChange={(e) => { setFaoQuery(e.target.value); setFaoPicked(null); setImportMsg(''); }}
+              />
+              {faoResults.length > 0 && (
+                <ul className="absolute z-10 w-full bg-background border rounded shadow-md mt-1 max-h-48 overflow-y-auto">
+                  {faoResults.map((r) => (
+                    <li
+                      key={r.code}
+                      className="px-3 py-1.5 cursor-pointer hover:bg-accent text-sm"
+                      onClick={() => { setFaoPicked({ code: r.code, nameFr: r.nameFr }); setFaoQuery(r.nameFr); setFaoResults([]); }}
+                    >
+                      {r.nameFr}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              disabled={!faoPicked || !zoneId || importing}
+              onClick={async () => {
+                if (!faoPicked) return;
+                setImporting(true);
+                setImportMsg('');
+                try {
+                  const s = await getCalendarSuggestion(cropId, faoPicked.code, zoneId);
+                  if (s) {
+                    setSowingStart(s.sowingStart);
+                    setSowingEnd(s.sowingEnd);
+                    setImportMsg('Importé depuis FAO — relisez puis enregistrez.');
+                  } else {
+                    setImportMsg('Source FAO indisponible — saisie manuelle.');
+                  }
+                } finally {
+                  setImporting(false);
+                }
+              }}
+            >
+              {importing ? 'Import…' : 'Importer le calendrier FAO'}
+            </Button>
+            {importMsg && <p className="text-xs text-muted-foreground">{importMsg}</p>}
+          </div>
+
           <div className="space-y-1">
             <Label>Fenêtre de semis (début / fin)</Label>
             <div className="flex gap-1">
