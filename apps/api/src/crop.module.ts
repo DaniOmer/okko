@@ -35,6 +35,11 @@ import { AddCroppingWindowUseCase } from './application/window/add-cropping-wind
 import { UpdateCroppingWindowUseCase } from './application/window/update-cropping-window.use-case';
 import { ListCroppingWindowsUseCase } from './application/window/list-cropping-windows.use-case';
 import { CropController } from './presentation/crop/crop.controller';
+import { FaoController } from './presentation/fao/fao.controller';
+import { FaoCropCatalog } from './infrastructure/fao/fao-crop-catalog';
+import { FaoCropCalendarProvider } from './infrastructure/fao/fao-crop-calendar.provider';
+import { CROP_CALENDAR_PROVIDER } from './application/crop/crop-calendar-provider';
+import { SuggestSowingWindowUseCase } from './application/crop/suggest-sowing-window.use-case';
 import { ZoneController } from './presentation/zone/zone.controller';
 import { PestController } from './presentation/pest/pest.controller';
 import { PrismaPestRepository } from './infrastructure/pest/prisma-pest.repository';
@@ -64,7 +69,7 @@ import { ArchiveCropUseCase } from './application/crop/archive-crop.use-case';
 import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case';
 
 @Module({
-  controllers: [CropController, ZoneController, PestController],
+  controllers: [CropController, ZoneController, PestController, FaoController],
   providers: [
     PrismaService,
     { provide: CLOCK, useClass: SystemClock },
@@ -250,6 +255,14 @@ import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case
       provide: UnarchiveCropUseCase,
       useFactory: (es, r, a, c) => new UnarchiveCropUseCase(es, r, a, c),
       inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    FaoCropCatalog,
+    { provide: CROP_CALENDAR_PROVIDER, useClass: FaoCropCalendarProvider },
+    {
+      provide: SuggestSowingWindowUseCase,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      useFactory: (zr: any, prov: any) => new SuggestSowingWindowUseCase(zr, prov),
+      inject: [ZONE_REPOSITORY, CROP_CALENDAR_PROVIDER],
     },
   ],
 })
