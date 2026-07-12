@@ -50,9 +50,14 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             completeness={crop.completeness}
           />
           {crop.hasPublishedVersion && (
-            <Link href={`/crops/${params.id}/versions`} className="text-sm text-primary hover:underline">
-              Historique des versions →
-            </Link>
+            <div className="flex gap-3">
+              <Link href={`/crops/${params.id}/versions`} className="text-sm text-primary hover:underline">
+                Historique des versions →
+              </Link>
+              <Link href={`/crops/${params.id}/fiche`} className="text-sm text-primary hover:underline">
+                Aperçu client →
+              </Link>
+            </div>
           )}
         </div>
         {crop.completeness && <CompletenessRing percent={crop.completeness.percent} />}
