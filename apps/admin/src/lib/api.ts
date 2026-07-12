@@ -280,3 +280,11 @@ export function setPestControl(cropId: string, pestId: string, body: {
 export function updateCrop(id: string, body: { commonNames?: Record<string, string>; scientificName?: string; family?: string; cycleType?: string }): Promise<unknown> {
   return mutate(`/crops/${id}`, 'PATCH', body);
 }
+
+export function archiveCrop(id: string): Promise<unknown> {
+  return mutate(`/crops/${id}/archive`, 'POST', {});
+}
+
+export function unarchiveCrop(id: string): Promise<unknown> {
+  return mutate(`/crops/${id}/unarchive`, 'POST', {});
+}
