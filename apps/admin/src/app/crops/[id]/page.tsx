@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
 import { formatDateTime, formatDayMonth } from '../../../lib/format';
-import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
+import { labelOf, stageWithRange, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CompletenessRing } from '@/components/completeness-ring';
@@ -168,20 +168,23 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-base">Ravageurs &amp; maladies ({crop.pests.length})</CardTitle>
-            <PestControlEditor cropId={params.id} pests={pests} />
+            <PestControlEditor cropId={params.id} pests={pests} phenology={crop.phenology} />
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             {crop.pests.map((p) => (
               <div key={p.pestId} className="mb-3">
                 <p className="font-medium flex items-center gap-2">
                   <span>{p.pestName.fr} — <strong>{labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}</strong> ({labelOf(PEST_TYPE_LABELS, p.type)})</span>
-                  <PestControlEditor cropId={params.id} pests={pests} initial={{ pestId: p.pestId, susceptibility: p.susceptibility, threshold: p.threshold, sensitiveStages: p.sensitiveStages, controlMethods: p.controlMethods }} />
+                  <PestControlEditor cropId={params.id} pests={pests} initial={{ pestId: p.pestId, susceptibility: p.susceptibility, threshold: p.threshold, sensitiveStages: p.sensitiveStages, controlMethods: p.controlMethods }} phenology={crop.phenology} />
                 </p>
                 <ul className="list-disc pl-5">
                   {p.controlMethods.map((m, i) => (
                     <li key={i}>{labelOf(CONTROL_CATEGORY_LABELS, m.category)} : {m.description.fr}</li>
                   ))}
                 </ul>
+                {p.sensitiveStages.length > 0 && (
+                  <p className="text-xs text-muted-foreground">Stades sensibles : {p.sensitiveStages.map((s) => stageWithRange(s, crop.phenology)).join(', ')}</p>
+                )}
               </div>
             ))}
           </CardContent>
@@ -190,14 +193,14 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-base">Nutrition ({crop.nutrition.length})</CardTitle>
-            <NutritionEditor cropId={params.id} current={crop.nutrition} />
+            <NutritionEditor cropId={params.id} current={crop.nutrition} phenology={crop.phenology} />
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <ul className="list-disc pl-5">
               {crop.nutrition.map((n, i) => (
                 <li key={i} className="flex items-center gap-2">
-                  <span>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</span>
-                  <NutritionEditor cropId={params.id} current={crop.nutrition} editIndex={i} />
+                  <span>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${stageWithRange(n.stage, crop.phenology)})` : ''}</span>
+                  <NutritionEditor cropId={params.id} current={crop.nutrition} editIndex={i} phenology={crop.phenology} />
                 </li>
               ))}
             </ul>

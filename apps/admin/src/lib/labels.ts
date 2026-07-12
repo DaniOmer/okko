@@ -76,3 +76,12 @@ export const SEASONS: readonly string[] = ['Saison des pluies', 'Saison sèche',
 export function labelOf(map: Record<string, string>, code: string): string {
   return map[code] ?? code;
 }
+
+// Résout un nom de stade en « nom (Jx–Jy) » via la phénologie ; repli sur le nom seul.
+export function stageWithRange(
+  name: string,
+  phenology: { name: Record<string, string>; startDay: number; endDay: number }[],
+): string {
+  const s = phenology.find((p) => (p.name.fr ?? '') === name);
+  return s ? `${name} (J${s.startDay}–J${s.endDay})` : name;
+}
