@@ -153,6 +153,7 @@ export class Crop {
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
   publish(): void { assertCanTransition(this._status, CropStatus.PUBLISHED); this.raise({ type: 'Published' }); }
   archive(): void { assertCanTransition(this._status, CropStatus.ARCHIVED); this.raise({ type: 'Archived' }); }
+  unarchive(): void { assertCanTransition(this._status, CropStatus.DRAFT); this.raise({ type: 'Unarchived' }); }
   discardDraft(): void {
     if (!this._hasPublishedVersion) throw new NoPublishedVersionError(this._id);
     this.raise({ type: 'DraftDiscarded' });
@@ -188,6 +189,7 @@ export class Crop {
       case 'DraftDiscarded': this.restoreFromCheckpoint(this._publishedRevision); break;
       case 'DraftRestored': this.restoreFromCheckpoint(e.revision); break;
       case 'Archived': this._status = CropStatus.ARCHIVED; break;
+      case 'Unarchived': this._status = CropStatus.DRAFT; break;
       case 'CropCreated': /* posé au constructeur, jamais rejoué ici */ break;
       case 'VarietyAdded': this._varieties = [...this._varieties, e.variety]; this._hasUnpublishedChanges = true; break;
       case 'VarietyUpdated': this._varieties = this._varieties.map((x) => (x.id === e.variety.id ? e.variety : x)); this._hasUnpublishedChanges = true; break;

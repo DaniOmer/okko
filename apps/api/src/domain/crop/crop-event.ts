@@ -22,6 +22,7 @@ export type CropEvent =
   | { type: 'YieldsSet'; yields: YieldReferenceJSON[] }
   | { type: 'Published' }
   | { type: 'Archived' }
+  | { type: 'Unarchived' }
   | { type: 'VarietyAdded'; variety: VarietySnapshot }
   | { type: 'VarietyUpdated'; variety: VarietySnapshot }
   | { type: 'CroppingWindowAdded'; window: CroppingWindowSnapshot }

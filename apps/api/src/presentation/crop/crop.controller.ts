@@ -43,6 +43,8 @@ import { PUBLISHED_CROP_REPOSITORY, PublishedCropRepository } from '../../applic
 import { diffCropDocuments } from '../../application/crop/crop-diff';
 import { DiscardDraftUseCase } from '../../application/crop/discard-draft.use-case';
 import { RestoreDraftUseCase } from '../../application/crop/restore-draft.use-case';
+import { ArchiveCropUseCase } from '../../application/crop/archive-crop.use-case';
+import { UnarchiveCropUseCase } from '../../application/crop/unarchive-crop.use-case';
 import { CropDocumentComposer } from '../../application/crop/compose-crop-document';
 import { NoPublishedVersionError, RevisionNotFoundError } from '../../domain/crop/crop';
 
@@ -89,6 +91,8 @@ export class CropController {
     private readonly getHistory: GetCropHistoryUseCase,
     private readonly discardDraft: DiscardDraftUseCase,
     private readonly restoreDraft: RestoreDraftUseCase,
+    private readonly archiveCrop: ArchiveCropUseCase,
+    private readonly unarchiveCrop: UnarchiveCropUseCase,
     private readonly composer: CropDocumentComposer,
     @Inject(PUBLISHED_CROP_REPOSITORY) private readonly publishedCrops: PublishedCropRepository,
   ) {}
@@ -370,6 +374,18 @@ export class CropController {
     } catch (e) {
       mapCropError(e, id);
     }
+  }
+
+  @Post(':id/archive')
+  async archive(@Param('id') id: string) {
+    try { return toCropDocument(await this.archiveCrop.execute({ id, actor: ACTOR })); }
+    catch (e) { mapCropError(e, id); }
+  }
+
+  @Post(':id/unarchive')
+  async unarchive(@Param('id') id: string) {
+    try { return toCropDocument(await this.unarchiveCrop.execute({ id, actor: ACTOR })); }
+    catch (e) { mapCropError(e, id); }
   }
 
   private async composeCropDocument(id: string, snap: CropSnapshot) {

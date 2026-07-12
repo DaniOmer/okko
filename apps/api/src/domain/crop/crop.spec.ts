@@ -31,9 +31,10 @@ describe('Crop', () => {
     expect(c.status).toBe(CropStatus.PUBLISHED);
   });
 
-  it("refuse d'archiver un DRAFT", () => {
+  it("autorise d'archiver un DRAFT directement", () => {
     const c = base();
-    expect(() => c.archive()).toThrow(CropStatusError);
+    c.archive();
+    expect(c.status).toBe(CropStatus.ARCHIVED);
   });
 
   it("incremente la version au renommage", () => {
