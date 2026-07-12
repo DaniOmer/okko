@@ -34,4 +34,14 @@ describe('FaoCropCatalog', () => {
     expect(first).toHaveProperty('nameFr');
     expect(first).toHaveProperty('nameEn');
   });
+
+  it('le code de "Maïs" est le code FAO numérique 0338', () => {
+    const maize = catalog.search('maïs').find((c) => c.nameFr === 'Maïs');
+    expect(maize?.code).toBe('0338');
+  });
+
+  it('le code de "Riz" est le code FAO numérique 0303', () => {
+    const rice = catalog.search('riz').find((c) => c.nameFr === 'Riz');
+    expect(rice?.code).toBe('0303');
+  });
 });
