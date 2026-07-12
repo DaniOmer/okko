@@ -1,14 +1,14 @@
 [
-  { "code": "Maize", "nameFr": "Maïs", "nameEn": "Maize" },
-  { "code": "Sorghum", "nameFr": "Sorgho", "nameEn": "Sorghum" },
-  { "code": "Millet", "nameFr": "Mil", "nameEn": "Millet" },
-  { "code": "Rice", "nameFr": "Riz", "nameEn": "Rice" },
-  { "code": "Cowpea", "nameFr": "Niébé", "nameEn": "Cowpea" },
-  { "code": "Groundnut", "nameFr": "Arachide", "nameEn": "Groundnut" },
-  { "code": "Yam", "nameFr": "Igname", "nameEn": "Yam" },
-  { "code": "Cassava", "nameFr": "Manioc", "nameEn": "Cassava" },
-  { "code": "Soybean", "nameFr": "Soja", "nameEn": "Soybean" },
-  { "code": "Cotton", "nameFr": "Coton", "nameEn": "Cotton" },
-  { "code": "Sesame", "nameFr": "Sésame", "nameEn": "Sesame" },
-  { "code": "Cocoa", "nameFr": "Cacao", "nameEn": "Cocoa" }
+  { "code": "0338", "nameFr": "Maïs", "nameEn": "Maize" },
+  { "code": "0325", "nameFr": "Sorgho", "nameEn": "Sorghum" },
+  { "code": "0389", "nameFr": "Mil", "nameEn": "Millet" },
+  { "code": "0303", "nameFr": "Riz", "nameEn": "Rice" },
+  { "code": "0117", "nameFr": "Niébé", "nameEn": "Cowpea" },
+  { "code": "0397", "nameFr": "Arachide", "nameEn": "Groundnut" },
+  { "code": "0380", "nameFr": "Igname", "nameEn": "Yam" },
+  { "code": "0076", "nameFr": "Manioc", "nameEn": "Cassava" },
+  { "code": "0327", "nameFr": "Soja", "nameEn": "Soybean" },
+  { "code": "0115", "nameFr": "Coton", "nameEn": "Cotton" },
+  { "code": "0318", "nameFr": "Sésame", "nameEn": "Sesame" },
+  { "code": "0102", "nameFr": "Cacao", "nameEn": "Cocoa" }
 ]
