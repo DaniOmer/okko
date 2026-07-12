@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
-  labelOf, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
+  labelOf, stageWithRange, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
   OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS,
 } from '@/lib/labels';
 import { formatDayMonth } from '../../../lib/format';
@@ -82,6 +82,9 @@ export function CropReadView({ crop }: { crop: CropDetail }) {
               <ul className="list-disc pl-5">
                 {p.controlMethods.map((m, i) => (<li key={i}>{labelOf(CONTROL_CATEGORY_LABELS, m.category)} : {m.description.fr}</li>))}
               </ul>
+              {p.sensitiveStages.length > 0 && (
+                <p className="text-xs text-muted-foreground">Stades sensibles : {p.sensitiveStages.map((s) => stageWithRange(s, crop.phenology)).join(', ')}</p>
+              )}
             </div>
           ))}
         </CardContent>
@@ -91,7 +94,7 @@ export function CropReadView({ crop }: { crop: CropDetail }) {
         <CardHeader className="pb-3"><CardTitle className="text-base">Nutrition ({crop.nutrition.length})</CardTitle></CardHeader>
         <CardContent className="space-y-1 text-sm">
           <ul className="list-disc pl-5">
-            {crop.nutrition.map((n, i) => (<li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</li>))}
+            {crop.nutrition.map((n, i) => (<li key={i}>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${stageWithRange(n.stage, crop.phenology)})` : ''}</li>))}
           </ul>
         </CardContent>
       </Card>

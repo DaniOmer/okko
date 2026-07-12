@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCrop, getCropHistory, listZones, listPests } from '../../../lib/api';
 import { formatDateTime, formatDayMonth } from '../../../lib/format';
-import { labelOf, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
+import { labelOf, stageWithRange, CROP_STATUS_LABELS, CYCLE_TYPE_LABELS, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS } from '@/lib/labels';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CompletenessRing } from '@/components/completeness-ring';
@@ -182,6 +182,9 @@ export default async function CropDetailPage({ params }: { params: { id: string 
                     <li key={i}>{labelOf(CONTROL_CATEGORY_LABELS, m.category)} : {m.description.fr}</li>
                   ))}
                 </ul>
+                {p.sensitiveStages.length > 0 && (
+                  <p className="text-xs text-muted-foreground">Stades sensibles : {p.sensitiveStages.map((s) => stageWithRange(s, crop.phenology)).join(', ')}</p>
+                )}
               </div>
             ))}
           </CardContent>
@@ -196,7 +199,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <ul className="list-disc pl-5">
               {crop.nutrition.map((n, i) => (
                 <li key={i} className="flex items-center gap-2">
-                  <span>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${n.stage})` : ''}</span>
+                  <span>{n.nutrient} — {n.amount} {n.unit}{n.stage ? ` (${stageWithRange(n.stage, crop.phenology)})` : ''}</span>
                   <NutritionEditor cropId={params.id} current={crop.nutrition} editIndex={i} phenology={crop.phenology} />
                 </li>
               ))}
