@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, UnprocessableEntityException, Inject } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { SuggestSowingWindowUseCase } from '../../application/crop/suggest-sowing-window.use-case';
 import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
 import { PublishCropUseCase, CropNotFoundError, IncompleteCropError } from '../../application/crop/publish-crop.use-case';
@@ -96,7 +95,6 @@ export class CropController {
     private readonly unarchiveCrop: UnarchiveCropUseCase,
     private readonly composer: CropDocumentComposer,
     @Inject(PUBLISHED_CROP_REPOSITORY) private readonly publishedCrops: PublishedCropRepository,
-    private readonly suggestSowingWindow: SuggestSowingWindowUseCase,
   ) {}
 
   @Post()
@@ -388,20 +386,6 @@ export class CropController {
   async unarchive(@Param('id') id: string) {
     try { return toCropDocument(await this.unarchiveCrop.execute({ id, actor: ACTOR })); }
     catch (e) { mapCropError(e, id); }
-  }
-
-  @Get(':id/calendar-suggestion')
-  async calendarSuggestion(
-    @Param('id') _id: string,
-    @Query('faoCode') faoCode: string,
-    @Query('zoneId') zoneId: string,
-  ) {
-    try {
-      return (await this.suggestSowingWindow.execute({ faoCode, zoneId })) ?? null;
-    } catch (e) {
-      if (e instanceof ZoneNotFoundError) throw new NotFoundException((e as Error).message);
-      mapCropError(e, _id);
-    }
   }
 
   private async composeCropDocument(id: string, snap: CropSnapshot) {

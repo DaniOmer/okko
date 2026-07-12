@@ -288,16 +288,3 @@ export function archiveCrop(id: string): Promise<unknown> {
 export function unarchiveCrop(id: string): Promise<unknown> {
   return mutate(`/crops/${id}/unarchive`, 'POST', {});
 }
-
-export async function searchFaoCrops(q: string): Promise<{ code: string; nameFr: string; nameEn: string }[]> {
-  const res = await fetch(`${BASE}/fao/crops?q=${encodeURIComponent(q)}`, { cache: 'no-store' });
-  if (!res.ok) return [];
-  return res.json();
-}
-
-export async function getCalendarSuggestion(cropId: string, faoCode: string, zoneId: string): Promise<{ sowingStart: string; sowingEnd: string; sourceRef: string } | null> {
-  const res = await fetch(`${BASE}/crops/${cropId}/calendar-suggestion?faoCode=${encodeURIComponent(faoCode)}&zoneId=${encodeURIComponent(zoneId)}`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data && data.sowingStart ? data : null;
-}
