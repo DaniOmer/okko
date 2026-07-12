@@ -60,6 +60,8 @@ import { PUBLISHED_CROP_REPOSITORY } from './application/crop/published-crop.rep
 import { PrismaPublishedCropRepository } from './infrastructure/crop/prisma-published-crop.repository';
 import { DiscardDraftUseCase } from './application/crop/discard-draft.use-case';
 import { RestoreDraftUseCase } from './application/crop/restore-draft.use-case';
+import { ArchiveCropUseCase } from './application/crop/archive-crop.use-case';
+import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case';
 
 @Module({
   controllers: [CropController, ZoneController, PestController],
@@ -238,6 +240,16 @@ import { RestoreDraftUseCase } from './application/crop/restore-draft.use-case';
       provide: RestoreDraftUseCase,
       useFactory: (es, r, v, w, z, p, pr, a, c) => new RestoreDraftUseCase(es, r, v, w, z, p, pr, a, c),
       inject: [CROP_EVENT_STORE, CROP_REPOSITORY, VARIETY_REPOSITORY, CROPPING_WINDOW_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: ArchiveCropUseCase,
+      useFactory: (es, r, a, c) => new ArchiveCropUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: UnarchiveCropUseCase,
+      useFactory: (es, r, a, c) => new UnarchiveCropUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
   ],
 })

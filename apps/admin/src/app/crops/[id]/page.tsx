@@ -16,6 +16,8 @@ import { PriceEditor } from './editors/PriceEditor';
 import { WindowEditor } from './editors/WindowEditor';
 import { ZoneSuitabilityEditor } from './editors/ZoneSuitabilityEditor';
 import { PestControlEditor } from './editors/PestControlEditor';
+import { IdentityEditor } from './editors/IdentityEditor';
+import { ArchiveButton } from './editors/ArchiveButton';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
   // The crop is required — a missing one is a genuine 404, not a crashed page.
@@ -37,18 +39,27 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <h1 className="text-2xl font-bold">
             {crop.name} <em className="text-base font-normal text-muted-foreground">{crop.scientificName}</em>
           </h1>
+          <IdentityEditor cropId={params.id} initial={{ name: crop.name, scientificName: crop.scientificName, family: crop.family, cycleType: crop.cycleType }} />
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{labelOf(CYCLE_TYPE_LABELS, crop.cycleType)}</span>
             <Badge variant={crop.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, crop.status)}</Badge>
             <span>{crop.publishedVersion === 0 ? 'Brouillon' : `v${crop.publishedVersion}`}</span>
           </div>
-          <PublishButton
-            cropId={params.id}
-            status={crop.status}
-            hasUnpublishedChanges={crop.hasUnpublishedChanges}
-            hasPublishedVersion={crop.hasPublishedVersion}
-            completeness={crop.completeness}
-          />
+          {crop.status === 'ARCHIVED' && (
+            <div className="rounded-md border border-muted bg-muted/40 px-3 py-2 text-sm">
+              Culture archivée — désarchiver pour la modifier.
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <PublishButton
+              cropId={params.id}
+              status={crop.status}
+              hasUnpublishedChanges={crop.hasUnpublishedChanges}
+              hasPublishedVersion={crop.hasPublishedVersion}
+              completeness={crop.completeness}
+            />
+            <ArchiveButton cropId={params.id} archived={crop.status === 'ARCHIVED'} />
+          </div>
           {crop.hasPublishedVersion && (
             <div className="flex gap-3">
               <Link href={`/crops/${params.id}/versions`} className="text-sm text-primary hover:underline">

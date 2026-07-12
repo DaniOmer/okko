@@ -1,7 +1,7 @@
 import { Crop } from './crop';
 import { TranslatableText } from '../shared/translatable-text';
 import { CycleType } from './cycle-type';
-import { CropStatus, CropStatusError } from './crop-status';
+import { CropStatus } from './crop-status';
 import { ClimaticRequirements } from '../shared/climatic-requirements';
 import { EdaphicRequirements } from '../shared/edaphic-requirements';
 import { RangeValue } from '../shared/range-value';
@@ -31,9 +31,10 @@ describe('Crop', () => {
     expect(c.status).toBe(CropStatus.PUBLISHED);
   });
 
-  it("refuse d'archiver un DRAFT", () => {
+  it("autorise d'archiver un DRAFT directement", () => {
     const c = base();
-    expect(() => c.archive()).toThrow(CropStatusError);
+    c.archive();
+    expect(c.status).toBe(CropStatus.ARCHIVED);
   });
 
   it("incremente la version au renommage", () => {

@@ -9,11 +9,11 @@ describe('CropStatus transitions', () => {
     expect(() => assertCanTransition(CropStatus.PUBLISHED, CropStatus.ARCHIVED)).not.toThrow();
   });
 
-  it('interdit DRAFT -> ARCHIVED', () => {
-    expect(() => assertCanTransition(CropStatus.DRAFT, CropStatus.ARCHIVED)).toThrow(CropStatusError);
+  it('autorise DRAFT -> ARCHIVED (archivage depuis brouillon)', () => {
+    expect(() => assertCanTransition(CropStatus.DRAFT, CropStatus.ARCHIVED)).not.toThrow();
   });
 
-  it('autorise ARCHIVED -> DRAFT', () => {
+  it('autorise ARCHIVED -> DRAFT (désarchivage)', () => {
     expect(() => assertCanTransition(CropStatus.ARCHIVED, CropStatus.DRAFT)).not.toThrow();
   });
 
@@ -32,7 +32,7 @@ describe('CropStatus transitions', () => {
   it('CropStatusError.name est correctement fixé', () => {
     expect.assertions(1);
     try {
-      assertCanTransition(CropStatus.DRAFT, CropStatus.ARCHIVED);
+      assertCanTransition(CropStatus.PUBLISHED, CropStatus.DRAFT);
     } catch (err) {
       expect((err as Error).name).toBe('CropStatusError');
     }

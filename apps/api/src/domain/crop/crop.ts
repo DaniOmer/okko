@@ -86,9 +86,9 @@ export class Crop {
   private constructor(
     private readonly _id: string,
     private _commonNames: TranslatableText,
-    private readonly _scientificName: string,
-    private readonly _family: string,
-    private readonly _cycleType: CycleType,
+    private _scientificName: string,
+    private _family: string,
+    private _cycleType: CycleType,
     private _status: CropStatus,
     private _version: number,
     private _metadata: Record<string, unknown>,
@@ -149,9 +149,11 @@ export class Crop {
   setNutrition(list: NutrientRequirement[]): void { this.raise({ type: 'NutritionSet', nutrition: list.map((n) => n.toJSON()) }); }
   setYields(list: YieldReference[]): void { this.raise({ type: 'YieldsSet', yields: list.map((y) => y.toJSON()) }); }
   rename(commonNames: TranslatableText): void { this.raise({ type: 'Renamed', commonNames: commonNames.toJSON() }); }
+  editIdentity(p: { scientificName: string; family: string; cycleType: CycleType }): void { this.raise({ type: 'IdentityEdited', scientificName: p.scientificName, family: p.family, cycleType: p.cycleType }); }
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
   publish(): void { assertCanTransition(this._status, CropStatus.PUBLISHED); this.raise({ type: 'Published' }); }
   archive(): void { assertCanTransition(this._status, CropStatus.ARCHIVED); this.raise({ type: 'Archived' }); }
+  unarchive(): void { assertCanTransition(this._status, CropStatus.DRAFT); this.raise({ type: 'Unarchived' }); }
   discardDraft(): void {
     if (!this._hasPublishedVersion) throw new NoPublishedVersionError(this._id);
     this.raise({ type: 'DraftDiscarded' });
@@ -181,11 +183,13 @@ export class Crop {
       case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'IdentityEdited': this._scientificName = e.scientificName; this._family = e.family; this._cycleType = e.cycleType; this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Published': this._status = CropStatus.PUBLISHED; this._hasPublishedVersion = true; this._hasUnpublishedChanges = false; this._publishedRevision += 1; this.captureCheckpoint(); break;
       case 'DraftDiscarded': this.restoreFromCheckpoint(this._publishedRevision); break;
       case 'DraftRestored': this.restoreFromCheckpoint(e.revision); break;
       case 'Archived': this._status = CropStatus.ARCHIVED; break;
+      case 'Unarchived': this._status = CropStatus.DRAFT; break;
       case 'CropCreated': /* posé au constructeur, jamais rejoué ici */ break;
       case 'VarietyAdded': this._varieties = [...this._varieties, e.variety]; this._hasUnpublishedChanges = true; break;
       case 'VarietyUpdated': this._varieties = this._varieties.map((x) => (x.id === e.variety.id ? e.variety : x)); this._hasUnpublishedChanges = true; break;

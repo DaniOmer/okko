@@ -25,6 +25,24 @@ describe('Crop e2e', () => {
     await app.close();
   });
 
+  it('édite l\'identité via PATCH et GET reflète les nouvelles valeurs', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/crops')
+      .send({ commonNames: { fr: 'Soja' }, scientificName: 'Glycine max',
+              family: 'Leguminosae', cycleType: 'SEASONAL_ANNUAL' })
+      .expect(201);
+    const id = created.body.id;
+
+    await request(app.getHttpServer())
+      .patch(`/crops/${id}`)
+      .send({ family: 'Fabaceae', cycleType: 'PERENNIAL_HERBACEOUS' })
+      .expect(200);
+
+    const got = await request(app.getHttpServer()).get(`/crops/${id}`).expect(200);
+    expect(got.body.family).toBe('Fabaceae');
+    expect(got.body.cycleType).toBe('PERENNIAL_HERBACEOUS');
+  });
+
   it('crée puis publie une culture', async () => {
     const created = await request(app.getHttpServer())
       .post('/crops')

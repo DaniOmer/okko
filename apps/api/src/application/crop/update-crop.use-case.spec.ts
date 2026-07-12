@@ -42,4 +42,42 @@ describe('UpdateCropUseCase', () => {
     expect(auditCall.changes).not.toHaveProperty('actor');
     expect(auditCall.changes).not.toHaveProperty('id');
   });
+
+  it('édite l\'identité (scientificName/family/cycleType), bumpe la version et hasUnpublishedChanges', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const createAudit = { record: jest.fn() };
+    const updateAudit = { record: jest.fn() };
+
+    await new CreateCropUseCase(events, repo, createAudit, clock).execute({
+      id: 'u2',
+      commonNames: { fr: 'Maïs' },
+      scientificName: 'Zea mays',
+      family: 'Gramineae',
+      cycleType: CycleType.SEASONAL_ANNUAL,
+      actor: 'admin',
+    });
+
+    const result = await new UpdateCropUseCase(events, repo, updateAudit, clock).execute({
+      id: 'u2',
+      scientificName: 'Zea mays L.',
+      family: 'Poaceae',
+      cycleType: CycleType.SEASONAL_ANNUAL,
+      actor: 'admin',
+    });
+
+    // (a) snapshot reflects new identity values and bumped version
+    expect(result.scientificName).toBe('Zea mays L.');
+    expect(result.family).toBe('Poaceae');
+    expect(result.cycleType).toBe(CycleType.SEASONAL_ANNUAL);
+    expect(result.version).toBe(2);
+    expect(result.hasUnpublishedChanges).toBe(true);
+
+    // (b) audit was called with identity diff
+    expect(updateAudit.record).toHaveBeenCalledTimes(1);
+    const auditCall = updateAudit.record.mock.calls[0][0];
+    expect(auditCall.changes).toHaveProperty('identity');
+    expect(auditCall.changes.identity.from).toMatchObject({ scientificName: 'Zea mays', family: 'Gramineae' });
+    expect(auditCall.changes.identity.to).toMatchObject({ scientificName: 'Zea mays L.', family: 'Poaceae' });
+  });
 });
