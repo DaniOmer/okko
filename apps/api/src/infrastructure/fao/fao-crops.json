@@ -1,0 +1,14 @@
+[
+  { "code": "Maize", "nameFr": "Maïs", "nameEn": "Maize" },
+  { "code": "Sorghum", "nameFr": "Sorgho", "nameEn": "Sorghum" },
+  { "code": "Millet", "nameFr": "Mil", "nameEn": "Millet" },
+  { "code": "Rice", "nameFr": "Riz", "nameEn": "Rice" },
+  { "code": "Cowpea", "nameFr": "Niébé", "nameEn": "Cowpea" },
+  { "code": "Groundnut", "nameFr": "Arachide", "nameEn": "Groundnut" },
+  { "code": "Yam", "nameFr": "Igname", "nameEn": "Yam" },
+  { "code": "Cassava", "nameFr": "Manioc", "nameEn": "Cassava" },
+  { "code": "Soybean", "nameFr": "Soja", "nameEn": "Soybean" },
+  { "code": "Cotton", "nameFr": "Coton", "nameEn": "Cotton" },
+  { "code": "Sesame", "nameFr": "Sésame", "nameEn": "Sesame" },
+  { "code": "Cocoa", "nameFr": "Cacao", "nameEn": "Cocoa" }
+]
