@@ -13,6 +13,7 @@ import { PricePointSnapshot } from '../price/price-point';
 export type CropEvent =
   | { type: 'CropCreated'; commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType }
   | { type: 'Renamed'; commonNames: Record<string, string> }
+  | { type: 'IdentityEdited'; scientificName: string; family: string; cycleType: CycleType }
   | { type: 'MetadataSet'; key: string; value: unknown }
   | { type: 'ClimaticRequirementsSet'; climatic: ClimaticRequirementsJSON }
   | { type: 'EdaphicRequirementsSet'; edaphic: EdaphicRequirementsJSON }

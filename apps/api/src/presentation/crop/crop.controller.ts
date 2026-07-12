@@ -113,7 +113,7 @@ export class CropController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() body: { commonNames?: Record<string, string>; metadata?: Record<string, unknown> }) {
+  async update(@Param('id') id: string, @Body() body: { commonNames?: Record<string, string>; metadata?: Record<string, unknown>; scientificName?: string; family?: string; cycleType?: CycleType }) {
     try {
       const snap = await this.updateCrop.execute({ id, actor: ACTOR, ...body });
       return toCropDocument(snap);
