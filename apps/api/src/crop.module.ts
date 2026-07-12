@@ -37,7 +37,7 @@ import { ListCroppingWindowsUseCase } from './application/window/list-cropping-w
 import { CropController } from './presentation/crop/crop.controller';
 import { FaoController } from './presentation/fao/fao.controller';
 import { FaoCropCatalog } from './infrastructure/fao/fao-crop-catalog';
-import { FaoCropCalendarProvider } from './infrastructure/fao/fao-crop-calendar.provider';
+import { BundledCropCalendarProvider } from './infrastructure/calendar/bundled-crop-calendar.provider';
 import { CROP_CALENDAR_PROVIDER } from './application/crop/crop-calendar-provider';
 import { SuggestSowingWindowUseCase } from './application/crop/suggest-sowing-window.use-case';
 import { ZoneController } from './presentation/zone/zone.controller';
@@ -257,7 +257,7 @@ import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case
       inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     FaoCropCatalog,
-    { provide: CROP_CALENDAR_PROVIDER, useClass: FaoCropCalendarProvider },
+    { provide: CROP_CALENDAR_PROVIDER, useClass: BundledCropCalendarProvider },
     {
       provide: SuggestSowingWindowUseCase,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
