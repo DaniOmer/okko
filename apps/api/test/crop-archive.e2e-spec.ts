@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
+import { asSuperadmin } from './helpers/auth';
 
 /**
  * E2E — archivage réversible d'une culture (Task 2)
@@ -18,7 +19,7 @@ describe('Crop archive e2e', () => {
   let prisma: PrismaService;
 
   beforeAll(async () => {
-    const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const mod = await asSuperadmin(Test.createTestingModule({ imports: [AppModule] })).compile();
     app = mod.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();

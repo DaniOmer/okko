@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from './auth.module';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { SystemClock } from './infrastructure/system-clock';
 import { PrismaCropRepository } from './infrastructure/crop/prisma-crop.repository';
@@ -64,6 +65,7 @@ import { ArchiveCropUseCase } from './application/crop/archive-crop.use-case';
 import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case';
 
 @Module({
+  imports: [AuthModule],
   controllers: [CropController, ZoneController, PestController],
   providers: [
     PrismaService,

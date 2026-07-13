@@ -4,6 +4,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
 import { fillAllSections } from './helpers/complete-crop';
+import { asSuperadmin } from './helpers/auth';
 
 /**
  * E2E — brouillon/publié (Lot B, Task 6)
@@ -19,7 +20,7 @@ describe('Crop versioning e2e', () => {
   let prisma: PrismaService;
 
   beforeAll(async () => {
-    const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const mod = await asSuperadmin(Test.createTestingModule({ imports: [AppModule] })).compile();
     app = mod.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();

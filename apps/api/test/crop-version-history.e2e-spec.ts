@@ -4,6 +4,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
 import { fillAllSections } from './helpers/complete-crop';
+import { asSuperadmin } from './helpers/auth';
 
 /**
  * E2E — historique des versions publiées (Lot C1, Task 2)
@@ -17,7 +18,7 @@ describe('Crop version history e2e', () => {
   let prisma: PrismaService;
 
   beforeAll(async () => {
-    const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const mod = await asSuperadmin(Test.createTestingModule({ imports: [AppModule] })).compile();
     app = mod.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();
@@ -66,7 +67,7 @@ describe('Crop version history e2e', () => {
     const versions = await request(app.getHttpServer()).get(`/crops/${id}/versions`).expect(200);
     expect(versions.body.map((v: any) => v.revision)).toEqual([2, 1]);
     expect(versions.body[0].document).toBeUndefined();
-    expect(versions.body[0].publishedBy).toBe('admin');
+    expect(versions.body[0].publishedBy).toBe('super@okko.dev');
 
     // consulter chaque version figée
     const v1 = await request(app.getHttpServer()).get(`/crops/${id}/versions/1`).expect(200);

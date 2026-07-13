@@ -1,4 +1,7 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, UnprocessableEntityException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, UnprocessableEntityException, Inject, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Public, Roles, CurrentUser, AuthUser } from '../auth/decorators';
 import { randomUUID } from 'crypto';
 import { CreateCropUseCase } from '../../application/crop/create-crop.use-case';
 import { UpdateCropUseCase } from '../../application/crop/update-crop.use-case';
@@ -48,8 +51,6 @@ import { UnarchiveCropUseCase } from '../../application/crop/unarchive-crop.use-
 import { CropDocumentComposer } from '../../application/crop/compose-crop-document';
 import { NoPublishedVersionError, RevisionNotFoundError } from '../../domain/crop/crop';
 
-const ACTOR = 'admin'; // v1 : rôle unique, auth simple à ajouter plus tard
-
 function mapCropError(e: unknown, id: string): never {
   if (e instanceof CropNotFoundError) throw new NotFoundException(id);
   if (e instanceof CropStatusError) throw new ConflictException((e as Error).message);
@@ -63,6 +64,8 @@ function mapCropError(e: unknown, id: string): never {
   throw e;
 }
 
+@UseGuards(AuthGuard, RolesGuard)
+@Roles('superadmin')
 @Controller('crops')
 export class CropController {
   constructor(
@@ -98,8 +101,8 @@ export class CropController {
   ) {}
 
   @Post()
-  async create(@Body() body: { commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType }) {
-    const snap = await this.createCrop.execute({ id: randomUUID(), actor: ACTOR, ...body });
+  async create(@CurrentUser() user: AuthUser, @Body() body: { commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType }) {
+    const snap = await this.createCrop.execute({ id: randomUUID(), actor: user.email, ...body });
     return toCropDocument(snap);
   }
 
@@ -117,9 +120,9 @@ export class CropController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() body: { commonNames?: Record<string, string>; metadata?: Record<string, unknown>; scientificName?: string; family?: string; cycleType?: CycleType }) {
+  async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { commonNames?: Record<string, string>; metadata?: Record<string, unknown>; scientificName?: string; family?: string; cycleType?: CycleType }) {
     try {
-      const snap = await this.updateCrop.execute({ id, actor: ACTOR, ...body });
+      const snap = await this.updateCrop.execute({ id, actor: user.email, ...body });
       return toCropDocument(snap);
     } catch (e) {
       mapCropError(e, id);
@@ -127,9 +130,9 @@ export class CropController {
   }
 
   @Post(':id/publish')
-  async publish(@Param('id') id: string, @Body() body?: { note?: string }) {
+  async publish(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body?: { note?: string }) {
     try {
-      const snap = await this.publishCrop.execute({ id, actor: ACTOR, note: body?.note });
+      const snap = await this.publishCrop.execute({ id, actor: user.email, note: body?.note });
       return toCropDocument(snap);
     } catch (e) {
       mapCropError(e, id);
@@ -138,11 +141,12 @@ export class CropController {
 
   @Patch(':id/requirements')
   async requirements(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Body() body: { climatic?: ClimaticRequirementsJSON; edaphic?: EdaphicRequirementsJSON },
   ) {
     try {
-      const snap = await this.setRequirements.execute({ id, actor: ACTOR, ...body });
+      const snap = await this.setRequirements.execute({ id, actor: user.email, ...body });
       const vars = await this.varieties.listByCrop(id);
       return toCropDocument(snap, { varieties: vars });
     } catch (e) {
@@ -152,11 +156,12 @@ export class CropController {
 
   @Post(':id/varieties')
   async createVariety(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Body() body: { name: Record<string, string>; maturityDays?: number; yieldPotential?: ReturnType<RangeValue['toJSON']>; traits?: string[] },
   ) {
     try {
-      return await this.addVariety.execute({ cropId: id, actor: ACTOR, ...body });
+      return await this.addVariety.execute({ cropId: id, actor: user.email, ...body });
     } catch (e) {
       mapCropError(e, id);
     }
@@ -169,23 +174,25 @@ export class CropController {
 
   @Put(':id/varieties/:varietyId')
   async updateVariety(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Param('varietyId') varietyId: string,
     @Body() body: { name: Record<string, string>; maturityDays?: number; traits?: string[] },
   ) {
     try {
-      return await this.updateVarietyUC.execute({ cropId: id, varietyId, ...body, actor: ACTOR });
+      return await this.updateVarietyUC.execute({ cropId: id, varietyId, ...body, actor: user.email });
     } catch (e) { mapCropError(e, id); }
   }
 
   @Put(':id/zones/:zoneId')
   async setZone(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Param('zoneId') zoneId: string,
     @Body() body: { rating: SuitabilityRating; justification?: string; provenance?: ProvenanceProps },
   ) {
     try {
-      return await this.setSuitability.execute({ cropId: id, zoneId, actor: ACTOR, ...body });
+      return await this.setSuitability.execute({ cropId: id, zoneId, actor: user.email, ...body });
     } catch (e) {
       if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError) throw new NotFoundException(e.message);
       throw e;
@@ -198,9 +205,9 @@ export class CropController {
   }
 
   @Patch(':id/phenology')
-  async phenology(@Param('id') id: string, @Body() body: { stages: PhenologicalStageJSON[] }) {
+  async phenology(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { stages: PhenologicalStageJSON[] }) {
     try {
-      const snap = await this.setPhenology.execute({ cropId: id, actor: ACTOR, stages: body.stages });
+      const snap = await this.setPhenology.execute({ cropId: id, actor: user.email, stages: body.stages });
       const vars = await this.varieties.listByCrop(id);
       const zones = await this.listCropZones.execute({ cropId: id });
       const windows = await this.listWindows.execute({ cropId: id });
@@ -212,11 +219,12 @@ export class CropController {
 
   @Post(':id/windows')
   async createWindow(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Body() body: { zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean; operations?: TechnicalOperationJSON[]; notes?: string },
   ) {
     try {
-      return await this.addWindow.execute({ cropId: id, actor: ACTOR, ...body });
+      return await this.addWindow.execute({ cropId: id, actor: user.email, ...body });
     } catch (e) {
       if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError) throw new NotFoundException(e.message);
       throw e;
@@ -230,11 +238,12 @@ export class CropController {
 
   @Put(':id/windows/:windowId')
   async updateWindow(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Param('windowId') windowId: string,
     @Body() body: { zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean; operations?: TechnicalOperationJSON[]; notes?: string },
   ) {
-    try { return await this.updateWindowUC.execute({ cropId: id, windowId, ...body, actor: ACTOR }); }
+    try { return await this.updateWindowUC.execute({ cropId: id, windowId, ...body, actor: user.email }); }
     catch (e) {
       if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError || e instanceof CroppingWindowNotFoundError) throw new NotFoundException((e as Error).message);
       throw e;
@@ -243,12 +252,13 @@ export class CropController {
 
   @Put(':id/pests/:pestId')
   async setPest(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Param('pestId') pestId: string,
     @Body() body: { susceptibility: SusceptibilityLevel; sensitiveStages?: string[]; threshold?: string; controlMethods?: ControlMethodJSON[]; provenance?: ProvenanceProps },
   ) {
     try {
-      return await this.setPestControl.execute({ cropId: id, pestId, actor: ACTOR, ...body });
+      return await this.setPestControl.execute({ cropId: id, pestId, actor: user.email, ...body });
     } catch (e) {
       if (e instanceof CropNotFoundError || e instanceof PestNotFoundError) throw new NotFoundException((e as Error).message);
       throw e;
@@ -261,9 +271,9 @@ export class CropController {
   }
 
   @Patch(':id/nutrition')
-  async nutrition(@Param('id') id: string, @Body() body: { requirements: NutrientRequirementJSON[] }) {
+  async nutrition(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { requirements: NutrientRequirementJSON[] }) {
     try {
-      const snap = await this.setNutrition.execute({ cropId: id, actor: ACTOR, requirements: body.requirements });
+      const snap = await this.setNutrition.execute({ cropId: id, actor: user.email, requirements: body.requirements });
       return this.composeCropDocument(id, snap);
     } catch (e) {
       mapCropError(e, id);
@@ -271,9 +281,9 @@ export class CropController {
   }
 
   @Patch(':id/yields')
-  async yields(@Param('id') id: string, @Body() body: { yields: YieldReferenceJSON[] }) {
+  async yields(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { yields: YieldReferenceJSON[] }) {
     try {
-      const snap = await this.setYields.execute({ cropId: id, actor: ACTOR, yields: body.yields });
+      const snap = await this.setYields.execute({ cropId: id, actor: user.email, yields: body.yields });
       return this.composeCropDocument(id, snap);
     } catch (e) {
       mapCropError(e, id);
@@ -282,11 +292,12 @@ export class CropController {
 
   @Post(':id/prices')
   async createPrice(
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Body() body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string },
   ) {
     try {
-      return await this.addPrice.execute({ cropId: id, actor: ACTOR, ...body });
+      return await this.addPrice.execute({ cropId: id, actor: user.email, ...body });
     } catch (e) {
       mapCropError(e, id);
     }
@@ -298,8 +309,8 @@ export class CropController {
   }
 
   @Put(':id/prices/:priceId')
-  async updatePrice(@Param('id') id: string, @Param('priceId') priceId: string, @Body() body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }) {
-    try { return await this.updatePriceUC.execute({ cropId: id, priceId, ...body, actor: ACTOR }); }
+  async updatePrice(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('priceId') priceId: string, @Body() body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }) {
+    try { return await this.updatePriceUC.execute({ cropId: id, priceId, ...body, actor: user.email }); }
     catch (e) { mapCropError(e, id); }
   }
 
@@ -312,6 +323,7 @@ export class CropController {
     }
   }
 
+  @Public()
   @Get(':id/published')
   async published(@Param('id') id: string) {
     try {
@@ -357,9 +369,9 @@ export class CropController {
   }
 
   @Post(':id/discard')
-  async discard(@Param('id') id: string) {
+  async discard(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     try {
-      const snap = await this.discardDraft.execute({ id, actor: ACTOR });
+      const snap = await this.discardDraft.execute({ id, actor: user.email });
       return this.composeCropDocument(id, snap);
     } catch (e) {
       mapCropError(e, id);
@@ -367,9 +379,9 @@ export class CropController {
   }
 
   @Post(':id/versions/:revision/restore')
-  async restore(@Param('id') id: string, @Param('revision') revision: string) {
+  async restore(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('revision') revision: string) {
     try {
-      const snap = await this.restoreDraft.execute({ id, revision: Number(revision), actor: ACTOR });
+      const snap = await this.restoreDraft.execute({ id, revision: Number(revision), actor: user.email });
       return this.composeCropDocument(id, snap);
     } catch (e) {
       mapCropError(e, id);
@@ -377,14 +389,14 @@ export class CropController {
   }
 
   @Post(':id/archive')
-  async archive(@Param('id') id: string) {
-    try { return toCropDocument(await this.archiveCrop.execute({ id, actor: ACTOR })); }
+  async archive(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    try { return toCropDocument(await this.archiveCrop.execute({ id, actor: user.email })); }
     catch (e) { mapCropError(e, id); }
   }
 
   @Post(':id/unarchive')
-  async unarchive(@Param('id') id: string) {
-    try { return toCropDocument(await this.unarchiveCrop.execute({ id, actor: ACTOR })); }
+  async unarchive(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    try { return toCropDocument(await this.unarchiveCrop.execute({ id, actor: user.email })); }
     catch (e) { mapCropError(e, id); }
   }
 

@@ -1,4 +1,7 @@
-import { Body, Controller, Get, Param, Post, Patch, Delete, HttpCode, NotFoundException, ConflictException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Delete, HttpCode, NotFoundException, ConflictException, Inject, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles, CurrentUser, AuthUser } from '../auth/decorators';
 import { CreatePestUseCase } from '../../application/pest/create-pest.use-case';
 import { ListPestsUseCase } from '../../application/pest/list-pests.use-case';
 import { UpdatePestUseCase, PestNotFoundError } from '../../application/pest/update-pest.use-case';
@@ -7,8 +10,8 @@ import { PEST_REPOSITORY, PestRepository } from '../../application/pest/pest.rep
 import { toPestDocument } from '../../application/pest/pest-read-model';
 import { PestType } from '../../domain/pest/pest-type';
 
-const ACTOR = 'admin';
-
+@UseGuards(AuthGuard, RolesGuard)
+@Roles('superadmin')
 @Controller('pests')
 export class PestController {
   constructor(
@@ -20,11 +23,11 @@ export class PestController {
   ) {}
 
   @Post()
-  async create(@Body() body: {
+  async create(@CurrentUser() user: AuthUser, @Body() body: {
     name: Record<string, string>; type: PestType; scientificName?: string;
     symptoms?: Record<string, string>; photos?: string[]; notes?: string;
   }) {
-    const snap = await this.createPest.execute({ actor: ACTOR, ...body });
+    const snap = await this.createPest.execute({ actor: user.email, ...body });
     return toPestDocument(snap);
   }
 
@@ -41,9 +44,9 @@ export class PestController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() body: { name: Record<string, string>; type: PestType; scientificName?: string }) {
+  async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { name: Record<string, string>; type: PestType; scientificName?: string }) {
     try {
-      const snap = await this.updatePest.execute({ id, actor: ACTOR, ...body });
+      const snap = await this.updatePest.execute({ id, actor: user.email, ...body });
       return toPestDocument(snap);
     } catch (e) {
       if (e instanceof PestNotFoundError) throw new NotFoundException(id);
@@ -53,9 +56,9 @@ export class PestController {
 
   @Delete(':id')
   @HttpCode(204)
-  async remove(@Param('id') id: string) {
+  async remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     try {
-      await this.deletePest.execute({ id, actor: ACTOR });
+      await this.deletePest.execute({ id, actor: user.email });
     } catch (e) {
       if (e instanceof PestNotFoundError) throw new NotFoundException(id);
       if (e instanceof PestInUseError) throw new ConflictException({ message: `Rattaché à ${e.count} culture(s) — détachez-le d'abord.`, count: e.count });
