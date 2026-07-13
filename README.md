@@ -144,6 +144,41 @@ La commande est **idempotente** : si un utilisateur avec cet e-mail existe déj�
 
 ---
 
+## Admin (dev)
+
+L'admin exige désormais une connexion. Les écritures Base passent par des **Server Actions** — le navigateur n'appelle jamais l'API directement.
+
+### Démarrage
+
+```bash
+# 1. Créer le superadmin (idempotent)
+cd apps/api && npx prisma db seed
+
+# 2. Lancer l'admin (port 3000)
+cd apps/admin && pnpm dev
+
+# 3. Se connecter sur http://localhost:3000/login
+#    superadmin → accès complet (Base de connaissances)
+#    admin      → /membres uniquement
+```
+
+### Variables d'environnement (`apps/admin/.env`)
+
+Copier `apps/admin/.env.example` et ajuster :
+
+| Variable                 | Rôle                                               | Valeur par défaut         |
+| ------------------------ | -------------------------------------------------- | ------------------------- |
+| `NEXT_PUBLIC_API_URL`    | URL du backend NestJS                              | `http://localhost:3001`   |
+| `SESSION_COOKIE_SECURE`  | Cookie session HTTPS uniquement (`true` en prod)   | `false`                   |
+
+### Flux principaux
+
+- **Création d'organisation** : `/register` (self-service, crée org + compte admin).
+- **Inviter un collaborateur** : `/membres` → envoyer une invitation → lien `/invite/<token>` → création du compte → `/bientot` (rôle `editor`).
+- **Base de connaissances** : accès réservé au `superadmin` ; toutes les mutations passent par des Server Actions (aucun token JWT exposé au navigateur).
+
+---
+
 ## API (Phase 0)
 
 | Méthode    | Route                                                                                 | Description                                                                             |
