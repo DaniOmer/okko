@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { INPUT_TYPE_LABELS } from '@/lib/labels';
-import { setYields } from '../../../../lib/api';
-import type { YieldReference } from '../../../../lib/api';
+import { setYields } from '@/lib/actions';
+import type { YieldReference } from '@/lib/api';
 
 const UNITS = ['t/ha', 'kg/ha', 'q/ha'];
 

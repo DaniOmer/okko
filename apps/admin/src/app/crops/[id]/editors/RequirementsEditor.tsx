@@ -4,7 +4,7 @@ import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { setRequirements } from '../../../../lib/api';
+import { setRequirements } from '@/lib/actions';
 
 const n = (v: string): number => Number(v);
 

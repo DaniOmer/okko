@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { NUTRITION_BASIS_LABELS, stageWithRange } from '@/lib/labels';
-import { setNutrition } from '../../../../lib/api';
-import type { NutrientRequirement } from '../../../../lib/api';
+import { setNutrition } from '@/lib/actions';
+import type { NutrientRequirement } from '@/lib/api';
 
 export function NutritionEditor({ cropId, current, phenology, editIndex }: { cropId: string; current: NutrientRequirement[]; phenology: { name: Record<string, string>; startDay: number; endDay: number }[]; editIndex?: number }) {
   const editing = editIndex != null;

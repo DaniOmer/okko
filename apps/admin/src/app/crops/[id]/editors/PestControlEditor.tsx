@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SUSCEPTIBILITY_LABELS, stageWithRange } from '@/lib/labels';
-import { setPestControl } from '../../../../lib/api';
+import { setPestControl } from '@/lib/actions';
 
 interface ControlMethod { category: string; description: Record<string, string>; inputs: string[]; }
 interface PestInitial {

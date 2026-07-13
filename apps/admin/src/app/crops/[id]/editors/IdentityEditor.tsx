@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { CYCLE_TYPE_LABELS } from '@/lib/labels';
-import { updateCrop } from '../../../../lib/api';
+import { updateCrop } from '@/lib/actions';
 
 export function IdentityEditor({ cropId, initial }: { cropId: string; initial: { name: string; scientificName: string; family: string; cycleType: string } }) {
   const [name, setName] = useState(initial.name);

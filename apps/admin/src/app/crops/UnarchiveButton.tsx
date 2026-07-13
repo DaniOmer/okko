@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { unarchiveCrop } from '../../lib/api';
+import { unarchiveCrop } from '@/lib/actions';
 
 export function UnarchiveButton({ cropId }: { cropId: string }) {
   const router = useRouter();

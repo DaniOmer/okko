@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { EditorShell } from './EditorShell';
 import { Button } from '@/components/ui/button';
-import { archiveCrop, unarchiveCrop } from '../../../../lib/api';
+import { archiveCrop, unarchiveCrop } from '@/lib/actions';
 
 export function ArchiveButton({ cropId, archived }: { cropId: string; archived: boolean }) {
   const router = useRouter();

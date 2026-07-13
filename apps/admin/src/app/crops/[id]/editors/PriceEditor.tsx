@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/date-picker';
-import { addPrice, updatePrice } from '../../../../lib/api';
+import { addPrice, updatePrice } from '@/lib/actions';
 
 interface PriceInitial {
   id: string;

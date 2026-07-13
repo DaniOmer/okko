@@ -4,8 +4,8 @@ import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { setPhenology } from '../../../../lib/api';
-import type { PhenologicalStage } from '../../../../lib/api';
+import { setPhenology } from '@/lib/actions';
+import type { PhenologicalStage } from '@/lib/api';
 
 export function PhenologyEditor({ cropId, current, editIndex }: { cropId: string; current: PhenologicalStage[]; editIndex?: number }) {
   const editing = editIndex != null;

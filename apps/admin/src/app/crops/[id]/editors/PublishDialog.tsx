@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { EditorShell } from './EditorShell';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { publishCrop } from '../../../../lib/api';
+import { publishCrop } from '@/lib/actions';
 
 export function PublishDialog({
   cropId,

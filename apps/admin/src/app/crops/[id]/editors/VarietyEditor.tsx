@@ -4,7 +4,7 @@ import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { addVariety, updateVariety } from '../../../../lib/api';
+import { addVariety, updateVariety } from '@/lib/actions';
 
 export function VarietyEditor({ cropId, initial }: { cropId: string; initial?: { id: string; name: Record<string, string>; maturityDays?: number; traits: string[] } }) {
   const editing = !!initial;

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { updateZone, deleteZone } from '@/lib/api';
+import { updateZone, deleteZone } from '@/lib/actions';
 
 export function ZoneRowActions({ zone }: { zone: { id: string; name: string; country: string; koppen?: string } }) {
   const router = useRouter();

@@ -4,7 +4,7 @@ import { EditorShell } from './EditorShell';
 import { PublishDialog } from './PublishDialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { discardDraft } from '../../../../lib/api';
+import { discardDraft } from '@/lib/actions';
 
 export function PublishButton({
   cropId,

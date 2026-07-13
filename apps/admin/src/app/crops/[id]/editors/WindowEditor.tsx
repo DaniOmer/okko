@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { DatePicker } from '@/components/date-picker';
 import { OPERATION_TYPE_LABELS, SEASONS } from '@/lib/labels';
-import { addWindow, updateWindow } from '../../../../lib/api';
-import type { CroppingWindow } from '../../../../lib/api';
+import { addWindow, updateWindow } from '@/lib/actions';
+import type { CroppingWindow } from '@/lib/api';
 
 interface Op { type: string; label: string; timingDays: string; }
 

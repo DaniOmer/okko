@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { EditorShell } from '../editors/EditorShell';
 import { Button } from '@/components/ui/button';
-import { restoreVersion } from '../../../../lib/api';
+import { restoreVersion } from '@/lib/actions';
 
 export function RestoreButton({ cropId, revision }: { cropId: string; revision: number }) {
   const router = useRouter();
