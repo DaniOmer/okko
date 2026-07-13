@@ -22,7 +22,7 @@ export class CreateInvitationUseCase {
   async execute(input: CreateInvitationInput): Promise<{ invitation: Invitation; emailSent: boolean }> {
     const email = input.email.trim().toLowerCase();
     const existing = await this.users.findByEmail(email);
-    if (existing && existing.organizationId === input.organizationId) throw new EmailAlreadyUsedError(email);
+    if (existing) throw new EmailAlreadyUsedError(email);
     const now = new Date(this.clock.nowIso());
     const expiresAt = new Date(now.getTime() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
     const invitation: Invitation = {

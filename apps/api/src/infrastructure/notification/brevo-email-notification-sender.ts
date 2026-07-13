@@ -17,10 +17,18 @@ export class BrevoEmailNotificationSender implements NotificationPort {
     });
     if (!res.ok) throw new Error(`Brevo ${res.status}`);
   }
+  private escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
   private render(n: Notification): { subject: string; html: string } {
     const subject = `Invitation à rejoindre ${n.organizationName} sur Okko`;
-    const html = `<p>Vous êtes invité·e à rejoindre <strong>${n.organizationName}</strong> sur Okko.</p>`
-      + `<p><a href="${n.inviteUrl}">Accepter l'invitation</a></p>`
+    const html = `<p>Vous êtes invité·e à rejoindre <strong>${this.escapeHtml(n.organizationName)}</strong> sur Okko.</p>`
+      + `<p><a href="${this.escapeHtml(n.inviteUrl)}">Accepter l'invitation</a></p>`
       + `<p>Ce lien expire le ${n.expiresAt.toISOString().slice(0, 10)}.</p>`;
     return { subject, html };
   }

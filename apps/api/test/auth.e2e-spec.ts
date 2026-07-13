@@ -18,10 +18,12 @@ describe('Auth e2e', () => {
     await prisma.invitation.deleteMany(); await prisma.authIdentity.deleteMany(); await prisma.user.deleteMany(); await prisma.organization.deleteMany(); await app.close();
   });
 
+  let adminToken: string;
+
   it('register → login → me ; invite → accept → login editor', async () => {
     const reg = await request(app.getHttpServer()).post('/auth/register')
       .send({ email: 'admin@coop.bj', password: 'pw', name: 'Chef', organizationName: 'Coop' }).expect(201);
-    const adminToken = reg.body.token;
+    adminToken = reg.body.token;
     expect(reg.body.user.role).toBe('admin');
 
     await request(app.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${adminToken}`).expect(200);
@@ -42,5 +44,16 @@ describe('Auth e2e', () => {
 
     // token d'invitation à usage unique
     await request(app.getHttpServer()).post(`/auth/invitations/${token}/accept`).send({ name: 'X', password: 'p' }).expect(410);
+  });
+
+  it('auth-contract: POST /crops sans token → 401 ; admin → 403 (superadmin only) ; GET /crops/:id/published sans token → 404 not 401', async () => {
+    // POST /crops sans Authorization → AuthGuard doit rejeter → 401
+    await request(app.getHttpServer()).post('/crops').send({}).expect(401);
+
+    // POST /crops avec le token admin → RolesGuard rejette (Base est superadmin-only) → 403
+    await request(app.getHttpServer()).post('/crops').set('Authorization', `Bearer ${adminToken}`).send({}).expect(403);
+
+    // GET /crops/<id-inconnu>/published sans token → @Public() bypass, route existe → 404 (pas 401)
+    await request(app.getHttpServer()).get('/crops/unknown-id-00000/published').expect(404);
   });
 });

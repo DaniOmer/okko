@@ -26,8 +26,17 @@ import { AuthController } from './presentation/auth/auth.controller';
 import { AuthGuard } from './presentation/auth/auth.guard';
 import { RolesGuard } from './presentation/auth/roles.guard';
 
+function resolveJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') throw new Error('JWT_SECRET is required in production');
+    return 'dev-secret';
+  }
+  return secret;
+}
+
 @Module({
-  imports: [JwtModule.register({ secret: process.env.JWT_SECRET ?? 'dev-secret', signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' } })],
+  imports: [JwtModule.register({ secret: resolveJwtSecret(), signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' } })],
   controllers: [AuthController],
   providers: [
     PrismaService, UuidIdGenerator,

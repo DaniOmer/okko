@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards, ConflictException, UnauthorizedException, NotFoundException, GoneException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, ConflictException, UnauthorizedException, NotFoundException, GoneException, ForbiddenException } from '@nestjs/common';
 import { RegisterUseCase } from '../../application/auth/register.use-case';
 import { LoginUseCase } from '../../application/auth/login.use-case';
 import { GetMeUseCase } from '../../application/auth/get-me.use-case';
@@ -41,16 +41,21 @@ export class AuthController {
 
   @Roles('admin') @Post('invitations')
   async invite(@CurrentUser() user: AuthUser, @Body() body: { email: string }) {
-    try { return await this.createInvitationUC.execute({ organizationId: user.organizationId!, email: body.email, invitedByUserId: user.sub }); }
+    if (!user.organizationId) throw new ForbiddenException();
+    try { return await this.createInvitationUC.execute({ organizationId: user.organizationId, email: body.email, invitedByUserId: user.sub }); }
     catch (e) { if (e instanceof EmailAlreadyUsedError) throw new ConflictException('déjà membre'); throw e; }
   }
 
   @Roles('admin') @Get('invitations')
-  async listInvitations(@CurrentUser() user: AuthUser) { return this.listInvitationsUC.execute({ organizationId: user.organizationId! }); }
+  async listInvitations(@CurrentUser() user: AuthUser) {
+    if (!user.organizationId) throw new ForbiddenException();
+    return this.listInvitationsUC.execute({ organizationId: user.organizationId });
+  }
 
   @Roles('admin') @Post('invitations/:id/revoke')
   async revoke(@CurrentUser() user: AuthUser, @Param('id') id: string) {
-    try { await this.revokeInvitationUC.execute({ id, organizationId: user.organizationId! }); return { ok: true }; }
+    if (!user.organizationId) throw new ForbiddenException();
+    try { await this.revokeInvitationUC.execute({ id, organizationId: user.organizationId }); return { ok: true }; }
     catch (e) { if (e instanceof InvitationNotFoundError) throw new NotFoundException(); if (e instanceof ForbiddenOrgError) throw new NotFoundException(); throw e; }
   }
 
