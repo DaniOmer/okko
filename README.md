@@ -5,6 +5,7 @@
 Okko rassemble en un seul endroit le savoir agronomique actionnable, le suivi de production et le diagnostic assisté par IA, culture par culture — pour rendre l'agriculture de précision accessible à tous les acteurs agricoles, et bâtir la base de connaissances agronomique la plus complète du continent, ouverte à terme via API.
 
 > 📖 Vision complète, spec et plans dans [`docs/`](docs/) :
+>
 > - [Vision globale](docs/2026-07-02-vision-globale.md) — les 4 modules, l'API, l'IA, le modèle économique (recherche sourcée)
 > - [Spec Phase 0](docs/superpowers/specs/2026-07-02-base-connaissances-agronomique-design.md) — base de connaissances + back-office admin
 > - [Plan 1](docs/superpowers/plans/2026-07-02-base-connaissances-fondations.md) — fondations + tranche verticale `Crop`
@@ -59,12 +60,12 @@ apps/api/src/
 
 ## Stack
 
-| Couche | Techno |
-|---|---|
-| Base de données | PostgreSQL 16 (colonnes typées + JSONB) |
-| Backend | NestJS · TypeScript strict · Prisma · Jest (TDD) |
-| Frontend | Next.js 14 · TailwindCSS · shadcn/ui · lucide |
-| Outillage | pnpm workspaces · Docker Compose |
+| Couche          | Techno                                           |
+| --------------- | ------------------------------------------------ |
+| Base de données | PostgreSQL 16 (colonnes typées + JSONB)          |
+| Backend         | NestJS · TypeScript strict · Prisma · Jest (TDD) |
+| Frontend        | Next.js 14 · TailwindCSS · shadcn/ui · lucide    |
+| Outillage       | pnpm workspaces · Docker Compose                 |
 
 ---
 
@@ -116,16 +117,43 @@ Les tests d'intégration et e2e nécessitent Postgres lancé (`pnpm db:up`).
 
 ---
 
+## Authentification (dev)
+
+### Variables d'environnement
+
+| Variable             | Rôle                                              | Valeur par défaut   |
+| -------------------- | ------------------------------------------------- | ------------------- |
+| `JWT_SECRET`         | Clé de signature des tokens JWT                   | *(obligatoire)*     |
+| `JWT_EXPIRES_IN`     | Durée de vie du token (ex. `7d`)                  | `7d`                |
+| `BREVO_API_KEY`      | Clé API Brevo pour l'envoi d'e-mails              | *(obligatoire prod)*|
+| `BREVO_SENDER`       | Adresse expéditrice des e-mails transactionnels   | *(obligatoire prod)*|
+| `INVITE_BASE_URL`    | URL de base pour les liens d'invitation           | *(obligatoire prod)*|
+| `SUPERADMIN_EMAIL`   | E-mail du compte superadmin initial               | `superadmin@okko.dev` |
+| `SUPERADMIN_PASSWORD`| Mot de passe du compte superadmin initial         | `change-me`         |
+
+### Créer le superadmin
+
+```bash
+cd apps/api
+SUPERADMIN_EMAIL=superadmin@okko.dev SUPERADMIN_PASSWORD=okko-dev npx prisma db seed
+```
+
+La commande est **idempotente** : si un utilisateur avec cet e-mail existe déjà, elle affiche « superadmin déjà présent » et ne crée pas de doublon.
+
+> **Accès** : les endpoints de la base de connaissances (`POST /crops`, etc.) sont réservés aux `superadmin`. Seul `GET /crops/:id/published` reste public (aucun token requis).
+
+---
+
 ## API (Phase 0)
 
-| Méthode | Route | Description |
-|---|---|---|
-| `POST` | `/crops` · `GET /crops` · `GET /crops/:id` | Créer / lister / récupérer une fiche (compose toutes les catégories + complétude) |
-| `PATCH` | `/crops/:id` · `/publish` · `/requirements` · `/phenology` · `/nutrition` · `/yields` | Mettre à jour identité / publier (409) / exigences / phénologie / nutrition / rendement |
-| `POST/GET` | `/crops/:id/varieties` · `/windows` · `/prices` | Variétés · fenêtres de production · série de prix |
-| `PUT/GET` | `/crops/:id/zones/:zoneId` · `/pests/:pestId` | Adéquation zone · contrôle ravageur |
-| `GET` | `/crops/:id/history` | Historique d'audit de la fiche |
-| `POST/GET` | `/zones` · `/pests` | Catalogues partagés (zones agro-écologiques · ravageurs/maladies) |
+| Méthode    | Route                                                                                 | Description                                                                             |
+| ---------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `POST`     | `/crops` · `GET /crops` · `GET /crops/:id`                                            | Créer / lister / récupérer une fiche (compose toutes les catégories + complétude)       |
+| `PATCH`    | `/crops/:id` · `/publish` · `/requirements` · `/phenology` · `/nutrition` · `/yields` | Mettre à jour identité / publier (409) / exigences / phénologie / nutrition / rendement |
+| `POST/GET` | `/crops/:id/varieties` · `/windows` · `/prices`                                       | Variétés · fenêtres de production · série de prix                                       |
+| `PUT/GET`  | `/crops/:id/zones/:zoneId` · `/pests/:pestId`                                         | Adéquation zone · contrôle ravageur                                                     |
+| `GET`      | `/crops/:id/history`                                                                  | Historique d'audit de la fiche                                                          |
+| `POST/GET` | `/zones` · `/pests`                                                                   | Catalogues partagés (zones agro-écologiques · ravageurs/maladies)                       |
 
 Toutes les réponses de fiche sont projetées via le read-model `CropDocument` (AI-ready, avec `completeness`).
 
@@ -133,22 +161,22 @@ Toutes les réponses de fiche sont projetées via le read-model `CropDocument` (
 
 ## Scripts utiles (racine)
 
-| Commande | Effet |
-|---|---|
-| `pnpm db:up` / `pnpm db:down` | Démarrer / arrêter PostgreSQL |
-| `pnpm test` | Lancer les tests de tous les packages |
+| Commande                      | Effet                                 |
+| ----------------------------- | ------------------------------------- |
+| `pnpm db:up` / `pnpm db:down` | Démarrer / arrêter PostgreSQL         |
+| `pnpm test`                   | Lancer les tests de tous les packages |
 
 ---
 
 ## Roadmap
 
-| Phase | Contenu | Statut |
-|---|---|---|
+| Phase | Contenu                                           | Statut                      |
+| ----- | ------------------------------------------------- | --------------------------- |
 | **0** | Base de connaissances + back-office admin (socle) | ✅ **complète** (Plans 1-7) |
-| **1** | Carnet de suivi de production (event sourcing) | ⏳ |
-| **2** | Diagnostic IA (photo → maladie → recommandation) | ⏳ |
-| **3** | API publique de la base + analytics | ⏳ |
-| **4** | Module élevage (agriculture animale de précision) | ⏳ |
+| **1** | Carnet de suivi de production (event sourcing)    | ⏳                          |
+| **2** | Diagnostic IA (photo → maladie → recommandation)  | ⏳                          |
+| **3** | API publique de la base + analytics               | ⏳                          |
+| **4** | Module élevage (agriculture animale de précision) | ⏳                          |
 
 **Phase 0 — plans livrés** (chacun testable seul, voir `docs/superpowers/plans/`) :
 Plan 1 fondations · Plan 2 variétés + climat/sol · Plan 3 zones agro-écologiques · Plan 4 fenêtres + phénologie + itinéraire · Plan 5 ravageurs/maladies + lutte durable · Plan 6 nutrition + rendement + prix · Plan 7 historique d'audit + complétude.
