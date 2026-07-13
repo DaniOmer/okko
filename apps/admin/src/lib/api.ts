@@ -1,4 +1,8 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+import 'server-only';
+import { authFetch, publicFetch, jsonInit, ApiError } from './http';
+import type { Role } from './jwt';
+
+export { ApiError };
 
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
@@ -12,8 +16,7 @@ export interface CropDocument {
 }
 
 export async function listCrops(): Promise<CropDocument[]> {
-  const res = await fetch(`${BASE}/crops`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  const res = await authFetch('/crops', { cache: 'no-store' });
   return res.json();
 }
 
@@ -30,14 +33,8 @@ export interface CropZone {
 }
 
 export async function listZones(): Promise<Zone[]> {
-  const res = await fetch(`${BASE}/zones`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  const res = await authFetch('/zones', { cache: 'no-store' });
   return res.json();
-}
-
-async function readError(res: Response): Promise<string> {
-  try { const b = await res.json(); return typeof b?.message === 'string' ? b.message : `API ${res.status}`; }
-  catch { return `API ${res.status}`; }
 }
 
 export interface PhenologicalStage { name: Record<string, string>; startDay: number; endDay: number; order: number; }
@@ -63,14 +60,12 @@ export interface CropDetail extends CropDocument {
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {
-  const res = await fetch(`${BASE}/crops/${id}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  const res = await authFetch(`/crops/${id}`, { cache: 'no-store' });
   return res.json();
 }
 
 export async function getCropPublished(id: string): Promise<CropDetail> {
-  const res = await fetch(`${BASE}/crops/${id}/published`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(await readError(res));
+  const res = await authFetch(`/crops/${id}/published`, { cache: 'no-store' });
   return res.json();
 }
 
@@ -83,14 +78,12 @@ export interface CropVersion {
 }
 
 export async function getCropVersions(id: string): Promise<CropVersion[]> {
-  const res = await fetch(`${BASE}/crops/${id}/versions`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(await readError(res));
+  const res = await authFetch(`/crops/${id}/versions`, { cache: 'no-store' });
   return res.json();
 }
 
 export async function getCropVersion(id: string, revision: number): Promise<CropDetail> {
-  const res = await fetch(`${BASE}/crops/${id}/versions/${revision}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(await readError(res));
+  const res = await authFetch(`/crops/${id}/versions/${revision}`, { cache: 'no-store' });
   return res.json();
 }
 
@@ -106,8 +99,7 @@ export interface CropDiff {
 }
 
 export async function getCropDiff(id: string, from: number, to: number): Promise<CropDiff> {
-  const res = await fetch(`${BASE}/crops/${id}/diff?from=${from}&to=${to}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(await readError(res));
+  const res = await authFetch(`/crops/${id}/diff?from=${from}&to=${to}`, { cache: 'no-store' });
   return res.json();
 }
 
@@ -123,13 +115,47 @@ export interface YieldReference { inputType: string; min: number; average: numbe
 export interface PricePoint { id: string; cropId: string; market: string; periodStart: string; periodEnd: string; price: number; unit: string; currency: string; }
 
 export async function listPests(): Promise<Pest[]> {
-  const res = await fetch(`${BASE}/pests`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  const res = await authFetch('/pests', { cache: 'no-store' });
   return res.json();
 }
 
 export async function getCropHistory(id: string): Promise<AuditRecord[]> {
-  const res = await fetch(`${BASE}/crops/${id}/history`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  const res = await authFetch(`/crops/${id}/history`, { cache: 'no-store' });
   return res.json();
+}
+
+// ————————————————— Auth & invitations —————————————————
+
+export interface AuthResult {
+  token: string;
+  user: { id: string; email: string; name: string; role: Role; organizationId: string | null; createdAt: string };
+}
+export interface Invitation {
+  id: string; organizationId: string; email: string; role: 'editor'; token: string;
+  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  expiresAt: string; invitedByUserId: string; createdAt: string; acceptedAt: string | null;
+}
+
+export async function apiLogin(email: string, password: string): Promise<AuthResult> {
+  const res = await publicFetch('/auth/login', jsonInit('POST', { email, password }));
+  return res.json();
+}
+export async function apiRegister(input: { organizationName: string; name: string; email: string; password: string }): Promise<AuthResult> {
+  const res = await publicFetch('/auth/register', jsonInit('POST', input));
+  return res.json();
+}
+export async function apiAcceptInvite(token: string, input: { name: string; password: string }): Promise<AuthResult> {
+  const res = await publicFetch(`/auth/invitations/${token}/accept`, jsonInit('POST', input));
+  return res.json();
+}
+export async function apiListInvitations(): Promise<Invitation[]> {
+  const res = await authFetch('/auth/invitations', { cache: 'no-store' });
+  return res.json();
+}
+export async function apiCreateInvitation(email: string): Promise<{ invitation: Invitation; emailSent: boolean }> {
+  const res = await authFetch('/auth/invitations', jsonInit('POST', { email }));
+  return res.json();
+}
+export async function apiRevokeInvitation(id: string): Promise<void> {
+  await authFetch(`/auth/invitations/${id}/revoke`, { method: 'POST' });
 }
