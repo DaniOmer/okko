@@ -7,6 +7,7 @@ describe('JwtAuthTokenService', () => {
     const token = svc.sign({ sub: 'u1', email: 'a@b.c', role: 'admin', organizationId: 'o1' });
     const payload = svc.verify(token);
     expect(payload.sub).toBe('u1');
+    expect(payload.email).toBe('a@b.c');
     expect(payload.role).toBe('admin');
     expect(payload.organizationId).toBe('o1');
   });
