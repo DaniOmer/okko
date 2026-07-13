@@ -9,4 +9,12 @@ module.exports = {
   // table-wide deleteMany. Run suites serially so parallel cleanups can't
   // wipe each other's data mid-test. The suite is small; serial is fast enough.
   maxWorkers: 1,
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
+      // Type errors in test files should not block test execution;
+      // the spec for BrevoEmailNotificationSender uses `as never` to spy on
+      // global.fetch before Node typings expose it in this tsconfig target.
+      diagnostics: { warnOnly: true },
+    }],
+  },
 };

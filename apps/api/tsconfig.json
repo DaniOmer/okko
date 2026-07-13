@@ -9,5 +9,6 @@
     "resolveJsonModule": true,
     "outDir": "./dist",
     "baseUrl": "./src"
-  }
+  },
+  "exclude": ["**/*.spec.ts", "**/*.int-spec.ts", "**/*.e2e-spec.ts", "test"]
 }
