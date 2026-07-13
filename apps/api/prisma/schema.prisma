@@ -153,3 +153,48 @@ model PublishedCrop {
 
   @@id([cropId, revision])
 }
+
+model Organization {
+  id          String       @id
+  name        String
+  createdAt   DateTime     @default(now())
+  users       User[]
+  invitations Invitation[]
+}
+
+model User {
+  id             String        @id
+  email          String        @unique
+  name           String
+  role           String
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  identities     AuthIdentity[]
+  createdAt      DateTime      @default(now())
+}
+
+model AuthIdentity {
+  id         String   @id
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  provider   String
+  identifier String
+  secret     String
+  createdAt  DateTime @default(now())
+
+  @@unique([provider, identifier])
+}
+
+model Invitation {
+  id              String       @id
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  email           String
+  role            String
+  token           String       @unique
+  status          String
+  expiresAt       DateTime
+  invitedByUserId String
+  createdAt       DateTime     @default(now())
+  acceptedAt      DateTime?
+}
