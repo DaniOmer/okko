@@ -1,7 +1,7 @@
 import { UserRepository, AuthIdentityRepository } from './repositories';
 import { PasswordHasher } from './password-hasher';
 import { AuthTokenService } from './auth-token.service';
-import { InvalidCredentialsError } from './errors';
+import { InvalidCredentialsError, EmailNotConfirmedError } from './errors';
 import { User } from './types';
 
 export interface LoginInput { email: string; password: string; }
@@ -21,6 +21,7 @@ export class LoginUseCase {
     if (!(await this.hasher.verify(input.password, identity.secret))) throw new InvalidCredentialsError();
     const user = await this.users.findById(identity.userId);
     if (!user) throw new InvalidCredentialsError();
+    if (!user.emailVerifiedAt) throw new EmailNotConfirmedError();
     const token = this.tokens.sign({ sub: user.id, email: user.email, role: user.role, organizationId: user.organizationId });
     return { token, user };
   }
