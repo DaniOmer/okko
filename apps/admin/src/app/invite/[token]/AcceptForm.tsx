@@ -10,12 +10,15 @@ function SubmitButton() {
   return <Button type="submit" className="w-full" disabled={pending}>{pending ? 'Validation…' : 'Rejoindre'}</Button>;
 }
 
-export function AcceptForm({ token }: { token: string }) {
-  const action = acceptInviteAction.bind(null, token);
-  const [state, formAction] = useFormState<ActionState, FormData>(action, {});
+export function AcceptForm({ token, email }: { token: string; email: string }) {
+  const [state, formAction] = useFormState<ActionState, FormData>(acceptInviteAction.bind(null, token), {});
   return (
     <form action={formAction} className="space-y-4">
-      <div className="space-y-1.5"><Label htmlFor="name">Votre nom</Label><Input id="name" name="name" required autoComplete="name" /></div>
+      <div className="space-y-1.5"><Label htmlFor="email">Email</Label><Input id="email" defaultValue={email} disabled /></div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1.5"><Label htmlFor="firstName">Prénom</Label><Input id="firstName" name="firstName" required autoComplete="given-name" /></div>
+        <div className="space-y-1.5"><Label htmlFor="lastName">Nom</Label><Input id="lastName" name="lastName" required autoComplete="family-name" /></div>
+      </div>
       <div className="space-y-1.5"><Label htmlFor="password">Mot de passe</Label><Input id="password" name="password" type="password" required autoComplete="new-password" /></div>
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
       <SubmitButton />

@@ -27,7 +27,10 @@ export function RegisterForm() {
   return (
     <form action={action} className="space-y-4">
       <div className="space-y-1.5"><Label htmlFor="organizationName">Nom de l'organisation</Label><Input id="organizationName" name="organizationName" required /></div>
-      <div className="space-y-1.5"><Label htmlFor="name">Votre nom</Label><Input id="name" name="name" required autoComplete="name" /></div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1.5"><Label htmlFor="firstName">Prénom</Label><Input id="firstName" name="firstName" required autoComplete="given-name" /></div>
+        <div className="space-y-1.5"><Label htmlFor="lastName">Nom</Label><Input id="lastName" name="lastName" required autoComplete="family-name" /></div>
+      </div>
       <div className="space-y-1.5"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" required autoComplete="email" /></div>
       <div className="space-y-1.5"><Label htmlFor="password">Mot de passe</Label><Input id="password" name="password" type="password" required autoComplete="new-password" /></div>
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}

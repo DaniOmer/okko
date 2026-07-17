@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { inviteAction, type InviteState } from './actions';
 import { Button } from '@/components/ui/button';
@@ -11,8 +12,10 @@ function SubmitButton() {
 
 export function InviteForm() {
   const [state, action] = useFormState<InviteState, FormData>(inviteAction, {});
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => { if (state.ok) formRef.current?.reset(); }, [state.ok]);
   return (
-    <form action={action} className="flex flex-col gap-2 sm:flex-row sm:items-start">
+    <form ref={formRef} action={action} className="flex flex-col gap-2 sm:flex-row sm:items-start">
       <div className="flex-1">
         <Input name="email" type="email" placeholder="email@organisation.bj" required aria-label="Email à inviter" />
         {state.error && <p className="mt-1 text-sm text-destructive">{state.error}</p>}
