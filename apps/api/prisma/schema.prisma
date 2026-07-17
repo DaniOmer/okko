@@ -165,7 +165,8 @@ model Organization {
 model User {
   id             String        @id
   email          String        @unique
-  name           String
+  firstName      String
+  lastName       String
   role           String
   organizationId        String?
   emailVerifiedAt       DateTime?

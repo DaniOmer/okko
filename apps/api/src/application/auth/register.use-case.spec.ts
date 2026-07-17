@@ -20,7 +20,7 @@ describe('RegisterUseCase', () => {
 
   it('crée org + user admin NON confirmé, sans token, et envoie une confirmation', async () => {
     const { users, notifier, uc } = makeRegister();
-    const res = await uc.execute({ email: 'A@B.c', password: 'pw', name: 'A', organizationName: 'Coop' });
+    const res = await uc.execute({ email: 'A@B.c', password: 'pw', firstName: 'A', lastName: 'A', organizationName: 'Coop' });
     expect(res).toEqual({ email: 'a@b.c' });
     expect((res as Record<string, unknown>).token).toBeUndefined();
     const user = await users.findByEmail('a@b.c');
@@ -34,7 +34,7 @@ describe('RegisterUseCase', () => {
 
   it('email déjà pris → EmailAlreadyUsedError', async () => {
     const { uc } = makeRegister();
-    await uc.execute({ email: 'a@b.c', password: 'pw', name: 'A', organizationName: 'Coop' });
-    await expect(uc.execute({ email: 'a@b.c', password: 'pw', name: 'A', organizationName: 'Coop2' })).rejects.toBeInstanceOf(EmailAlreadyUsedError);
+    await uc.execute({ email: 'a@b.c', password: 'pw', firstName: 'A', lastName: 'A', organizationName: 'Coop' });
+    await expect(uc.execute({ email: 'a@b.c', password: 'pw', firstName: 'A', lastName: 'A', organizationName: 'Coop2' })).rejects.toBeInstanceOf(EmailAlreadyUsedError);
   });
 });

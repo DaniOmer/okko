@@ -30,8 +30,8 @@ export class PrismaUserRepository implements UserRepository {
   async confirmEmail(userId: string, verifiedAt: Date): Promise<void> {
     await this.prisma.user.update({ where: { id: userId }, data: { emailVerifiedAt: verifiedAt, confirmationToken: null, confirmationExpiresAt: null } });
   }
-  private toRow(u: User) { return { id: u.id, email: u.email, name: u.name, role: u.role, organizationId: u.organizationId, createdAt: u.createdAt, emailVerifiedAt: u.emailVerifiedAt }; }
-  private toUser(r: { id: string; email: string; name: string; role: string; organizationId: string | null; createdAt: Date; emailVerifiedAt: Date | null }): User {
-    return { id: r.id, email: r.email, name: r.name, role: r.role as Role, organizationId: r.organizationId, createdAt: r.createdAt, emailVerifiedAt: r.emailVerifiedAt };
+  private toRow(u: User) { return { id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, role: u.role, organizationId: u.organizationId, createdAt: u.createdAt, emailVerifiedAt: u.emailVerifiedAt }; }
+  private toUser(r: { id: string; email: string; firstName: string; lastName: string; role: string; organizationId: string | null; createdAt: Date; emailVerifiedAt: Date | null }): User {
+    return { id: r.id, email: r.email, firstName: r.firstName, lastName: r.lastName, role: r.role as Role, organizationId: r.organizationId, createdAt: r.createdAt, emailVerifiedAt: r.emailVerifiedAt };
   }
 }

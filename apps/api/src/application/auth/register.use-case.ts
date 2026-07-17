@@ -7,7 +7,7 @@ import { EmailAlreadyUsedError } from './errors';
 import { CONFIRM_TTL_HOURS } from './confirmation';
 import { User } from './types';
 
-export interface RegisterInput { email: string; password: string; name: string; organizationName: string; }
+export interface RegisterInput { email: string; password: string; firstName: string; lastName: string; organizationName: string; }
 
 export class RegisterUseCase {
   constructor(
@@ -26,7 +26,7 @@ export class RegisterUseCase {
     const now = new Date(this.clock.nowIso());
     const org = { id: this.ids.next(), name: input.organizationName, createdAt: now };
     await this.orgs.save(org);
-    const user: User = { id: this.ids.next(), email, name: input.name, role: 'admin', organizationId: org.id, createdAt: now, emailVerifiedAt: null };
+    const user: User = { id: this.ids.next(), email, firstName: input.firstName, lastName: input.lastName, role: 'admin', organizationId: org.id, createdAt: now, emailVerifiedAt: null };
     await this.users.save(user);
     await this.identities.save({ id: this.ids.next(), userId: user.id, provider: 'password', identifier: email, secret: await this.hasher.hash(input.password), createdAt: now });
     const token = this.ids.next();

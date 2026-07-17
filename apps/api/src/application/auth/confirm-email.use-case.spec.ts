@@ -6,7 +6,7 @@ const clock = { nowIso: () => '2026-07-17T00:00:00Z' };
 const now = new Date(clock.nowIso());
 
 async function seedUnconfirmed(users: InMemoryUserRepository, token: string, expiresAt: Date) {
-  await users.save({ id: 'u1', email: 'a@b.c', name: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt: null });
+  await users.save({ id: 'u1', email: 'a@b.c', firstName: 'A', lastName: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt: null });
   await users.setConfirmationToken('u1', token, expiresAt);
 }
 

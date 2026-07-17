@@ -37,10 +37,10 @@ describe('invitations', () => {
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
     const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1' });
     const accept = new AcceptInvitationUseCase(s.invitations, s.users, s.identities, hasher, tokens, clock, s.ids);
-    const { user } = await accept.execute({ token: invitation.token, name: 'E', password: 'pw' });
+    const { user } = await accept.execute({ token: invitation.token, firstName: 'E', lastName: 'E', password: 'pw' });
     expect(user.role).toBe('editor');
     expect(user.organizationId).toBe('o1');
-    await expect(accept.execute({ token: invitation.token, name: 'E', password: 'pw' })).rejects.toBeInstanceOf(InvitationInvalidError);
+    await expect(accept.execute({ token: invitation.token, firstName: 'E', lastName: 'E', password: 'pw' })).rejects.toBeInstanceOf(InvitationInvalidError);
   });
 
   it('revoke: refuse une invitation d\'une autre org (ForbiddenOrgError)', async () => {

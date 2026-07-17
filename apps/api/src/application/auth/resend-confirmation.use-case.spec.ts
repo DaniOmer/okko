@@ -11,7 +11,7 @@ describe('ResendConfirmationUseCase', () => {
 
   it('compte non confirmé → nouveau token + notification', async () => {
     const users = new InMemoryUserRepository();
-    await users.save({ id: 'u1', email: 'a@b.c', name: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt: null });
+    await users.save({ id: 'u1', email: 'a@b.c', firstName: 'A', lastName: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt: null });
     const notifier = new FakeNotificationSender();
     await new ResendConfirmationUseCase(users, notifier, clock, ids).execute({ email: 'A@B.c' });
     expect(notifier.sent).toHaveLength(1);
@@ -25,7 +25,7 @@ describe('ResendConfirmationUseCase', () => {
   });
   it('compte déjà confirmé → aucun effet', async () => {
     const users = new InMemoryUserRepository();
-    await users.save({ id: 'u1', email: 'a@b.c', name: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt: now });
+    await users.save({ id: 'u1', email: 'a@b.c', firstName: 'A', lastName: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt: now });
     const notifier = new FakeNotificationSender();
     await new ResendConfirmationUseCase(users, notifier, clock, ids).execute({ email: 'a@b.c' });
     expect(notifier.sent).toHaveLength(0);

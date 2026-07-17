@@ -9,7 +9,7 @@ const now = new Date('2026-07-17T00:00:00Z');
 async function seed(emailVerifiedAt: Date | null) {
   const users = new InMemoryUserRepository();
   const identities = new InMemoryAuthIdentityRepository();
-  await users.save({ id: 'u1', email: 'a@b.c', name: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt });
+  await users.save({ id: 'u1', email: 'a@b.c', firstName: 'A', lastName: 'A', role: 'admin', organizationId: 'o1', createdAt: now, emailVerifiedAt });
   await identities.save({ id: 'i1', userId: 'u1', provider: 'password', identifier: 'a@b.c', secret: await hasher.hash('pw'), createdAt: now });
   return new LoginUseCase(users, identities, hasher, tokens);
 }

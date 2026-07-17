@@ -29,7 +29,7 @@ export class AuthController {
   ) {}
 
   @Public() @Post('register')
-  async register(@Body() body: { email: string; password: string; name: string; organizationName: string }) {
+  async register(@Body() body: { email: string; password: string; firstName: string; lastName: string; organizationName: string }) {
     try { const { email } = await this.registerUC.execute(body); return { status: 'confirmation_sent', email }; }
     catch (e) { if (e instanceof EmailAlreadyUsedError) throw new ConflictException('email déjà utilisé'); throw e; }
   }
@@ -80,8 +80,8 @@ export class AuthController {
   }
 
   @Public() @Post('invitations/:token/accept')
-  async accept(@Param('token') token: string, @Body() body: { name: string; password: string }) {
-    try { return await this.acceptInvitationUC.execute({ token, name: body.name, password: body.password }); }
+  async accept(@Param('token') token: string, @Body() body: { firstName: string; lastName: string; password: string }) {
+    try { return await this.acceptInvitationUC.execute({ token, firstName: body.firstName, lastName: body.lastName, password: body.password }); }
     catch (e) {
       if (e instanceof InvitationNotFoundError || e instanceof InvitationInvalidError) throw new GoneException('invitation invalide ou expirée');
       if (e instanceof EmailAlreadyUsedError) throw new ConflictException('email déjà utilisé'); throw e;
