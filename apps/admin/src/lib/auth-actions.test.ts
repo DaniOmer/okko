@@ -48,7 +48,7 @@ describe('registerAction', () => {
   beforeEach(() => { apiRegister.mockReset(); });
   it('succès → { ok, email }, pas de redirect', async () => {
     apiRegister.mockResolvedValue({ status: 'confirmation_sent', email: 'a@b.c' });
-    const res = await registerAction({}, (() => { const f = new FormData(); f.append('email', 'a@b.c'); f.append('password', 'pw'); f.append('name', 'A'); f.append('organizationName', 'Coop'); return f; })());
+    const res = await registerAction({}, (() => { const f = new FormData(); f.append('email', 'a@b.c'); f.append('password', 'pw'); f.append('firstName', 'A'); f.append('lastName', 'B'); f.append('organizationName', 'Coop'); return f; })());
     expect(res).toEqual({ ok: true, email: 'a@b.c' });
   });
 });

@@ -141,7 +141,7 @@ export async function apiLogin(email: string, password: string): Promise<AuthRes
   return res.json();
 }
 export interface RegisterResult { status: string; email: string; }
-export async function apiRegister(input: { organizationName: string; name: string; email: string; password: string }): Promise<RegisterResult> {
+export async function apiRegister(input: { organizationName: string; firstName: string; lastName: string; email: string; password: string }): Promise<RegisterResult> {
   const res = await publicFetch('/auth/register', jsonInit('POST', input));
   return res.json();
 }
@@ -153,8 +153,13 @@ export async function apiConfirmEmail(token: string): Promise<ConfirmResult> {
 export async function apiResendConfirmation(email: string): Promise<void> {
   await publicFetch('/auth/confirm/resend', jsonInit('POST', { email }));
 }
-export async function apiAcceptInvite(token: string, input: { name: string; password: string }): Promise<AuthResult> {
+export async function apiAcceptInvite(token: string, input: { firstName: string; lastName: string; password: string }): Promise<AuthResult> {
   const res = await publicFetch(`/auth/invitations/${token}/accept`, jsonInit('POST', input));
+  return res.json();
+}
+export interface InvitationInfo { email: string; organizationName: string; acceptable: boolean; }
+export async function apiInvitationByToken(token: string): Promise<InvitationInfo> {
+  const res = await publicFetch(`/auth/invitations/${token}`, { method: 'GET' });
   return res.json();
 }
 export async function apiListInvitations(): Promise<Invitation[]> {

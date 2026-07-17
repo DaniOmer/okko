@@ -27,7 +27,8 @@ export async function loginAction(_prev: ActionState, form: FormData): Promise<A
 export async function registerAction(_prev: ActionState, form: FormData): Promise<ActionState> {
   const input = {
     organizationName: String(form.get('organizationName') ?? ''),
-    name: String(form.get('name') ?? ''),
+    firstName: String(form.get('firstName') ?? ''),
+    lastName: String(form.get('lastName') ?? ''),
     email: String(form.get('email') ?? ''),
     password: String(form.get('password') ?? ''),
   };
@@ -40,7 +41,7 @@ export async function registerAction(_prev: ActionState, form: FormData): Promis
 }
 
 export async function acceptInviteAction(token: string, _prev: ActionState, form: FormData): Promise<ActionState> {
-  const input = { name: String(form.get('name') ?? ''), password: String(form.get('password') ?? '') };
+  const input = { firstName: String(form.get('firstName') ?? ''), lastName: String(form.get('lastName') ?? ''), password: String(form.get('password') ?? '') };
   try {
     const { token: jwt } = await apiAcceptInvite(token, input);
     setSession(jwt);
