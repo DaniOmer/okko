@@ -177,6 +177,14 @@ Copier `apps/admin/.env.example` et ajuster :
 - **Inviter un collaborateur** : `/membres` → envoyer une invitation → lien `/invite/<token>` → création du compte → `/bientot` (rôle `editor`).
 - **Base de connaissances** : accès réservé au `superadmin` ; toutes les mutations passent par des Server Actions (aucun token JWT exposé au navigateur).
 
+### Prénom + nom (onboarding)
+
+L'inscription (`/register`) et l'acceptation d'une invitation (`/invite/<token>`) demandent désormais **prénom et nom séparément** (`firstName` / `lastName`) — plus aucun champ `name` unique.
+
+La page d'invitation affiche en plus :
+- le **nom de l'organisation** à rejoindre (titre de la page) ;
+- l'**email pré-rempli et verrouillé** (issu du token d'invitation, non modifiable).
+
 ### Confirmation d'email à l'inscription
 
 L'inscription passe désormais par une **confirmation d'email** :
