@@ -145,7 +145,7 @@ export async function apiRegister(input: { organizationName: string; name: strin
   const res = await publicFetch('/auth/register', jsonInit('POST', input));
   return res.json();
 }
-export interface ConfirmResult { confirmed: boolean; alreadyConfirmed: boolean; email: string; }
+export interface ConfirmResult { alreadyConfirmed: boolean; email: string; }
 export async function apiConfirmEmail(token: string): Promise<ConfirmResult> {
   const res = await publicFetch(`/auth/confirm/${token}`, { method: 'POST' });
   return res.json();
