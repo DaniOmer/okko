@@ -22,6 +22,7 @@ import { CreateInvitationUseCase } from './application/auth/create-invitation.us
 import { ListInvitationsUseCase } from './application/auth/list-invitations.use-case';
 import { RevokeInvitationUseCase } from './application/auth/revoke-invitation.use-case';
 import { AcceptInvitationUseCase } from './application/auth/accept-invitation.use-case';
+import { GetInvitationByTokenUseCase } from './application/auth/get-invitation-by-token.use-case';
 import { ConfirmEmailUseCase } from './application/auth/confirm-email.use-case';
 import { ResendConfirmationUseCase } from './application/auth/resend-confirmation.use-case';
 import { AuthController } from './presentation/auth/auth.controller';
@@ -58,6 +59,7 @@ function resolveJwtSecret(): string {
     { provide: ListInvitationsUseCase, useFactory: (inv) => new ListInvitationsUseCase(inv), inject: [INVITATION_REPOSITORY] },
     { provide: RevokeInvitationUseCase, useFactory: (inv) => new RevokeInvitationUseCase(inv), inject: [INVITATION_REPOSITORY] },
     { provide: AcceptInvitationUseCase, useFactory: (inv, u, i, h, t, c, g) => new AcceptInvitationUseCase(inv, u, i, h, t, c, g), inject: [INVITATION_REPOSITORY, USER_REPOSITORY, AUTH_IDENTITY_REPOSITORY, PASSWORD_HASHER, AUTH_TOKEN_SERVICE, CLOCK, UuidIdGenerator] },
+    { provide: GetInvitationByTokenUseCase, useFactory: (inv, o, c) => new GetInvitationByTokenUseCase(inv, o, c), inject: [INVITATION_REPOSITORY, ORGANIZATION_REPOSITORY, CLOCK] },
     { provide: ConfirmEmailUseCase, useFactory: (u, c) => new ConfirmEmailUseCase(u, c), inject: [USER_REPOSITORY, CLOCK] },
     { provide: ResendConfirmationUseCase, useFactory: (u, n, c, g) => new ResendConfirmationUseCase(u, n, c, g), inject: [USER_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
   ],

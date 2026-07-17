@@ -23,7 +23,7 @@ describe('Auth e2e', () => {
   it('register → login → me ; invite → accept → login editor', async () => {
     const email = 'admin@coop.bj';
     const reg = await request(app.getHttpServer()).post('/auth/register')
-      .send({ email, password: 'pw', name: 'Chef', organizationName: 'Coop' }).expect(201);
+      .send({ email, password: 'pw', firstName: 'Chef', lastName: 'Test', organizationName: 'Coop' }).expect(201);
     expect(reg.body.status).toBe('confirmation_sent');
     expect(reg.body.token).toBeUndefined();
 
@@ -49,8 +49,12 @@ describe('Auth e2e', () => {
       .set('Authorization', `Bearer ${adminToken}`).send({ email: 'agent@coop.bj' }).expect(201);
     const token = inv.body.invitation.token;
 
+    const info = await request(app.getHttpServer()).get(`/auth/invitations/${token}`).expect(200);
+    expect(info.body).toMatchObject({ email: 'agent@coop.bj', organizationName: 'Coop', acceptable: true });
+    await request(app.getHttpServer()).get('/auth/invitations/mauvais-token').expect(410);
+
     const acc = await request(app.getHttpServer()).post(`/auth/invitations/${token}/accept`)
-      .send({ name: 'Agent', password: 'pw2' }).expect(201);
+      .send({ firstName: 'Agent', lastName: 'Test', password: 'pw2' }).expect(201);
     expect(acc.body.user.role).toBe('editor');
     expect(acc.body.user.organizationId).toBe(login.body.user.organizationId);
 
@@ -59,7 +63,7 @@ describe('Auth e2e', () => {
       .set('Authorization', `Bearer ${acc.body.token}`).send({ email: 'x@y.z' }).expect(403);
 
     // token d'invitation à usage unique
-    await request(app.getHttpServer()).post(`/auth/invitations/${token}/accept`).send({ name: 'X', password: 'p' }).expect(410);
+    await request(app.getHttpServer()).post(`/auth/invitations/${token}/accept`).send({ firstName: 'X', lastName: 'Y', password: 'p' }).expect(410);
   });
 
   it('auth-contract: POST /crops sans token → 401 ; admin → 403 (superadmin only) ; GET /crops/:id/published sans token → 404 not 401', async () => {

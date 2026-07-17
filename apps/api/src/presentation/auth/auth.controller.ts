@@ -6,6 +6,7 @@ import { CreateInvitationUseCase } from '../../application/auth/create-invitatio
 import { ListInvitationsUseCase } from '../../application/auth/list-invitations.use-case';
 import { RevokeInvitationUseCase } from '../../application/auth/revoke-invitation.use-case';
 import { AcceptInvitationUseCase } from '../../application/auth/accept-invitation.use-case';
+import { GetInvitationByTokenUseCase } from '../../application/auth/get-invitation-by-token.use-case';
 import { ConfirmEmailUseCase } from '../../application/auth/confirm-email.use-case';
 import { ResendConfirmationUseCase } from '../../application/auth/resend-confirmation.use-case';
 import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError, EmailNotConfirmedError, ConfirmationInvalidError } from '../../application/auth/errors';
@@ -24,6 +25,7 @@ export class AuthController {
     private readonly listInvitationsUC: ListInvitationsUseCase,
     private readonly revokeInvitationUC: RevokeInvitationUseCase,
     private readonly acceptInvitationUC: AcceptInvitationUseCase,
+    private readonly getInvitationByTokenUC: GetInvitationByTokenUseCase,
     private readonly confirmEmailUC: ConfirmEmailUseCase,
     private readonly resendConfirmationUC: ResendConfirmationUseCase,
   ) {}
@@ -77,6 +79,12 @@ export class AuthController {
     if (!user.organizationId) throw new ForbiddenException();
     try { await this.revokeInvitationUC.execute({ id, organizationId: user.organizationId }); return { ok: true }; }
     catch (e) { if (e instanceof InvitationNotFoundError) throw new NotFoundException(); if (e instanceof ForbiddenOrgError) throw new NotFoundException(); throw e; }
+  }
+
+  @Public() @Get('invitations/:token')
+  async getInvitation(@Param('token') token: string) {
+    try { return await this.getInvitationByTokenUC.execute({ token }); }
+    catch (e) { if (e instanceof InvitationNotFoundError) throw new GoneException('invitation invalide ou expirée'); throw e; }
   }
 
   @Public() @Post('invitations/:token/accept')
