@@ -21,10 +21,26 @@ describe('Auth e2e', () => {
   let adminToken: string;
 
   it('register → login → me ; invite → accept → login editor', async () => {
+    const email = 'admin@coop.bj';
     const reg = await request(app.getHttpServer()).post('/auth/register')
-      .send({ email: 'admin@coop.bj', password: 'pw', name: 'Chef', organizationName: 'Coop' }).expect(201);
-    adminToken = reg.body.token;
-    expect(reg.body.user.role).toBe('admin');
+      .send({ email, password: 'pw', name: 'Chef', organizationName: 'Coop' }).expect(201);
+    expect(reg.body.status).toBe('confirmation_sent');
+    expect(reg.body.token).toBeUndefined();
+
+    // login bloqué tant que non confirmé
+    await request(app.getHttpServer()).post('/auth/login').send({ email, password: 'pw' }).expect(403);
+
+    // récupère le token de confirmation en DB et confirme
+    const dbUser = await prisma.user.findUnique({ where: { email } });
+    await request(app.getHttpServer()).post(`/auth/confirm/${dbUser!.confirmationToken}`).expect(200);
+
+    // confirmation invalide → 410
+    await request(app.getHttpServer()).post('/auth/confirm/mauvais-token').expect(410);
+
+    // login OK après confirmation
+    const login = await request(app.getHttpServer()).post('/auth/login').send({ email, password: 'pw' }).expect(201);
+    adminToken = login.body.token;
+    expect(login.body.user.role).toBe('admin');
 
     await request(app.getHttpServer()).get('/auth/me').set('Authorization', `Bearer ${adminToken}`).expect(200);
     await request(app.getHttpServer()).get('/auth/me').expect(401);
@@ -36,7 +52,7 @@ describe('Auth e2e', () => {
     const acc = await request(app.getHttpServer()).post(`/auth/invitations/${token}/accept`)
       .send({ name: 'Agent', password: 'pw2' }).expect(201);
     expect(acc.body.user.role).toBe('editor');
-    expect(acc.body.user.organizationId).toBe(reg.body.user.organizationId);
+    expect(acc.body.user.organizationId).toBe(login.body.user.organizationId);
 
     // editor ne peut pas inviter (403)
     await request(app.getHttpServer()).post('/auth/invitations')

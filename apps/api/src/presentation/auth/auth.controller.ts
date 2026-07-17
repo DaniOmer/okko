@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards, ConflictException, UnauthorizedException, NotFoundException, GoneException, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, HttpCode, ConflictException, UnauthorizedException, NotFoundException, GoneException, ForbiddenException } from '@nestjs/common';
 import { RegisterUseCase } from '../../application/auth/register.use-case';
 import { LoginUseCase } from '../../application/auth/login.use-case';
 import { GetMeUseCase } from '../../application/auth/get-me.use-case';
@@ -6,7 +6,9 @@ import { CreateInvitationUseCase } from '../../application/auth/create-invitatio
 import { ListInvitationsUseCase } from '../../application/auth/list-invitations.use-case';
 import { RevokeInvitationUseCase } from '../../application/auth/revoke-invitation.use-case';
 import { AcceptInvitationUseCase } from '../../application/auth/accept-invitation.use-case';
-import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError } from '../../application/auth/errors';
+import { ConfirmEmailUseCase } from '../../application/auth/confirm-email.use-case';
+import { ResendConfirmationUseCase } from '../../application/auth/resend-confirmation.use-case';
+import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError, EmailNotConfirmedError, ConfirmationInvalidError } from '../../application/auth/errors';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from './roles.guard';
 import { Public, Roles, CurrentUser, AuthUser } from './decorators';
@@ -22,18 +24,36 @@ export class AuthController {
     private readonly listInvitationsUC: ListInvitationsUseCase,
     private readonly revokeInvitationUC: RevokeInvitationUseCase,
     private readonly acceptInvitationUC: AcceptInvitationUseCase,
+    private readonly confirmEmailUC: ConfirmEmailUseCase,
+    private readonly resendConfirmationUC: ResendConfirmationUseCase,
   ) {}
 
   @Public() @Post('register')
   async register(@Body() body: { email: string; password: string; name: string; organizationName: string }) {
-    try { return await this.registerUC.execute(body); }
+    try { const { email } = await this.registerUC.execute(body); return { status: 'confirmation_sent', email }; }
     catch (e) { if (e instanceof EmailAlreadyUsedError) throw new ConflictException('email déjà utilisé'); throw e; }
+  }
+
+  @Public() @Post('confirm/resend') @HttpCode(202)
+  async resendConfirmation(@Body() body: { email: string }) {
+    await this.resendConfirmationUC.execute({ email: body.email });
+    return { status: 'sent' };
+  }
+
+  @Public() @Post('confirm/:token') @HttpCode(200)
+  async confirm(@Param('token') token: string) {
+    try { return await this.confirmEmailUC.execute({ token }); }
+    catch (e) { if (e instanceof ConfirmationInvalidError) throw new GoneException('lien de confirmation invalide ou expiré'); throw e; }
   }
 
   @Public() @Post('login')
   async login(@Body() body: { email: string; password: string }) {
     try { return await this.loginUC.execute(body); }
-    catch (e) { if (e instanceof InvalidCredentialsError) throw new UnauthorizedException('identifiants invalides'); throw e; }
+    catch (e) {
+      if (e instanceof InvalidCredentialsError) throw new UnauthorizedException('identifiants invalides');
+      if (e instanceof EmailNotConfirmedError) throw new ForbiddenException('Confirmez votre email avant de vous connecter');
+      throw e;
+    }
   }
 
   @Get('me')

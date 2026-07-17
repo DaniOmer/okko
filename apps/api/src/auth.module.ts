@@ -22,6 +22,8 @@ import { CreateInvitationUseCase } from './application/auth/create-invitation.us
 import { ListInvitationsUseCase } from './application/auth/list-invitations.use-case';
 import { RevokeInvitationUseCase } from './application/auth/revoke-invitation.use-case';
 import { AcceptInvitationUseCase } from './application/auth/accept-invitation.use-case';
+import { ConfirmEmailUseCase } from './application/auth/confirm-email.use-case';
+import { ResendConfirmationUseCase } from './application/auth/resend-confirmation.use-case';
 import { AuthController } from './presentation/auth/auth.controller';
 import { AuthGuard } from './presentation/auth/auth.guard';
 import { RolesGuard } from './presentation/auth/roles.guard';
@@ -49,13 +51,15 @@ function resolveJwtSecret(): string {
     { provide: AUTH_TOKEN_SERVICE, useClass: JwtAuthTokenService },
     { provide: NOTIFICATION_PORT, useClass: BrevoEmailNotificationSender },
     AuthGuard, RolesGuard,
-    { provide: RegisterUseCase, useFactory: (u, o, i, h, t, c, g) => new RegisterUseCase(u, o, i, h, t, c, g), inject: [USER_REPOSITORY, ORGANIZATION_REPOSITORY, AUTH_IDENTITY_REPOSITORY, PASSWORD_HASHER, AUTH_TOKEN_SERVICE, CLOCK, UuidIdGenerator] },
+    { provide: RegisterUseCase, useFactory: (u, o, i, h, n, c, g) => new RegisterUseCase(u, o, i, h, n, c, g), inject: [USER_REPOSITORY, ORGANIZATION_REPOSITORY, AUTH_IDENTITY_REPOSITORY, PASSWORD_HASHER, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
     { provide: LoginUseCase, useFactory: (u, i, h, t) => new LoginUseCase(u, i, h, t), inject: [USER_REPOSITORY, AUTH_IDENTITY_REPOSITORY, PASSWORD_HASHER, AUTH_TOKEN_SERVICE] },
     { provide: GetMeUseCase, useFactory: (u) => new GetMeUseCase(u), inject: [USER_REPOSITORY] },
     { provide: CreateInvitationUseCase, useFactory: (inv, o, u, n, c, g) => new CreateInvitationUseCase(inv, o, u, n, c, g), inject: [INVITATION_REPOSITORY, ORGANIZATION_REPOSITORY, USER_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
     { provide: ListInvitationsUseCase, useFactory: (inv) => new ListInvitationsUseCase(inv), inject: [INVITATION_REPOSITORY] },
     { provide: RevokeInvitationUseCase, useFactory: (inv) => new RevokeInvitationUseCase(inv), inject: [INVITATION_REPOSITORY] },
     { provide: AcceptInvitationUseCase, useFactory: (inv, u, i, h, t, c, g) => new AcceptInvitationUseCase(inv, u, i, h, t, c, g), inject: [INVITATION_REPOSITORY, USER_REPOSITORY, AUTH_IDENTITY_REPOSITORY, PASSWORD_HASHER, AUTH_TOKEN_SERVICE, CLOCK, UuidIdGenerator] },
+    { provide: ConfirmEmailUseCase, useFactory: (u, c) => new ConfirmEmailUseCase(u, c), inject: [USER_REPOSITORY, CLOCK] },
+    { provide: ResendConfirmationUseCase, useFactory: (u, n, c, g) => new ResendConfirmationUseCase(u, n, c, g), inject: [USER_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
   ],
   exports: [AUTH_TOKEN_SERVICE, AuthGuard, RolesGuard],
 })
