@@ -5,7 +5,7 @@ import { Header } from '@/components/header';
 import type { SessionUser } from '@/lib/jwt';
 
 function isBare(pathname: string): boolean {
-  return pathname === '/login' || pathname === '/register' || pathname.startsWith('/invite/') || pathname === '/bientot';
+  return pathname === '/login' || pathname === '/register' || pathname.startsWith('/invite/') || pathname.startsWith('/confirm/') || pathname === '/bientot';
 }
 
 export function AppShell({ session, children }: { session: SessionUser | null; children: React.ReactNode }) {

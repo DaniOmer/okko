@@ -5,7 +5,7 @@ const SUPERADMIN_ZONES = ['/crops', '/zones', '/pests', '/history'];
 const ADMIN_ZONES = ['/membres'];
 
 function isPublic(pathname: string): boolean {
-  return pathname === '/login' || pathname === '/register' || pathname.startsWith('/invite/');
+  return pathname === '/login' || pathname === '/register' || pathname.startsWith('/invite/') || pathname.startsWith('/confirm/');
 }
 function inZone(pathname: string, zones: string[]): boolean {
   return zones.some((z) => pathname === z || pathname.startsWith(z + '/'));
