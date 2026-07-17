@@ -140,9 +140,18 @@ export async function apiLogin(email: string, password: string): Promise<AuthRes
   const res = await publicFetch('/auth/login', jsonInit('POST', { email, password }));
   return res.json();
 }
-export async function apiRegister(input: { organizationName: string; name: string; email: string; password: string }): Promise<AuthResult> {
+export interface RegisterResult { status: string; email: string; }
+export async function apiRegister(input: { organizationName: string; name: string; email: string; password: string }): Promise<RegisterResult> {
   const res = await publicFetch('/auth/register', jsonInit('POST', input));
   return res.json();
+}
+export interface ConfirmResult { confirmed: boolean; alreadyConfirmed: boolean; email: string; }
+export async function apiConfirmEmail(token: string): Promise<ConfirmResult> {
+  const res = await publicFetch(`/auth/confirm/${token}`, { method: 'POST' });
+  return res.json();
+}
+export async function apiResendConfirmation(email: string): Promise<void> {
+  await publicFetch('/auth/confirm/resend', jsonInit('POST', { email }));
 }
 export async function apiAcceptInvite(token: string, input: { name: string; password: string }): Promise<AuthResult> {
   const res = await publicFetch(`/auth/invitations/${token}/accept`, jsonInit('POST', input));
