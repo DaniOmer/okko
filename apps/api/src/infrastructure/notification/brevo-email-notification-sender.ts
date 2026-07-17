@@ -26,10 +26,21 @@ export class BrevoEmailNotificationSender implements NotificationPort {
       .replace(/'/g, '&#39;');
   }
   private render(n: Notification): { subject: string; html: string } {
-    const subject = `Invitation à rejoindre ${n.organizationName} sur Okko`;
-    const html = `<p>Vous êtes invité·e à rejoindre <strong>${this.escapeHtml(n.organizationName)}</strong> sur Okko.</p>`
-      + `<p><a href="${this.escapeHtml(n.inviteUrl)}">Accepter l'invitation</a></p>`
-      + `<p>Ce lien expire le ${n.expiresAt.toISOString().slice(0, 10)}.</p>`;
-    return { subject, html };
+    switch (n.kind) {
+      case 'invitation': {
+        const subject = `Invitation à rejoindre ${n.organizationName} sur Okko`;
+        const html = `<p>Vous êtes invité·e à rejoindre <strong>${this.escapeHtml(n.organizationName)}</strong> sur Okko.</p>`
+          + `<p><a href="${this.escapeHtml(n.inviteUrl)}">Accepter l'invitation</a></p>`
+          + `<p>Ce lien expire le ${n.expiresAt.toISOString().slice(0, 10)}.</p>`;
+        return { subject, html };
+      }
+      case 'email_confirmation': {
+        const subject = 'Confirmez votre inscription sur Okko';
+        const html = `<p>Bienvenue sur Okko. Confirmez votre adresse email pour activer votre compte.</p>`
+          + `<p><a href="${this.escapeHtml(n.confirmUrl)}">Confirmer mon inscription</a></p>`
+          + `<p>Ce lien expire le ${n.expiresAt.toISOString().slice(0, 10)}.</p>`;
+        return { subject, html };
+      }
+    }
   }
 }

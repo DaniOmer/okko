@@ -16,6 +16,15 @@ describe('BrevoEmailNotificationSender', () => {
     expect(init!.body as string).toContain('http://app/invite/tok');
   });
 
+  it('POST Brevo avec le confirmUrl pour une confirmation d\'email', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true, status: 201 } as Response);
+    const sender = new BrevoEmailNotificationSender();
+    await sender.send({ kind: 'email_confirmation', to: 'x@y.z', confirmUrl: 'http://app/confirm/tok', expiresAt: new Date('2026-07-20') });
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init!.body as string).toContain('http://app/confirm/tok');
+    expect(init!.body as string).toContain('Confirmez votre inscription');
+  });
+
   it('réponse non-ok → throw', async () => {
     jest.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: false, status: 500 } as Response);
     const sender = new BrevoEmailNotificationSender();

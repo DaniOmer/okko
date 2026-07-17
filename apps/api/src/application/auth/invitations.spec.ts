@@ -27,7 +27,8 @@ describe('invitations', () => {
     expect(invitation.status).toBe('pending');
     expect(invitation.email).toBe('x@y.z');
     expect(emailSent).toBe(true);
-    expect(s.notifier.sent[0].inviteUrl).toContain(invitation.token);
+    const sent = s.notifier.sent[0];
+    expect(sent.kind === 'invitation' ? sent.inviteUrl : '').toContain(invitation.token);
   });
 
   it('accept: crée un editor dans la bonne org ; token à usage unique', async () => {
