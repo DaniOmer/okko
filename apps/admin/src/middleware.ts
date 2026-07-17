@@ -13,6 +13,7 @@ function inZone(pathname: string, zones: string[]): boolean {
 
 export function middleware(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
+  if (pathname === '/logout') return NextResponse.next();
   const session = decodeToken(req.cookies.get('okko_session')?.value);
 
   if (isPublic(pathname)) {

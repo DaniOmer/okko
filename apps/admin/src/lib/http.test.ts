@@ -19,10 +19,10 @@ describe('http', () => {
     const [, init] = fetchMock.mock.calls[0];
     expect((init!.headers as Headers).get('authorization')).toBe('Bearer jwt-123');
   });
-  it('authFetch redirige vers /login sur 401', async () => {
+  it('authFetch redirige vers /logout sur 401', async () => {
     getTokenMock.mockReturnValue('jwt');
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response(null, { status: 401 }));
-    await expect(authFetch('/x')).rejects.toThrow('REDIRECT:/login?expired=1');
+    await expect(authFetch('/x')).rejects.toThrow('REDIRECT:/logout');
   });
   it('authFetch lève ApiError sur autre erreur', async () => {
     getTokenMock.mockReturnValue('jwt');

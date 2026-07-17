@@ -21,7 +21,7 @@ export async function authFetch(path: string, init: RequestInit = {}): Promise<R
   const headers = new Headers(init.headers);
   if (token) headers.set('Authorization', `Bearer ${token}`);
   const res = await fetch(`${BASE}${path}`, { ...init, headers, cache: init.cache ?? 'no-store' });
-  if (res.status === 401) redirect('/login?expired=1');
+  if (res.status === 401) redirect('/logout');
   if (!res.ok) throw new ApiError(res.status, `${init.method ?? 'GET'} ${path}`);
   return res;
 }

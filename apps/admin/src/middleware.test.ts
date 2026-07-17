@@ -28,4 +28,6 @@ describe('middleware', () => {
   it('editor sur /bientot → passe', () => { expect(loc(middleware(req('/bientot', makeToken('editor', 'o1'))))).toBeNull(); });
   it('invitation publique sans session → passe', () => { expect(loc(middleware(req('/invite/tok123')))).toBeNull(); });
   it('confirmation publique sans session → passe', () => { expect(loc(middleware(req('/confirm/tok123')))).toBeNull(); });
+  it('/logout sans session → passe (jamais renvoyé)', () => { expect(loc(middleware(req('/logout')))).toBeNull(); });
+  it('/logout avec cookie → passe', () => { expect(loc(middleware(req('/logout', makeToken('admin', 'o1'))))).toBeNull(); });
 });
