@@ -167,8 +167,11 @@ model User {
   email          String        @unique
   name           String
   role           String
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId        String?
+  emailVerifiedAt       DateTime?
+  confirmationToken     String?   @unique
+  confirmationExpiresAt DateTime?
+  organization          Organization? @relation(fields: [organizationId], references: [id])
   identities     AuthIdentity[]
   createdAt      DateTime      @default(now())
 }
