@@ -14,7 +14,11 @@ La fiche Culture est **event-sourcée** (`apps/api`, hexagonal) :
 - Agrégat `Crop` (rejoue les events), projection `compose-crop-document`, use-cases (`update-crop`, `set-crop-requirements`, `set-crop-phenology`, `set-crop-nutrition`, `add/update-window`), DTO API, éditeurs admin (`IdentityEditor`, `RequirementsEditor`, `PhenologyEditor`, `NutritionEditor`, `WindowEditor`), rendu du diff, complétude (`crop-completeness`).
 - Sections concernées stockées en **colonnes JSON** sur la table `Crop` (`metadata`, `climatic`, `phenology`, `nutrition`) et dans la table `CroppingWindow` (`operations` JSON) → **aucune migration Prisma**.
 
-**Contrainte clé — évolution d'events rétro-compatible :** les events déjà stockés ne contiennent pas les nouveaux champs. Tous les champs ajoutés sont donc **optionnels** dans les payloads d'events et les value objects ; l'agrégat les traite comme `undefined` par défaut → les anciens events se rejouent sans erreur, les fiches existantes restent valides.
+**Pas de données à préserver.** La base ne contient aucune fiche exploitable : les cultures/events existants peuvent être **supprimés** (les suites de tests effacent déjà la DB). Donc **aucune gestion de rétro-compatibilité d'events** : pas de code défensif pour d'anciens events sans les nouveaux champs.
+
+**Champs optionnels (remplissage incrémental, pas versioning) :** les sections d'une fiche se remplissent progressivement via les use-cases `set-crop-*`. Les nouveaux champs restent donc **optionnels** au sein de leur section (on peut renseigner la température sans l'altitude), mais ce n'est **pas** pour rejouer d'anciens events — c'est la sémantique normale d'une section partiellement remplie.
+
+**Clean architecture + TDD (contrainte forte) :** respecter strictement les couches existantes — `domain/` (value objects purs, sans dépendance framework) → `application/` (use-cases + ports) → `infrastructure/`/`presentation/` (adaptateurs, DTO, contrôleur) et l'admin. Chaque modification suit le **cycle TDD** : test d'abord (rouge), implémentation minimale (vert), au niveau approprié (VO, use-case, projection).
 
 ## Périmètre
 
@@ -32,6 +36,8 @@ La fiche Culture est **event-sourcée** (`apps/api`, hexagonal) :
 - Échelles qualitatives faible/moyen(ne)/élevé(e) pour besoin en eau et sensibilité sécheresse.
 - `method` (fertilisation) et `usageCategory` (identité) en **select** (code + libellé) ; `equipment` (itinéraire) en **liste de chaînes** (comme `inputs`).
 - Convention enum : code technique + table de libellés FR (comme `CYCLE_TYPE_LABELS`).
+- **Pas de rétro-compatibilité d'events** : les cultures/events existants sont supprimés ; aucun code défensif pour d'anciens payloads.
+- **Clean architecture + TDD** obligatoires (voir Contexte).
 
 ---
 
@@ -62,19 +68,19 @@ La fiche Culture est **event-sourcée** (`apps/api`, hexagonal) :
 Pour chaque champ, la chaîne de modification :
 1. **Value object** (`domain/**`) : ajouter la propriété optionnelle dans les props + `toJSON()` + la reconstruction depuis JSON.
 2. **Event** (`domain/crop/crop-event.ts`) : ajouter le champ optionnel au payload de l'event concerné.
-3. **Agrégat `Crop`** : dans l'application de l'event, transmettre le nouveau champ (défaut `undefined` si absent — rétro-compatibilité).
+3. **Agrégat `Crop`** : dans l'application de l'event, transmettre le nouveau champ au value object.
 4. **Use-case** (`set-crop-*` / `update-crop` / `add-window`) : accepter le champ optionnel dans l'input et l'inclure dans l'event émis.
 5. **Projection** `compose-crop-document` + **DTO** API : exposer le champ.
 6. **Admin** : le champ dans l'éditeur correspondant (`@/components/ui/select` pour les enums ; liste éditable pour `equipment` ; textarea pour `description`/`recommendedWork`) + les tables de libellés dans `lib/labels.ts`. `lib/api.ts` : étendre les interfaces (`CropDetail`, `PhenologicalStage`, `NutrientRequirement`, `TechnicalOperation`, la signature de `updateCrop`/`setRequirements`/…).
 7. **Diff** : ajouter les libellés des nouveaux champs au rendu du diff (le diff est généré par comparaison de sections ; s'assurer que les nouveaux champs sont nommés lisiblement).
 
-**Aucune migration Prisma** (sections JSON). **Aucune nouvelle catégorie de complétude.** Rétro-compatibilité : champs optionnels partout ; les events et fiches existants restent valides.
+**Aucune migration Prisma** (sections JSON). **Aucune nouvelle catégorie de complétude.** Champs optionnels au sein de leur section (remplissage incrémental). Chaque étape (VO → event → agrégat → use-case → projection → DTO → éditeur) est menée en **TDD** (test rouge d'abord).
 
 ## Section 3 — Tests
 
 **API** (Jest, doubles en mémoire, event-sourcing) :
-- VO : `toJSON`/reconstruction incluent les nouveaux champs quand présents, et se comportent bien quand absents (rétro-compat).
-- Agrégat/projection : un event enrichi (ex. `ClimaticRequirementsSet` avec `altitude`/`waterNeed`) est rejoué et le document composé expose les champs ; un **ancien event sans les champs** se rejoue sans erreur (champs `undefined`).
+- VO : `toJSON`/reconstruction incluent les nouveaux champs quand présents, et les omettent proprement quand absents (section partiellement remplie).
+- Agrégat/projection : un event enrichi (ex. `ClimaticRequirementsSet` avec `altitude`/`waterNeed`) est rejoué et le document composé expose les champs.
 - Use-cases : `setRequirements`/`setPhenology`/`setNutrition`/`addWindow`/`updateCrop` acceptent et persistent les nouveaux champs.
 - Non-régression : la suite crop existante (versions, diff, complétude, publish) reste verte.
 
@@ -85,7 +91,8 @@ Pour chaque champ, la chaîne de modification :
 ## Critères de succès
 
 - [ ] Les 5 sections exposent leurs nouveaux champs, de l'event à l'éditeur admin.
-- [ ] Événements rétro-compatibles : les fiches/events existants se rejouent sans erreur (champs optionnels).
+- [ ] Champs optionnels au sein de leur section (remplissage incrémental) ; aucune gestion de rétro-compatibilité d'events (données existantes supprimées).
+- [ ] Clean architecture respectée (domain pur → application → infra/présentation) ; chaque couche développée en TDD.
 - [ ] Aucune migration Prisma ; aucune nouvelle catégorie de complétude.
 - [ ] Enums via code + table de libellés FR ; `equipment` en liste ; `description`/`recommendedWork` en texte.
 - [ ] Diff lisible pour les nouveaux champs.
