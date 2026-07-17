@@ -128,7 +128,7 @@ export async function getCropHistory(id: string): Promise<AuditRecord[]> {
 
 export interface AuthResult {
   token: string;
-  user: { id: string; email: string; name: string; role: Role; organizationId: string | null; createdAt: string };
+  user: { id: string; email: string; firstName: string; lastName: string; role: Role; organizationId: string | null; createdAt: string };
 }
 export interface Invitation {
   id: string; organizationId: string; email: string; role: 'editor'; token: string;
