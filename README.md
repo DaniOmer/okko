@@ -177,6 +177,16 @@ Copier `apps/admin/.env.example` et ajuster :
 - **Inviter un collaborateur** : `/membres` → envoyer une invitation → lien `/invite/<token>` → création du compte → `/bientot` (rôle `editor`).
 - **Base de connaissances** : accès réservé au `superadmin` ; toutes les mutations passent par des Server Actions (aucun token JWT exposé au navigateur).
 
+### Confirmation d'email à l'inscription
+
+L'inscription passe désormais par une **confirmation d'email** :
+
+1. `/register` crée le compte non confirmé et envoie un email contenant un lien `/confirm/<token>`.
+2. La connexion est refusée (403) tant que l'email n'est pas confirmé — un message invite à confirmer ou à renvoyer l'email.
+3. Un **renvoi** de l'email est disponible depuis la page `/register` (panneau « email envoyé ») et depuis `/login`.
+
+> **Exception** : les utilisateurs invités (via le lien `/invite/<token>`) et le superadmin (créé par `prisma db seed`) sont confirmés d'office — leur connexion fonctionne immédiatement sans passer par ce flux.
+
 ---
 
 ## API (Phase 0)
