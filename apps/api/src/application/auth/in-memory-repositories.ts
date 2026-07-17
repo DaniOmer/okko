@@ -7,6 +7,19 @@ export class InMemoryUserRepository implements UserRepository {
   async findById(id: string): Promise<User | null> { return this.rows.find((r) => r.id === id) ?? null; }
   async findByEmail(email: string): Promise<User | null> { return this.rows.find((r) => r.email === email) ?? null; }
   async listByOrganization(organizationId: string): Promise<User[]> { return this.rows.filter((r) => r.organizationId === organizationId); }
+  private readonly confirmations = new Map<string, { token: string; expiresAt: Date }>();
+  async findByConfirmationToken(token: string): Promise<{ user: User; expiresAt: Date } | null> {
+    for (const [userId, c] of this.confirmations) {
+      if (c.token === token) { const user = this.rows.find((r) => r.id === userId); if (user) return { user, expiresAt: c.expiresAt }; }
+    }
+    return null;
+  }
+  async setConfirmationToken(userId: string, token: string, expiresAt: Date): Promise<void> { this.confirmations.set(userId, { token, expiresAt }); }
+  async confirmEmail(userId: string, verifiedAt: Date): Promise<void> {
+    const i = this.rows.findIndex((r) => r.id === userId);
+    if (i >= 0) this.rows[i] = { ...this.rows[i], emailVerifiedAt: verifiedAt };
+    this.confirmations.delete(userId);
+  }
 }
 export class InMemoryOrganizationRepository implements OrganizationRepository {
   private readonly rows: Organization[] = [];

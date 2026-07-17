@@ -25,7 +25,7 @@ export class AcceptInvitationUseCase {
     const now = new Date(this.clock.nowIso());
     if (inv.status !== 'pending' || inv.expiresAt.getTime() < now.getTime()) throw new InvitationInvalidError();
     if (await this.users.findByEmail(inv.email)) throw new EmailAlreadyUsedError(inv.email);
-    const user: User = { id: this.ids.next(), email: inv.email, name: input.name, role: 'editor', organizationId: inv.organizationId, createdAt: now };
+    const user: User = { id: this.ids.next(), email: inv.email, name: input.name, role: 'editor', organizationId: inv.organizationId, createdAt: now, emailVerifiedAt: now };
     await this.users.save(user);
     await this.identities.save({ id: this.ids.next(), userId: user.id, provider: 'password', identifier: inv.email, secret: await this.hasher.hash(input.password), createdAt: now });
     await this.invitations.save({ ...inv, status: 'accepted', acceptedAt: now });

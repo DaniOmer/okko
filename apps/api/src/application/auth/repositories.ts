@@ -6,6 +6,9 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   listByOrganization(organizationId: string): Promise<User[]>;
+  findByConfirmationToken(token: string): Promise<{ user: User; expiresAt: Date } | null>;
+  setConfirmationToken(userId: string, token: string, expiresAt: Date): Promise<void>;
+  confirmEmail(userId: string, verifiedAt: Date): Promise<void>;
 }
 
 export const ORGANIZATION_REPOSITORY = Symbol('ORGANIZATION_REPOSITORY');
