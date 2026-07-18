@@ -109,7 +109,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   if (prices.length > 0) {
     const latest = prices[0];
     const per = latest.periodStart === latest.periodEnd ? latest.periodStart : `${latest.periodStart}–${latest.periodEnd}`;
-    lines.push(`Prix récent : ${latest.price} ${latest.unit} (${latest.market}, ${per})`);
+    lines.push(`Prix récent : ${latest.price} ${latest.currency}/${latest.unit} (${latest.market}, ${per})`);
   }
   const completeness = computeCompleteness({
     climatic: !!s.climatic,
