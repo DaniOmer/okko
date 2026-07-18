@@ -1,4 +1,4 @@
-import { Variety, VarietySnapshot } from '../../domain/crop/variety';
+import { Variety, VarietySnapshot, VarietyDiseaseResistance, VarietyZoneAdaptation } from '../../domain/crop/variety';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { RangeValue } from '../../domain/shared/range-value';
 import { Crop } from '../../domain/crop/crop';
@@ -16,6 +16,8 @@ export interface AddVarietyInput {
   maturityDays?: number;
   yieldPotential?: ReturnType<RangeValue['toJSON']>;
   traits?: string[];
+  diseaseResistances?: VarietyDiseaseResistance[];
+  zoneAdaptations?: VarietyZoneAdaptation[];
   actor: string;
 }
 
@@ -38,6 +40,8 @@ export class AddVarietyUseCase {
       maturityDays: input.maturityDays,
       yieldPotential: input.yieldPotential ? RangeValue.create(input.yieldPotential) : undefined,
       traits: input.traits,
+      diseaseResistances: input.diseaseResistances,
+      zoneAdaptations: input.zoneAdaptations,
     });
     const snap = variety.toSnapshot();
     const crop = Crop.fromEvents(stored);

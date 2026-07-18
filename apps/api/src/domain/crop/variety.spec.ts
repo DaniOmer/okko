@@ -1,6 +1,8 @@
 import { Variety } from './variety';
 import { TranslatableText } from '../shared/translatable-text';
 import { RangeValue } from '../shared/range-value';
+import { ResistanceLevel } from './resistance-level';
+import { SuitabilityRating } from '../zone/suitability-rating';
 
 describe('Variety', () => {
   const base = () => Variety.create({
@@ -31,5 +33,26 @@ describe('Variety', () => {
   it('defaults traits to an empty array', () => {
     const v = Variety.create({ id: 'v', cropId: 'c', name: TranslatableText.create({ fr: 'X' }) });
     expect(v.traits).toEqual([]);
+  });
+});
+
+describe('Variety — diseaseResistances + zoneAdaptations', () => {
+  it('round-trip toSnapshot/fromSnapshot conserve les listes', () => {
+    const v = Variety.create({
+      id: 'v1', cropId: 'c1', name: TranslatableText.create({ fr: 'Maïs jaune' }),
+      diseaseResistances: [{ pestId: 'p1', level: ResistanceLevel.HIGH }],
+      zoneAdaptations: [{ zoneId: 'z1', rating: SuitabilityRating.SUITABLE }],
+    });
+    const s = v.toSnapshot();
+    expect(s.diseaseResistances).toEqual([{ pestId: 'p1', level: 'HIGH' }]);
+    expect(s.zoneAdaptations).toEqual([{ zoneId: 'z1', rating: 'SUITABLE' }]);
+    const back = Variety.fromSnapshot(s).toSnapshot();
+    expect(back.diseaseResistances).toEqual([{ pestId: 'p1', level: 'HIGH' }]);
+    expect(back.zoneAdaptations).toEqual([{ zoneId: 'z1', rating: 'SUITABLE' }]);
+  });
+  it('listes absentes → [] (défaut)', () => {
+    const s = Variety.create({ id: 'v2', cropId: 'c1', name: TranslatableText.create({ fr: 'X' }) }).toSnapshot();
+    expect(s.diseaseResistances).toEqual([]);
+    expect(s.zoneAdaptations).toEqual([]);
   });
 });

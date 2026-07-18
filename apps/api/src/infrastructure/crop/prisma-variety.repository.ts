@@ -40,6 +40,8 @@ export class PrismaVarietyRepository implements VarietyRepository {
       yieldPotential: (v.yieldPotential ?? undefined) as Prisma.InputJsonValue | undefined,
       traits: v.traits as Prisma.InputJsonValue,
       provenance: (v.provenance ?? undefined) as Prisma.InputJsonValue | undefined,
+      diseaseResistances: (v.diseaseResistances ?? []) as unknown as Prisma.InputJsonValue,
+      zoneAdaptations: (v.zoneAdaptations ?? []) as unknown as Prisma.InputJsonValue,
     };
   }
 
@@ -52,6 +54,8 @@ export class PrismaVarietyRepository implements VarietyRepository {
       yieldPotential: (row.yieldPotential ?? undefined) as VarietySnapshot['yieldPotential'],
       traits: row.traits as string[],
       provenance: (row.provenance ?? undefined) as VarietySnapshot['provenance'],
+      diseaseResistances: (row.diseaseResistances ?? []) as unknown as VarietySnapshot['diseaseResistances'],
+      zoneAdaptations: (row.zoneAdaptations ?? []) as unknown as VarietySnapshot['zoneAdaptations'],
     };
   }
 }

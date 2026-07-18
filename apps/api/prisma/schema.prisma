@@ -49,8 +49,10 @@ model Variety {
   maturityDays   Int?
   yieldPotential Json?
   traits         Json
-  provenance     Json?
-  createdAt      DateTime @default(now())
+  provenance         Json?
+  diseaseResistances Json?
+  zoneAdaptations    Json?
+  createdAt          DateTime @default(now())
 
   @@index([cropId])
 }

@@ -1,4 +1,4 @@
-import { Variety, VarietySnapshot } from '../../domain/crop/variety';
+import { Variety, VarietySnapshot, VarietyDiseaseResistance, VarietyZoneAdaptation } from '../../domain/crop/variety';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { RangeValue } from '../../domain/shared/range-value';
 import { Crop } from '../../domain/crop/crop';
@@ -14,7 +14,9 @@ export class VarietyNotFoundError extends Error {
 
 export interface UpdateVarietyInput {
   cropId: string; varietyId: string; name: Record<string, string>;
-  maturityDays?: number; yieldPotential?: ReturnType<RangeValue['toJSON']>; traits?: string[]; actor: string;
+  maturityDays?: number; yieldPotential?: ReturnType<RangeValue['toJSON']>; traits?: string[];
+  diseaseResistances?: VarietyDiseaseResistance[]; zoneAdaptations?: VarietyZoneAdaptation[];
+  actor: string;
 }
 
 export class UpdateVarietyUseCase {
@@ -37,6 +39,8 @@ export class UpdateVarietyUseCase {
       maturityDays: input.maturityDays,
       yieldPotential: input.yieldPotential ? RangeValue.create(input.yieldPotential) : undefined,
       traits: input.traits,
+      diseaseResistances: input.diseaseResistances,
+      zoneAdaptations: input.zoneAdaptations,
     });
     const snap = variety.toSnapshot();
     crop.updateVariety(snap);

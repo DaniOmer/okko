@@ -1,6 +1,11 @@
 import { TranslatableText } from '../shared/translatable-text';
 import { RangeValue } from '../shared/range-value';
 import { Provenance } from '../shared/provenance';
+import { ResistanceLevel } from './resistance-level';
+import { SuitabilityRating } from '../zone/suitability-rating';
+
+export interface VarietyDiseaseResistance { pestId: string; level: ResistanceLevel }
+export interface VarietyZoneAdaptation { zoneId: string; rating: SuitabilityRating }
 
 export interface VarietySnapshot {
   id: string;
@@ -10,6 +15,8 @@ export interface VarietySnapshot {
   yieldPotential?: ReturnType<RangeValue['toJSON']>;
   traits: string[];
   provenance?: ReturnType<Provenance['toJSON']>;
+  diseaseResistances?: VarietyDiseaseResistance[];
+  zoneAdaptations?: VarietyZoneAdaptation[];
 }
 
 interface CreateVarietyProps {
@@ -20,6 +27,8 @@ interface CreateVarietyProps {
   yieldPotential?: RangeValue;
   traits?: string[];
   provenance?: Provenance;
+  diseaseResistances?: VarietyDiseaseResistance[];
+  zoneAdaptations?: VarietyZoneAdaptation[];
 }
 
 export class Variety {
@@ -31,12 +40,15 @@ export class Variety {
     private readonly _yieldPotential: RangeValue | undefined,
     private readonly _traits: string[],
     private readonly _provenance: Provenance | undefined,
+    private readonly _diseaseResistances: VarietyDiseaseResistance[],
+    private readonly _zoneAdaptations: VarietyZoneAdaptation[],
   ) {}
 
   static create(props: CreateVarietyProps): Variety {
     return new Variety(
       props.id, props.cropId, props.name, props.maturityDays,
       props.yieldPotential, props.traits ?? [], props.provenance,
+      props.diseaseResistances ?? [], props.zoneAdaptations ?? [],
     );
   }
 
@@ -47,6 +59,8 @@ export class Variety {
   get yieldPotential(): RangeValue | undefined { return this._yieldPotential; }
   get traits(): string[] { return [...this._traits]; }
   get provenance(): Provenance | undefined { return this._provenance; }
+  get diseaseResistances(): VarietyDiseaseResistance[] { return this._diseaseResistances.map((r) => ({ ...r })); }
+  get zoneAdaptations(): VarietyZoneAdaptation[] { return this._zoneAdaptations.map((r) => ({ ...r })); }
 
   toSnapshot(): VarietySnapshot {
     return {
@@ -57,6 +71,8 @@ export class Variety {
       yieldPotential: this._yieldPotential?.toJSON(),
       traits: [...this._traits],
       provenance: this._provenance?.toJSON(),
+      diseaseResistances: this._diseaseResistances.map((r) => ({ ...r })),
+      zoneAdaptations: this._zoneAdaptations.map((r) => ({ ...r })),
     };
   }
 
@@ -66,6 +82,8 @@ export class Variety {
       s.yieldPotential ? RangeValue.create(s.yieldPotential) : undefined,
       [...s.traits],
       s.provenance ? Provenance.fromJSON(s.provenance) : undefined,
+      [...(s.diseaseResistances ?? [])].map((r) => ({ ...r })),
+      [...(s.zoneAdaptations ?? [])].map((r) => ({ ...r })),
     );
   }
 }

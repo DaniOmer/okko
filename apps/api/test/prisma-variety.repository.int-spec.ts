@@ -13,6 +13,7 @@ describe('PrismaVarietyRepository (integration)', () => {
       id: 'v-int-1', cropId: 'crop-int-1', name: { fr: 'Obatanpa' },
       maturityDays: 120, yieldPotential: { min: 2, optimal: 4, max: 6, unit: 't/ha' },
       traits: ['précoce'], provenance: undefined,
+      diseaseResistances: [], zoneAdaptations: [],
     });
     const list = await repo.listByCrop('crop-int-1');
     expect(list).toHaveLength(1);
