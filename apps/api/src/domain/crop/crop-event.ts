@@ -11,9 +11,9 @@ import { CropPestControlSnapshot } from '../pest/crop-pest-control';
 import { PricePointSnapshot } from '../price/price-point';
 
 export type CropEvent =
-  | { type: 'CropCreated'; commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType }
+  | { type: 'CropCreated'; commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType; usageCategory?: string; description?: Record<string, string> }
   | { type: 'Renamed'; commonNames: Record<string, string> }
-  | { type: 'IdentityEdited'; scientificName: string; family: string; cycleType: CycleType }
+  | { type: 'IdentityEdited'; scientificName: string; family: string; cycleType: CycleType; usageCategory?: string; description?: Record<string, string> }
   | { type: 'MetadataSet'; key: string; value: unknown }
   | { type: 'ClimaticRequirementsSet'; climatic: ClimaticRequirementsJSON }
   | { type: 'EdaphicRequirementsSet'; edaphic: EdaphicRequirementsJSON }

@@ -12,6 +12,8 @@ export interface CreateCropInput {
   scientificName: string;
   family: string;
   cycleType: CycleType;
+  usageCategory?: string;
+  description?: Record<string, string>;
   actor: string;
 }
 
@@ -30,6 +32,8 @@ export class CreateCropUseCase {
       scientificName: input.scientificName,
       family: input.family,
       cycleType: input.cycleType,
+      usageCategory: input.usageCategory,
+      description: input.description,
     });
     const at = this.clock.nowIso();
     await this.events.append(input.id, 0, crop.pullPendingEvents().map((event) => ({ event, actor: input.actor, at })));

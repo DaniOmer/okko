@@ -15,6 +15,8 @@ export interface CropDocument {
   scientificName: string;
   family: string;
   cycleType: string;
+  usageCategory?: string;
+  description?: Record<string, string>;
   status: string;
   version: number;
   metadata: Record<string, unknown>;
@@ -61,6 +63,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     `Type de cycle : ${s.cycleType}`,
     `Statut : ${s.status} (version ${s.version})`,
   ];
+  if (s.usageCategory) lines.push(`Catégorie : ${s.usageCategory}`);
   if (s.climatic?.temperature) {
     const t = s.climatic.temperature;
     lines.push(`Température : ${t.min}–${t.optimal}–${t.max} ${t.unit}`);
@@ -113,7 +116,8 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   });
   return {
     id: s.id, name, scientificName: s.scientificName, family: s.family,
-    cycleType: s.cycleType, status: s.status, version: s.version,
+    cycleType: s.cycleType, usageCategory: s.usageCategory, description: s.description,
+    status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
     varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, prices, completeness, serializedText: lines.join('\n'),
     hasUnpublishedChanges: s.hasUnpublishedChanges,

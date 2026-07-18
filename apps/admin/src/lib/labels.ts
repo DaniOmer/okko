@@ -1,6 +1,11 @@
 // Mappage codes d'énumération (API) → libellés FR (affichage). L'ordre des clés
 // définit l'ordre des options de select (JS conserve l'ordre d'insertion).
 
+export const USAGE_CATEGORY_LABELS: Record<string, string> = {
+  CEREAL: 'Céréale', LEGUME: 'Légumineuse', VEGETABLE: 'Maraîchère', FRUIT: 'Fruitière',
+  TUBER: 'Tubercule', INDUSTRIAL: 'Industrielle', FODDER: 'Fourragère', TREE: 'Arboricole',
+};
+
 export const CYCLE_TYPE_LABELS: Record<string, string> = {
   SEASONAL_ANNUAL: 'Annuelle (saisonnière)',
   BIENNIAL: 'Bisannuelle',

@@ -9,7 +9,8 @@ export interface AuditRecord { id: string; entityType: string; entityId: string;
 
 export interface CropDocument {
   id: string; name: string; scientificName: string; family: string;
-  cycleType: string; status: string; version: number;
+  cycleType: string; usageCategory?: string; description?: Record<string, string>;
+  status: string; version: number;
   publishedVersion: number;
   hasUnpublishedChanges: boolean; hasPublishedVersion: boolean;
   completeness: CompletenessReport;

@@ -50,6 +50,8 @@ export interface CropSnapshot {
   scientificName: string;
   family: string;
   cycleType: CycleType;
+  usageCategory?: string;
+  description?: Record<string, string>;
   status: CropStatus;
   version: number;
   metadata: Record<string, unknown>;
@@ -69,6 +71,8 @@ interface CreateCropProps {
   scientificName: string;
   family: string;
   cycleType: CycleType;
+  usageCategory?: string;
+  description?: Record<string, string>;
 }
 
 export class Crop {
@@ -97,14 +101,17 @@ export class Crop {
     private _phenology: PhenologicalStage[],
     private _nutrition: NutrientRequirement[],
     private _yields: YieldReference[],
+    private _usageCategory: string | undefined,
+    private _description: Record<string, string> | undefined,
   ) {}
 
   static create(props: CreateCropProps): Crop {
     const crop = new Crop(
       props.id, props.commonNames, props.scientificName, props.family,
       props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
+      props.usageCategory, props.description,
     );
-    crop._pending.push({ type: 'CropCreated', commonNames: props.commonNames.toJSON(), scientificName: props.scientificName, family: props.family, cycleType: props.cycleType });
+    crop._pending.push({ type: 'CropCreated', commonNames: props.commonNames.toJSON(), scientificName: props.scientificName, family: props.family, cycleType: props.cycleType, usageCategory: props.usageCategory, description: props.description });
     return crop;
   }
 
@@ -117,6 +124,7 @@ export class Crop {
       stored[0].streamId,
       TranslatableText.create(c.commonNames), c.scientificName, c.family, c.cycleType,
       CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
+      c.usageCategory, c.description,
     );
     for (let i = 1; i < stored.length; i++) crop.apply(stored[i].event);
     return crop;
@@ -135,6 +143,8 @@ export class Crop {
   get phenology(): PhenologicalStage[] { return [...this._phenology]; }
   get nutrition(): NutrientRequirement[] { return [...this._nutrition]; }
   get yields(): YieldReference[] { return [...this._yields]; }
+  get usageCategory(): string | undefined { return this._usageCategory; }
+  get description(): Record<string, string> | undefined { return this._description; }
   get varieties(): VarietySnapshot[] { return [...this._varieties]; }
   get windows(): CroppingWindowSnapshot[] { return [...this._windows]; }
   get zones(): CropZoneSuitabilitySnapshot[] { return [...this._zones]; }
@@ -149,7 +159,7 @@ export class Crop {
   setNutrition(list: NutrientRequirement[]): void { this.raise({ type: 'NutritionSet', nutrition: list.map((n) => n.toJSON()) }); }
   setYields(list: YieldReference[]): void { this.raise({ type: 'YieldsSet', yields: list.map((y) => y.toJSON()) }); }
   rename(commonNames: TranslatableText): void { this.raise({ type: 'Renamed', commonNames: commonNames.toJSON() }); }
-  editIdentity(p: { scientificName: string; family: string; cycleType: CycleType }): void { this.raise({ type: 'IdentityEdited', scientificName: p.scientificName, family: p.family, cycleType: p.cycleType }); }
+  editIdentity(p: { scientificName: string; family: string; cycleType: CycleType; usageCategory?: string; description?: Record<string, string> }): void { this.raise({ type: 'IdentityEdited', scientificName: p.scientificName, family: p.family, cycleType: p.cycleType, usageCategory: p.usageCategory, description: p.description }); }
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
   publish(): void { assertCanTransition(this._status, CropStatus.PUBLISHED); this.raise({ type: 'Published' }); }
   archive(): void { assertCanTransition(this._status, CropStatus.ARCHIVED); this.raise({ type: 'Archived' }); }
@@ -183,7 +193,7 @@ export class Crop {
       case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; this._hasUnpublishedChanges = true; break;
-      case 'IdentityEdited': this._scientificName = e.scientificName; this._family = e.family; this._cycleType = e.cycleType; this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'IdentityEdited': this._scientificName = e.scientificName; this._family = e.family; this._cycleType = e.cycleType; this._usageCategory = e.usageCategory; this._description = e.description; this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Published': this._status = CropStatus.PUBLISHED; this._hasPublishedVersion = true; this._hasUnpublishedChanges = false; this._publishedRevision += 1; this.captureCheckpoint(); break;
       case 'DraftDiscarded': this.restoreFromCheckpoint(this._publishedRevision); break;
@@ -229,6 +239,8 @@ export class Crop {
       scientificName: this._scientificName,
       family: this._family,
       cycleType: this._cycleType,
+      usageCategory: this._usageCategory,
+      description: this._description,
       status: this._status,
       version: this._version,
       metadata: { ...this._metadata },
@@ -255,6 +267,7 @@ export class Crop {
       (s.phenology ?? []).map((j) => PhenologicalStage.fromJSON(j)),
       (s.nutrition ?? []).map((j) => NutrientRequirement.fromJSON(j)),
       (s.yields ?? []).map((j) => YieldReference.fromJSON(j)),
+      s.usageCategory, s.description,
     );
     crop._hasUnpublishedChanges = s.hasUnpublishedChanges;
     crop._hasPublishedVersion = s.hasPublishedVersion;

@@ -10,7 +10,7 @@ export async function createCrop(input: {
   return res.json();
 }
 
-export async function updateCrop(id: string, body: { commonNames?: Record<string, string>; scientificName?: string; family?: string; cycleType?: string }): Promise<unknown> {
+export async function updateCrop(id: string, body: { commonNames?: Record<string, string>; scientificName?: string; family?: string; cycleType?: string; usageCategory?: string; description?: Record<string, string> }): Promise<unknown> {
   const res = await authFetch(`/crops/${id}`, jsonInit('PATCH', body));
   return res.json().catch(() => undefined);
 }
