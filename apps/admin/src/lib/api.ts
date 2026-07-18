@@ -38,7 +38,7 @@ export async function listZones(): Promise<Zone[]> {
   return res.json();
 }
 
-export interface PhenologicalStage { name: Record<string, string>; startDay: number; endDay: number; order: number; }
+export interface PhenologicalStage { name: Record<string, string>; startDay: number; endDay: number; order: number; description?: string; recommendedWork?: string; }
 export interface TechnicalOperation { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string; }
 export interface CroppingWindow {
   id: string; cropId: string; zoneId: string; season: string;

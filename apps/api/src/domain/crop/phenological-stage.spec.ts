@@ -19,3 +19,23 @@ describe('PhenologicalStage', () => {
     })).toThrow(PhenologicalStageError);
   });
 });
+
+describe('PhenologicalStage — description + recommendedWork', () => {
+  it('round-trip conserve les nouveaux champs', () => {
+    const s = PhenologicalStage.create({
+      name: TranslatableText.create({ fr: 'Floraison' }), startDay: 40, endDay: 55, order: 3,
+      description: 'Apparition des fleurs', recommendedWork: 'Surveiller les pollinisateurs',
+    });
+    const json = s.toJSON();
+    expect(json.description).toBe('Apparition des fleurs');
+    expect(json.recommendedWork).toBe('Surveiller les pollinisateurs');
+    const back = PhenologicalStage.fromJSON(json);
+    expect(back.description).toBe('Apparition des fleurs');
+    expect(back.recommendedWork).toBe('Surveiller les pollinisateurs');
+  });
+  it('champs absents → undefined', () => {
+    const json = PhenologicalStage.create({ name: TranslatableText.create({ fr: 'Levée' }), startDay: 0, endDay: 7, order: 0 }).toJSON();
+    expect(json.description).toBeUndefined();
+    expect(json.recommendedWork).toBeUndefined();
+  });
+});

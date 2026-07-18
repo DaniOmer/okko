@@ -12,6 +12,8 @@ export interface PhenologicalStageJSON {
   startDay: number;
   endDay: number;
   order: number;
+  description?: string;
+  recommendedWork?: string;
 }
 
 interface CreateProps {
@@ -19,6 +21,8 @@ interface CreateProps {
   startDay: number;
   endDay: number;
   order: number;
+  description?: string;
+  recommendedWork?: string;
 }
 
 export class PhenologicalStage {
@@ -27,25 +31,29 @@ export class PhenologicalStage {
     private readonly _startDay: number,
     private readonly _endDay: number,
     private readonly _order: number,
+    private readonly _description: string | undefined,
+    private readonly _recommendedWork: string | undefined,
   ) {}
 
   static create(props: CreateProps): PhenologicalStage {
     if (props.startDay > props.endDay) {
       throw new PhenologicalStageError(`startDay ${props.startDay} > endDay ${props.endDay}`);
     }
-    return new PhenologicalStage(props.name, props.startDay, props.endDay, props.order);
+    return new PhenologicalStage(props.name, props.startDay, props.endDay, props.order, props.description, props.recommendedWork);
   }
 
   get name(): TranslatableText { return this._name; }
   get startDay(): number { return this._startDay; }
   get endDay(): number { return this._endDay; }
   get order(): number { return this._order; }
+  get description(): string | undefined { return this._description; }
+  get recommendedWork(): string | undefined { return this._recommendedWork; }
 
   toJSON(): PhenologicalStageJSON {
-    return { name: this._name.toJSON(), startDay: this._startDay, endDay: this._endDay, order: this._order };
+    return { name: this._name.toJSON(), startDay: this._startDay, endDay: this._endDay, order: this._order, description: this._description, recommendedWork: this._recommendedWork };
   }
 
   static fromJSON(json: PhenologicalStageJSON): PhenologicalStage {
-    return new PhenologicalStage(TranslatableText.create(json.name), json.startDay, json.endDay, json.order);
+    return new PhenologicalStage(TranslatableText.create(json.name), json.startDay, json.endDay, json.order, json.description, json.recommendedWork);
   }
 }

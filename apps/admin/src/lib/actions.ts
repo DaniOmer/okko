@@ -58,7 +58,7 @@ export async function setRequirements(cropId: string, body: {
   return res.json().catch(() => undefined);
 }
 
-export async function setPhenology(cropId: string, stages: { name: Record<string, string>; startDay: number; endDay: number; order: number }[]): Promise<unknown> {
+export async function setPhenology(cropId: string, stages: { name: Record<string, string>; startDay: number; endDay: number; order: number; description?: string; recommendedWork?: string }[]): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/phenology`, jsonInit('PATCH', { stages }));
   return res.json().catch(() => undefined);
 }
