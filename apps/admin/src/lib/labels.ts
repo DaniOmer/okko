@@ -77,6 +77,9 @@ export const CONTROL_CATEGORY_LABELS: Record<string, string> = {
 
 export const SEASONS: readonly string[] = ['Saison des pluies', 'Saison sèche', 'Contre-saison'];
 
+export const WATER_NEED_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyen', HIGH: 'Élevé' };
+export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
+
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {
   return map[code] ?? code;

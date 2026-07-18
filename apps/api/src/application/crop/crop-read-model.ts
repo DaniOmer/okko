@@ -72,6 +72,12 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     const r = s.climatic.rainfall;
     lines.push(`Pluviométrie : ${r.min}–${r.optimal}–${r.max} ${r.unit}`);
   }
+  if (s.climatic?.altitude) {
+    const a = s.climatic.altitude;
+    lines.push(`Altitude : ${a.min}–${a.optimal}–${a.max} ${a.unit}`);
+  }
+  if (s.climatic?.waterNeed) lines.push(`Besoin en eau : ${s.climatic.waterNeed}`);
+  if (s.climatic?.droughtSensitivity) lines.push(`Sensibilité sécheresse : ${s.climatic.droughtSensitivity}`);
   if (s.edaphic?.ph) {
     const p = s.edaphic.ph;
     lines.push(`pH du sol : ${p.min}–${p.optimal}–${p.max}`);

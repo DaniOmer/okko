@@ -48,7 +48,10 @@ export interface CroppingWindow {
 
 export interface CropDetail extends CropDocument {
   climatic?: { temperature?: { min: number; optimal: number; max: number; unit: string };
-               rainfall?: { min: number; optimal: number; max: number; unit: string } };
+               rainfall?: { min: number; optimal: number; max: number; unit: string };
+               altitude?: { min: number; optimal: number; max: number; unit: string };
+               waterNeed?: string;
+               droughtSensitivity?: string };
   edaphic?: { ph?: { min: number; optimal: number; max: number; unit: string }; texture?: string };
   varieties: Variety[];
   zones: CropZone[];
