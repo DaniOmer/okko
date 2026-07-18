@@ -63,7 +63,7 @@ export async function setPhenology(cropId: string, stages: { name: Record<string
   return res.json().catch(() => undefined);
 }
 
-export async function setNutrition(cropId: string, requirements: { nutrient: string; amount: number; unit: string; basis: string; stage?: string }[]): Promise<unknown> {
+export async function setNutrition(cropId: string, requirements: { nutrient: string; amount: number; unit: string; basis: string; stage?: string; method?: string }[]): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/nutrition`, jsonInit('PATCH', { requirements }));
   return res.json().catch(() => undefined);
 }

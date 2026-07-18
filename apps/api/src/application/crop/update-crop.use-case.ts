@@ -41,8 +41,8 @@ export class UpdateCropUseCase {
         scientificName: input.scientificName ?? before.scientificName,
         family: input.family ?? before.family,
         cycleType: (input.cycleType ?? before.cycleType) as CycleType,
-        usageCategory: input.usageCategory,
-        description: input.description,
+        usageCategory: input.usageCategory ?? before.usageCategory,
+        description: input.description ?? before.description,
       });
     }
     const at = this.clock.nowIso();

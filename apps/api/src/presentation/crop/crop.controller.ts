@@ -101,7 +101,7 @@ export class CropController {
   ) {}
 
   @Post()
-  async create(@CurrentUser() user: AuthUser, @Body() body: { commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType }) {
+  async create(@CurrentUser() user: AuthUser, @Body() body: { commonNames: Record<string, string>; scientificName: string; family: string; cycleType: CycleType; usageCategory?: string; description?: Record<string, string> }) {
     const snap = await this.createCrop.execute({ id: randomUUID(), actor: user.email, ...body });
     return toCropDocument(snap);
   }
@@ -120,7 +120,7 @@ export class CropController {
   }
 
   @Patch(':id')
-  async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { commonNames?: Record<string, string>; metadata?: Record<string, unknown>; scientificName?: string; family?: string; cycleType?: CycleType }) {
+  async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { commonNames?: Record<string, string>; metadata?: Record<string, unknown>; scientificName?: string; family?: string; cycleType?: CycleType; usageCategory?: string; description?: Record<string, string> }) {
     try {
       const snap = await this.updateCrop.execute({ id, actor: user.email, ...body });
       return toCropDocument(snap);

@@ -111,4 +111,39 @@ describe('UpdateCropUseCase', () => {
     expect(auditCall.changes).toHaveProperty('identity');
     expect(auditCall.changes.identity.to).toMatchObject({ usageCategory: 'legume-fruit' });
   });
+
+  it('préserve usageCategory quand un update partiel ne fournit que scientificName', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const createAudit = { record: jest.fn() };
+    const updateAudit = { record: jest.fn() };
+
+    // (a) créer la culture avec usageCategory
+    await new CreateCropUseCase(events, repo, createAudit, clock).execute({
+      id: 'u4',
+      commonNames: { fr: 'Piment' },
+      scientificName: 'Capsicum annuum',
+      family: 'Solanaceae',
+      cycleType: CycleType.SEASONAL_ANNUAL,
+      actor: 'admin',
+    });
+
+    // first update: set usageCategory
+    await new UpdateCropUseCase(events, repo, updateAudit, clock).execute({
+      id: 'u4',
+      usageCategory: 'legume-fruit',
+      actor: 'admin',
+    });
+
+    // (b) update partiel : uniquement scientificName, pas de usageCategory dans l'input
+    const result = await new UpdateCropUseCase(events, repo, updateAudit, clock).execute({
+      id: 'u4',
+      scientificName: 'Capsicum annuum L.',
+      actor: 'admin',
+    });
+
+    // usageCategory doit être préservé (non effacé)
+    expect(result.usageCategory).toBe('legume-fruit');
+    expect(result.scientificName).toBe('Capsicum annuum L.');
+  });
 });
