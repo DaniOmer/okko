@@ -81,6 +81,9 @@ export const FERTILIZATION_METHOD_LABELS: Record<string, string> = {
   BROADCAST: 'Épandage', LOCALIZED: 'Localisé', FOLIAR: 'Foliaire', FERTIGATION: 'Fertirrigation',
 };
 
+export const PRODUCT_FORM_LABELS: Record<string, string> = { GRAIN: 'Grain', FLOUR: 'Farine', OIL: 'Huile', LEAF: 'Feuille', FRUIT: 'Fruit', TUBER: 'Tubercule', OTHER: 'Autre' };
+export const SALE_UNIT_LABELS: Record<string, string> = { KG: 'Kg', BAG: 'Sac', CRATE: 'Caisse', TONNE: 'Tonne' };
+
 export const WATER_NEED_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyen', HIGH: 'Élevé' };
 export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 

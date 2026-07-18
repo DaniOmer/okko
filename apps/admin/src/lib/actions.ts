@@ -73,6 +73,11 @@ export async function setYields(cropId: string, yieldsList: { inputType: string;
   return res.json().catch(() => undefined);
 }
 
+export async function setCommercialization(cropId: string, products: { form: string; saleUnits: string[]; outlets: string[] }[]): Promise<unknown> {
+  const res = await authFetch(`/crops/${cropId}/commercialization`, jsonInit('POST', { commercialization: products }));
+  return res.json().catch(() => undefined);
+}
+
 export async function addWindow(cropId: string, body: {
   zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean;
   operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; equipment?: string[]; notes?: string }[]; notes?: string;

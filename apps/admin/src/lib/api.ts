@@ -48,6 +48,8 @@ export interface CroppingWindow {
   operations: TechnicalOperation[]; notes?: string;
 }
 
+export interface CommercializationProduct { form: string; saleUnits: string[]; outlets: string[]; }
+
 export interface CropDetail extends CropDocument {
   climatic?: { temperature?: { min: number; optimal: number; max: number; unit: string };
                rainfall?: { min: number; optimal: number; max: number; unit: string };
@@ -63,6 +65,7 @@ export interface CropDetail extends CropDocument {
   nutrition: NutrientRequirement[];
   yields: YieldReference[];
   prices: PricePoint[];
+  commercialization: CommercializationProduct[];
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {
