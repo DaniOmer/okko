@@ -19,3 +19,16 @@ describe('NutrientRequirement', () => {
     expect(r.toJSON().stage).toBeUndefined();
   });
 });
+
+describe('NutrientRequirement — method', () => {
+  it('round-trip conserve method', () => {
+    const n = NutrientRequirement.create({ nutrient: 'N', amount: 120, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE, stage: 'Levée', method: 'BROADCAST' });
+    const json = n.toJSON();
+    expect(json.method).toBe('BROADCAST');
+    expect(NutrientRequirement.fromJSON(json).method).toBe('BROADCAST');
+  });
+  it('method absent → undefined', () => {
+    const json = NutrientRequirement.create({ nutrient: 'P', amount: 40, unit: 'kg/ha', basis: NutrientBasis.PER_HECTARE }).toJSON();
+    expect(json.method).toBeUndefined();
+  });
+});

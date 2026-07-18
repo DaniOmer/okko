@@ -77,6 +77,10 @@ export const CONTROL_CATEGORY_LABELS: Record<string, string> = {
 
 export const SEASONS: readonly string[] = ['Saison des pluies', 'Saison sèche', 'Contre-saison'];
 
+export const FERTILIZATION_METHOD_LABELS: Record<string, string> = {
+  BROADCAST: 'Épandage', LOCALIZED: 'Localisé', FOLIAR: 'Foliaire', FERTIGATION: 'Fertirrigation',
+};
+
 export const WATER_NEED_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyen', HIGH: 'Élevé' };
 export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 

@@ -114,7 +114,7 @@ export interface CropPest {
   controlMethods: { category: string; description: Record<string, string>; inputs: string[] }[];
 }
 
-export interface NutrientRequirement { nutrient: string; amount: number; unit: string; basis: string; stage?: string; }
+export interface NutrientRequirement { nutrient: string; amount: number; unit: string; basis: string; stage?: string; method?: string; }
 export interface YieldReference { inputType: string; min: number; average: number; potential: number; unit: string; zoneId?: string; }
 export interface PricePoint { id: string; cropId: string; market: string; periodStart: string; periodEnd: string; price: number; unit: string; currency: string; }
 

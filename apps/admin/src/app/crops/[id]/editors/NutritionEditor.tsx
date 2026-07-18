@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { NUTRITION_BASIS_LABELS, stageWithRange } from '@/lib/labels';
+import { NUTRITION_BASIS_LABELS, FERTILIZATION_METHOD_LABELS, stageWithRange } from '@/lib/labels';
 import { setNutrition } from '@/lib/actions';
 import type { NutrientRequirement } from '@/lib/api';
 
@@ -16,20 +16,21 @@ export function NutritionEditor({ cropId, current, phenology, editIndex }: { cro
   const [unit, setUnit] = useState(current[editIndex!]?.unit ?? 'kg/ha');
   const [basis, setBasis] = useState(current[editIndex!]?.basis ?? 'PER_HECTARE');
   const [stage, setStage] = useState(current[editIndex!]?.stage ?? '');
+  const [method, setMethod] = useState(current[editIndex!]?.method ?? '');
   return (
     <EditorShell label={editing ? 'Modifier' : '+ Ajouter un besoin nutritif'}>
       {({ submit, close, busy }) => (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const nouvelItem = { nutrient, amount: Number(amount), unit, basis, stage: stage || undefined };
+            const nouvelItem = { nutrient, amount: Number(amount), unit, basis, stage: stage || undefined, method: method || undefined };
             const next = editing
               ? current.map((it, i) => i === editIndex ? nouvelItem : it)
               : [...current, nouvelItem];
             submit(async () => {
               await setNutrition(cropId, next);
               if (!editing) {
-                setNutrient(''); setAmount(''); setUnit('kg/ha'); setBasis('PER_HECTARE'); setStage('');
+                setNutrient(''); setAmount(''); setUnit('kg/ha'); setBasis('PER_HECTARE'); setStage(''); setMethod('');
               }
             });
           }}
@@ -59,6 +60,16 @@ export function NutritionEditor({ cropId, current, phenology, editIndex }: { cro
               </SelectContent>
             </Select>
             {phenology.length === 0 && <p className="text-xs text-muted-foreground">Définissez la phénologie pour cibler un stade.</p>}
+          </div>
+          <div className="space-y-1">
+            <Label>Méthode d&apos;application (optionnel)</Label>
+            <Select value={method || 'NONE'} onValueChange={(v) => setMethod(v === 'NONE' ? '' : v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NONE">Non précisée</SelectItem>
+                {Object.entries(FERTILIZATION_METHOD_LABELS).map(([code, fr]) => <SelectItem key={code} value={code}>{fr}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
