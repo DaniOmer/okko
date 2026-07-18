@@ -2,7 +2,7 @@ import { PricePoint } from './price-point';
 
 describe('PricePoint', () => {
   const base = () => PricePoint.create({
-    id: 'pp-1', cropId: 'crop-1', market: 'Dantokpa', periodStart: '2026-06-15', periodEnd: '2026-06-15',
+    id: 'pp-1', cropId: 'crop-1', form: 'GRAIN', market: 'Dantokpa', periodStart: '2026-06-15', periodEnd: '2026-06-15',
     price: 350, unit: 'FCFA/kg', currency: 'XOF',
   });
 
@@ -21,5 +21,14 @@ describe('PricePoint', () => {
     const restored = PricePoint.fromSnapshot(base().toSnapshot());
     expect(restored.market).toBe('Dantokpa');
     expect(restored.price).toBe(350);
+  });
+
+  it('porte la forme (code PRODUCT_FORM)', () => {
+    expect(base().form).toBe('GRAIN');
+  });
+
+  it('round-trips form through snapshot', () => {
+    const restored = PricePoint.fromSnapshot(base().toSnapshot());
+    expect(restored.form).toBe('GRAIN');
   });
 });

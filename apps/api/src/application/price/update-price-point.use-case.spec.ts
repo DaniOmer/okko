@@ -29,13 +29,13 @@ describe('UpdatePricePointUseCase', () => {
     const { events, prices, audit } = await setup();
     const add = new AddPricePointUseCase(events, prices, audit, clock, ids);
     await add.execute({
-      cropId: 'c1', id: 'p1', market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-07',
+      cropId: 'c1', id: 'p1', form: 'GRAIN', market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-07',
       price: 350, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
 
     const update = new UpdatePricePointUseCase(events, prices, audit, clock);
     const out = await update.execute({
-      cropId: 'c1', priceId: 'p1', market: 'Parakou',
+      cropId: 'c1', priceId: 'p1', form: 'GRAIN', market: 'Parakou',
       periodStart: '2026-07-01', periodEnd: '2026-07-15',
       price: 400, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
@@ -56,7 +56,7 @@ describe('UpdatePricePointUseCase', () => {
     const update = new UpdatePricePointUseCase(events, prices, audit, clock);
     await expect(
       update.execute({
-        cropId: 'c1', priceId: 'absent', market: 'M',
+        cropId: 'c1', priceId: 'absent', form: 'GRAIN', market: 'M',
         periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF', actor: 'a',
       }),
     ).rejects.toThrow(PricePointNotFoundError);
@@ -66,14 +66,14 @@ describe('UpdatePricePointUseCase', () => {
     const { events, prices, audit } = await setup();
     const add = new AddPricePointUseCase(events, prices, audit, clock, ids);
     await add.execute({
-      cropId: 'c1', id: 'p1', market: 'Dantokpa', periodStart: '2026-06-01',
+      cropId: 'c1', id: 'p1', form: 'GRAIN', market: 'Dantokpa', periodStart: '2026-06-01',
       price: 350, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
 
     const update = new UpdatePricePointUseCase(events, prices, audit, clock);
     await expect(
       update.execute({
-        cropId: 'c1', priceId: 'p1', market: 'M',
+        cropId: 'c1', priceId: 'p1', form: 'GRAIN', market: 'M',
         periodStart: '2026-06-07', periodEnd: '2026-06-01',
         price: 1, unit: 'u', currency: 'XOF', actor: 'a',
       }),

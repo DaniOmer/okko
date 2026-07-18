@@ -29,7 +29,7 @@ describe('AddPricePointUseCase', () => {
   it('stocke la plage (periodStart + periodEnd fournis)', async () => {
     const { events, prices, audit } = await setup();
     const out = await new AddPricePointUseCase(events, prices, audit, clock, ids).execute({
-      cropId: 'c1', market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-07',
+      cropId: 'c1', form: 'GRAIN', market: 'Dantokpa', periodStart: '2026-06-01', periodEnd: '2026-06-07',
       price: 350, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
     expect(out.periodStart).toBe('2026-06-01');
@@ -44,7 +44,7 @@ describe('AddPricePointUseCase', () => {
   it('fin omise → periodEnd = periodStart', async () => {
     const { events, prices, audit } = await setup();
     const out = await new AddPricePointUseCase(events, prices, audit, clock, ids).execute({
-      cropId: 'c1', market: 'Parakou', periodStart: '2026-06-01',
+      cropId: 'c1', form: 'GRAIN', market: 'Parakou', periodStart: '2026-06-01',
       price: 200, unit: 'FCFA/kg', currency: 'XOF', actor: 'a',
     });
     expect(out.periodStart).toBe('2026-06-01');
@@ -55,7 +55,7 @@ describe('AddPricePointUseCase', () => {
     const { events, prices, audit } = await setup();
     const uc = new AddPricePointUseCase(events, prices, audit, clock, ids);
     await expect(uc.execute({
-      cropId: 'c1', market: 'M', periodStart: '2026-06-07', periodEnd: '2026-06-01',
+      cropId: 'c1', form: 'GRAIN', market: 'M', periodStart: '2026-06-07', periodEnd: '2026-06-01',
       price: 1, unit: 'u', currency: 'XOF', actor: 'a',
     })).rejects.toThrow(InvalidPricePeriodError);
   });
@@ -64,7 +64,16 @@ describe('AddPricePointUseCase', () => {
     const { prices, audit } = await setup();
     const events = new InMemoryCropEventStore();
     const uc = new AddPricePointUseCase(events, prices, audit, clock, ids);
-    await expect(uc.execute({ cropId: 'nope', market: 'M', periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF', actor: 'a' }))
+    await expect(uc.execute({ cropId: 'nope', form: 'GRAIN', market: 'M', periodStart: '2026-06-01', price: 1, unit: 'u', currency: 'XOF', actor: 'a' }))
       .rejects.toThrow(CropNotFoundError);
+  });
+
+  it('persiste la forme', async () => {
+    const { events, prices, audit } = await setup();
+    const out = await new AddPricePointUseCase(events, prices, audit, clock, ids).execute({
+      cropId: 'c1', form: 'OIL', market: 'Dantokpa', periodStart: '2026-06-01',
+      price: 900, unit: 'KG', currency: 'XOF', actor: 'a',
+    });
+    expect(out.form).toBe('OIL');
   });
 });

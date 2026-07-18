@@ -17,6 +17,7 @@ export class InvalidPricePeriodError extends Error {
 export interface AddPricePointInput {
   cropId: string;
   id?: string;
+  form: string;
   market: string;
   periodStart: string;
   periodEnd?: string;
@@ -45,7 +46,7 @@ export class AddPricePointUseCase {
 
     const point = PricePoint.create({
       id: input.id ?? this.ids.next(),
-      cropId: input.cropId, market: input.market,
+      cropId: input.cropId, form: input.form, market: input.market,
       periodStart, periodEnd,
       price: input.price, unit: input.unit, currency: input.currency,
     });

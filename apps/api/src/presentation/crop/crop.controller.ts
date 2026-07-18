@@ -303,7 +303,7 @@ export class CropController {
   async createPrice(
     @CurrentUser() user: AuthUser,
     @Param('id') id: string,
-    @Body() body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string },
+    @Body() body: { form: string; market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string },
   ) {
     try {
       return await this.addPrice.execute({ cropId: id, actor: user.email, ...body });
@@ -318,7 +318,7 @@ export class CropController {
   }
 
   @Put(':id/prices/:priceId')
-  async updatePrice(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('priceId') priceId: string, @Body() body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }) {
+  async updatePrice(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('priceId') priceId: string, @Body() body: { form: string; market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }) {
     try { return await this.updatePriceUC.execute({ cropId: id, priceId, ...body, actor: user.email }); }
     catch (e) { mapCropError(e, id); }
   }

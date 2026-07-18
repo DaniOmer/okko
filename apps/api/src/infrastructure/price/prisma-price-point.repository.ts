@@ -27,7 +27,7 @@ export class PrismaPricePointRepository implements PricePointRepository {
 
   private toRow(p: PricePointSnapshot): Prisma.PricePointCreateInput {
     return {
-      id: p.id, cropId: p.cropId, market: p.market,
+      id: p.id, cropId: p.cropId, form: p.form, market: p.market,
       periodStart: p.periodStart, periodEnd: p.periodEnd,
       price: p.price, unit: p.unit, currency: p.currency,
     };
@@ -35,7 +35,7 @@ export class PrismaPricePointRepository implements PricePointRepository {
 
   private toSnapshot(row: PrismaPrice): PricePointSnapshot {
     return {
-      id: row.id, cropId: row.cropId, market: row.market,
+      id: row.id, cropId: row.cropId, form: row.form ?? 'GRAIN', market: row.market,
       periodStart: row.periodStart, periodEnd: row.periodEnd,
       price: row.price, unit: row.unit, currency: row.currency,
     };

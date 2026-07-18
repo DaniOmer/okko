@@ -93,4 +93,11 @@ describe('diffCropDocuments', () => {
     expect(deepEqual({ x: 1 }, { x: 2 })).toBe(false);
     expect(deepEqual([1, 2], [2, 1])).toBe(false);
   });
+
+  it('prix — changement de forme (même id) -> changed', () => {
+    const p = (form: string) => ({ id: 'pp1', cropId: 'c1', form, market: 'M', periodStart: '2026-06-01', periodEnd: '2026-06-01', price: 300, unit: 'KG', currency: 'XOF' } as any);
+    const d = diffCropDocuments(1, 2, doc({ prices: [p('GRAIN')] }), doc({ prices: [p('OIL')] }));
+    expect(d.sections).toEqual([{ section: 'prices', added: [], removed: [],
+      changed: [{ key: 'pp1', before: p('GRAIN'), after: p('OIL'), fields: [{ field: 'form', before: 'GRAIN', after: 'OIL' }] }] }]);
+  });
 });

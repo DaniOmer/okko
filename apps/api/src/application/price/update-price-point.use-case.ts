@@ -14,6 +14,7 @@ export class PricePointNotFoundError extends Error {
 export interface UpdatePricePointInput {
   cropId: string;
   priceId: string;
+  form: string;
   market: string;
   periodStart: string;
   periodEnd?: string;
@@ -44,6 +45,7 @@ export class UpdatePricePointUseCase {
     const point = PricePoint.create({
       id: input.priceId,
       cropId: input.cropId,
+      form: input.form,
       market: input.market,
       periodStart,
       periodEnd,

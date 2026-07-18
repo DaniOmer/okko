@@ -32,6 +32,7 @@ model Crop {
 model PricePoint {
   id          String   @id
   cropId      String
+  form        String?
   market      String
   periodStart String
   periodEnd   String

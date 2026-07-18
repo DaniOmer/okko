@@ -1,6 +1,7 @@
 export interface PricePointSnapshot {
   id: string;
   cropId: string;
+  form: string;
   market: string;
   periodStart: string;
   periodEnd: string;
@@ -12,6 +13,7 @@ export interface PricePointSnapshot {
 interface CreateProps {
   id: string;
   cropId: string;
+  form: string;
   market: string;
   periodStart: string;
   periodEnd: string;
@@ -24,6 +26,7 @@ export class PricePoint {
   private constructor(
     private readonly _id: string,
     private readonly _cropId: string,
+    private readonly _form: string,
     private readonly _market: string,
     private readonly _periodStart: string,
     private readonly _periodEnd: string,
@@ -33,11 +36,12 @@ export class PricePoint {
   ) {}
 
   static create(props: CreateProps): PricePoint {
-    return new PricePoint(props.id, props.cropId, props.market, props.periodStart, props.periodEnd, props.price, props.unit, props.currency);
+    return new PricePoint(props.id, props.cropId, props.form, props.market, props.periodStart, props.periodEnd, props.price, props.unit, props.currency);
   }
 
   get id(): string { return this._id; }
   get cropId(): string { return this._cropId; }
+  get form(): string { return this._form; }
   get market(): string { return this._market; }
   get periodStart(): string { return this._periodStart; }
   get periodEnd(): string { return this._periodEnd; }
@@ -47,13 +51,13 @@ export class PricePoint {
 
   toSnapshot(): PricePointSnapshot {
     return {
-      id: this._id, cropId: this._cropId, market: this._market,
+      id: this._id, cropId: this._cropId, form: this._form, market: this._market,
       periodStart: this._periodStart, periodEnd: this._periodEnd,
       price: this._price, unit: this._unit, currency: this._currency,
     };
   }
 
   static fromSnapshot(s: PricePointSnapshot): PricePoint {
-    return new PricePoint(s.id, s.cropId, s.market, s.periodStart, s.periodEnd, s.price, s.unit, s.currency);
+    return new PricePoint(s.id, s.cropId, s.form, s.market, s.periodStart, s.periodEnd, s.price, s.unit, s.currency);
   }
 }

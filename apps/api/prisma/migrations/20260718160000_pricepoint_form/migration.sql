@@ -1,0 +1,1 @@
+ALTER TABLE "PricePoint" ADD COLUMN "form" TEXT;
