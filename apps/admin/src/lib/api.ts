@@ -24,6 +24,8 @@ export async function listCrops(): Promise<CropDocument[]> {
 export interface Variety {
   id: string; cropId: string; name: Record<string, string>;
   maturityDays?: number; traits: string[];
+  diseaseResistances?: { pestId: string; level: string }[];
+  zoneAdaptations?: { zoneId: string; rating: string }[];
 }
 
 export interface Zone {

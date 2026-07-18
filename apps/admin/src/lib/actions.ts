@@ -37,12 +37,12 @@ export async function restoreVersion(id: string, revision: number): Promise<void
   await authFetch(`/crops/${id}/versions/${revision}/restore`, { method: 'POST' });
 }
 
-export async function addVariety(cropId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<Variety> {
+export async function addVariety(cropId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[]; diseaseResistances?: { pestId: string; level: string }[]; zoneAdaptations?: { zoneId: string; rating: string }[] }): Promise<Variety> {
   const res = await authFetch(`/crops/${cropId}/varieties`, jsonInit('POST', input));
   return res.json();
 }
 
-export async function updateVariety(cropId: string, varietyId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[] }): Promise<void> {
+export async function updateVariety(cropId: string, varietyId: string, input: { name: Record<string, string>; maturityDays?: number; traits?: string[]; diseaseResistances?: { pestId: string; level: string }[]; zoneAdaptations?: { zoneId: string; rating: string }[] }): Promise<void> {
   await authFetch(`/crops/${cropId}/varieties/${varietyId}`, jsonInit('PUT', input));
 }
 

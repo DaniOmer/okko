@@ -103,14 +103,14 @@ export default async function CropDetailPage({ params }: { params: { id: string 
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-base">Variétés ({crop.varieties.length})</CardTitle>
-            <VarietyEditor cropId={params.id} />
+            <VarietyEditor cropId={params.id} diseases={pests} zones={zones} />
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <ul>
               {crop.varieties.map((v) => (
                 <li key={v.id} className="flex items-center gap-2">
                   <span>{v.name.fr}{v.maturityDays ? ` — ${v.maturityDays} j` : ''}</span>
-                  <VarietyEditor cropId={params.id} initial={v} />
+                  <VarietyEditor cropId={params.id} initial={v} diseases={pests} zones={zones} />
                 </li>
               ))}
             </ul>

@@ -84,6 +84,9 @@ export const FERTILIZATION_METHOD_LABELS: Record<string, string> = {
 export const WATER_NEED_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyen', HIGH: 'Élevé' };
 export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 
+export const RESISTANCE_LEVEL_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
+export const SUITABILITY_RATING_LABELS: Record<string, string> = { SUITABLE: 'Apte', MARGINAL: 'Marginale', UNSUITABLE: 'Inapte' };
+
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {
   return map[code] ?? code;
