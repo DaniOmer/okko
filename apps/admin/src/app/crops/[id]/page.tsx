@@ -250,7 +250,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
             <ul className="list-disc pl-5">
               {crop.prices.map((p) => (
                 <li key={p.id} className="flex items-center gap-2">
-                  <span>{p.periodStart === p.periodEnd ? p.periodStart : `${p.periodStart} → ${p.periodEnd}`} — {p.price} {p.unit} @ {p.market}</span>
+                  <span>{labelOf(PRODUCT_FORM_LABELS, p.form)} — {p.price} {p.currency}/{labelOf(SALE_UNIT_LABELS, p.unit)} @ {p.market} ({p.periodStart === p.periodEnd ? p.periodStart : `${p.periodStart} → ${p.periodEnd}`})</span>
                   <PriceEditor cropId={params.id} commercialization={crop.commercialization ?? []} initial={p} />
                 </li>
               ))}
