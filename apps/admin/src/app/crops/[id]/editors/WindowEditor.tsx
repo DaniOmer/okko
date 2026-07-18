@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { DatePicker } from '@/components/date-picker';
+import { ShadcnDatePicker } from '@/components/shadcn-date-picker';
 import { OPERATION_TYPE_LABELS, SEASONS } from '@/lib/labels';
 import { addWindow, updateWindow } from '@/lib/actions';
 import type { CroppingWindow } from '@/lib/api';
@@ -72,9 +72,9 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
           </div>
           <div className="space-y-1">
             <Label>Fenêtre de semis (début / fin)</Label>
-            <div className="flex gap-1">
-              <DatePicker value={sowingStart} onChange={setSowingStart} />
-              <DatePicker value={sowingEnd} onChange={setSowingEnd} />
+            <div className="grid grid-cols-2 gap-3">
+              <ShadcnDatePicker value={sowingStart} onChange={setSowingStart} />
+              <ShadcnDatePicker value={sowingEnd} onChange={setSowingEnd} />
             </div>
           </div>
           <label className="flex gap-2 items-center"><input type="checkbox" checked={irrigation} onChange={(e) => setIrrigation(e.target.checked)} /> Irrigation requise</label>

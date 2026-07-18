@@ -73,8 +73,8 @@ export function PriceEditor({ cropId, commercialization, initial }: {
           }}
           className="space-y-3 text-sm"
         >
-          <div className="flex gap-2">
-            <div className="flex-1 space-y-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
               <Label>Forme *</Label>
               <Select value={form} onValueChange={onFormChange}>
                 <SelectTrigger><SelectValue placeholder="Forme" /></SelectTrigger>
@@ -85,7 +85,7 @@ export function PriceEditor({ cropId, commercialization, initial }: {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1 space-y-1">
+            <div className="space-y-1">
               <Label>Unité *</Label>
               <Select value={unit} onValueChange={setUnit} disabled={units.length === 0}>
                 <SelectTrigger><SelectValue placeholder="Unité" /></SelectTrigger>
@@ -97,11 +97,11 @@ export function PriceEditor({ cropId, commercialization, initial }: {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="flex-1 space-y-1">
-              <Label htmlFor="price-market">Marché *</Label>
-              <Input id="price-market" placeholder="ex. Dantokpa" value={market} onChange={(e)=>setMarket(e.target.value)} required />
-            </div>
+          <div className="space-y-1">
+            <Label htmlFor="price-market">Marché *</Label>
+            <Input id="price-market" placeholder="ex. Dantokpa" value={market} onChange={(e)=>setMarket(e.target.value)} required />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>Début *</Label>
               <ShadcnDatePicker value={periodStart} onChange={setPeriodStart} />
@@ -111,11 +111,14 @@ export function PriceEditor({ cropId, commercialization, initial }: {
               <ShadcnDatePicker value={periodEnd} onChange={setPeriodEnd} />
             </div>
           </div>
-          <div className="space-y-1">
-            <Label>Prix &amp; devise</Label>
-            <div className="flex gap-1">
-              <Input className="w-28" placeholder="prix" value={price} onChange={(e)=>setPrice(e.target.value)} required />
-              <Input className="w-20" placeholder="devise" value={currency} onChange={(e)=>setCurrency(e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="price-amount">Prix *</Label>
+              <Input id="price-amount" type="number" inputMode="numeric" placeholder="ex. 350" value={price} onChange={(e)=>setPrice(e.target.value)} required />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="price-currency">Devise</Label>
+              <Input id="price-currency" placeholder="XOF" value={currency} onChange={(e)=>setCurrency(e.target.value)} />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
