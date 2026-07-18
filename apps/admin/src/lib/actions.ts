@@ -75,7 +75,7 @@ export async function setYields(cropId: string, yieldsList: { inputType: string;
 
 export async function addWindow(cropId: string, body: {
   zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean;
-  operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string }[]; notes?: string;
+  operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; equipment?: string[]; notes?: string }[]; notes?: string;
 }): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/windows`, jsonInit('POST', body));
   return res.json().catch(() => undefined);
@@ -83,7 +83,7 @@ export async function addWindow(cropId: string, body: {
 
 export async function updateWindow(cropId: string, windowId: string, body: {
   zoneId: string; season: string; sowingStart?: string; sowingEnd?: string; irrigationRequired?: boolean;
-  operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; notes?: string }[]; notes?: string;
+  operations?: { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; equipment?: string[]; notes?: string }[]; notes?: string;
 }): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/windows/${windowId}`, jsonInit('PUT', body));
   return res.json().catch(() => undefined);

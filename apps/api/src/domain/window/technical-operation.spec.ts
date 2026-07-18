@@ -26,3 +26,19 @@ describe('TechnicalOperation', () => {
     expect(op.inputs).toEqual([]);
   });
 });
+
+describe('TechnicalOperation — equipment', () => {
+  it('round-trip conserve equipment', () => {
+    const op = TechnicalOperation.create({
+      type: OperationType.PLANTING, label: TranslatableText.create({ fr: 'Plantation' }), timingDays: 0,
+      inputs: ['plants'], equipment: ['semoir', 'tracteur'],
+    });
+    const json = op.toJSON();
+    expect(json.equipment).toEqual(['semoir', 'tracteur']);
+    expect(TechnicalOperation.fromJSON(json).equipment).toEqual(['semoir', 'tracteur']);
+  });
+  it('equipment absent → [] (par défaut)', () => {
+    const json = TechnicalOperation.create({ type: OperationType.PLANTING, label: TranslatableText.create({ fr: 'Plantation' }), timingDays: 0 }).toJSON();
+    expect(json.equipment).toEqual([]);
+  });
+});
