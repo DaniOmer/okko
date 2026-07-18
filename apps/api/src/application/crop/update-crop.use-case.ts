@@ -52,7 +52,7 @@ export class UpdateCropUseCase {
     const changes: Record<string, { from: unknown; to: unknown }> = {};
     if (input.commonNames) changes.commonNames = { from: before.commonNames, to: next.commonNames };
     if (input.metadata !== undefined) changes.metadata = { from: before.metadata, to: next.metadata };
-    if (input.scientificName !== undefined || input.family !== undefined || input.cycleType !== undefined) changes.identity = { from: { scientificName: before.scientificName, family: before.family, cycleType: before.cycleType }, to: { scientificName: next.scientificName, family: next.family, cycleType: next.cycleType } };
+    if (input.scientificName !== undefined || input.family !== undefined || input.cycleType !== undefined || input.usageCategory !== undefined || input.description !== undefined) changes.identity = { from: { scientificName: before.scientificName, family: before.family, cycleType: before.cycleType, usageCategory: before.usageCategory, description: before.description }, to: { scientificName: next.scientificName, family: next.family, cycleType: next.cycleType, usageCategory: next.usageCategory, description: next.description } };
     await this.audit.record({
       entityType: 'Crop',
       entityId: crop.id,

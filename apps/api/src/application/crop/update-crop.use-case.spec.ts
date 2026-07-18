@@ -80,4 +80,35 @@ describe('UpdateCropUseCase', () => {
     expect(auditCall.changes.identity.from).toMatchObject({ scientificName: 'Zea mays', family: 'Gramineae' });
     expect(auditCall.changes.identity.to).toMatchObject({ scientificName: 'Zea mays L.', family: 'Poaceae' });
   });
+
+  it('audite un changement d\'identité même si seul usageCategory est fourni (sans scientificName/family/cycleType)', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const createAudit = { record: jest.fn() };
+    const updateAudit = { record: jest.fn() };
+
+    await new CreateCropUseCase(events, repo, createAudit, clock).execute({
+      id: 'u3',
+      commonNames: { fr: 'Tomate' },
+      scientificName: 'Solanum lycopersicum',
+      family: 'Solanaceae',
+      cycleType: CycleType.SEASONAL_ANNUAL,
+      actor: 'admin',
+    });
+
+    const result = await new UpdateCropUseCase(events, repo, updateAudit, clock).execute({
+      id: 'u3',
+      usageCategory: 'legume-fruit',
+      actor: 'admin',
+    });
+
+    // usageCategory propagated to snapshot
+    expect(result.usageCategory).toBe('legume-fruit');
+
+    // audit must record an identity entry even though scientificName/family/cycleType were not in the input
+    expect(updateAudit.record).toHaveBeenCalledTimes(1);
+    const auditCall = updateAudit.record.mock.calls[0][0];
+    expect(auditCall.changes).toHaveProperty('identity');
+    expect(auditCall.changes.identity.to).toMatchObject({ usageCategory: 'legume-fruit' });
+  });
 });
