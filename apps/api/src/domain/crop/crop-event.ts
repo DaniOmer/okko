@@ -4,6 +4,7 @@ import { EdaphicRequirementsJSON } from '../shared/edaphic-requirements';
 import { PhenologicalStageJSON } from './phenological-stage';
 import { NutrientRequirementJSON } from './nutrient-requirement';
 import { YieldReferenceJSON } from './yield-reference';
+import { CommercializationProductJSON } from './commercialization-product';
 import { VarietySnapshot } from './variety';
 import { CroppingWindowSnapshot } from '../window/cropping-window';
 import { CropZoneSuitabilitySnapshot } from '../zone/crop-zone-suitability';
@@ -20,6 +21,7 @@ export type CropEvent =
   | { type: 'PhenologySet'; phenology: PhenologicalStageJSON[] }
   | { type: 'NutritionSet'; nutrition: NutrientRequirementJSON[] }
   | { type: 'YieldsSet'; yields: YieldReferenceJSON[] }
+  | { type: 'CommercializationSet'; commercialization: CommercializationProductJSON[] }
   | { type: 'Published' }
   | { type: 'Archived' }
   | { type: 'Unarchived' }

@@ -5,7 +5,7 @@ const base: CropDocument = {
   id: 'c1', name: 'Maïs', scientificName: 'Zea mays', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL',
   status: 'PUBLISHED', version: 1, metadata: {},
   climatic: undefined, edaphic: undefined,
-  varieties: [], zones: [], phenology: [], croppingWindows: [], pests: [], nutrition: [], yields: [], prices: [],
+  varieties: [], zones: [], phenology: [], croppingWindows: [], pests: [], nutrition: [], yields: [], commercialization: [], prices: [],
   completeness: { categories: {}, filled: 0, total: 0, percent: 0 },
   serializedText: '', hasUnpublishedChanges: false, hasPublishedVersion: true, publishedVersion: 0,
 };

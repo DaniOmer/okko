@@ -39,7 +39,7 @@ describe('History & completeness e2e', () => {
     expect(history.body[0]).toHaveProperty('entityType', 'Crop');
 
     const doc = await request(app.getHttpServer()).get(`/crops/${id}`).expect(200);
-    expect(doc.body.completeness.total).toBe(10);
+    expect(doc.body.completeness.total).toBe(11);
     expect(doc.body.completeness.categories.climatic).toBe(true); // set via requirements
   });
 

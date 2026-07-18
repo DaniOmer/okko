@@ -21,6 +21,7 @@ model Crop {
   phenology      Json?
   nutrition      Json?
   yields                Json?
+  commercialization     Json?
   hasUnpublishedChanges Boolean  @default(false)
   hasPublishedVersion   Boolean  @default(false)
   publishedVersion      Int      @default(0)

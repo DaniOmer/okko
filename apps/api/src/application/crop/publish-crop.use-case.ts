@@ -38,7 +38,8 @@ export class PublishCropUseCase {
     const report = computeCompleteness({
       climatic: !!crop.climatic, edaphic: !!crop.edaphic,
       phenology: crop.phenology.length > 0, nutrition: crop.nutrition.length > 0,
-      yields: crop.yields.length > 0, varieties: crop.varieties.length > 0,
+      yields: crop.yields.length > 0, commercialization: crop.commercialization.length > 0,
+      varieties: crop.varieties.length > 0,
       zones: crop.zones.length > 0, windows: crop.windows.length > 0,
       pests: crop.pests.length > 0, prices: crop.prices.length > 0,
     });

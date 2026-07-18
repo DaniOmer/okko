@@ -22,6 +22,7 @@ export class PrismaCropRepository implements CropRepository {
       phenology: (s.phenology ?? []) as unknown as Prisma.InputJsonValue,
       nutrition: (s.nutrition ?? []) as unknown as Prisma.InputJsonValue,
       yields: (s.yields ?? []) as unknown as Prisma.InputJsonValue,
+      commercialization: (s.commercialization ?? []) as unknown as Prisma.InputJsonValue,
       hasUnpublishedChanges: s.hasUnpublishedChanges,
       hasPublishedVersion: s.hasPublishedVersion,
     };
@@ -57,6 +58,7 @@ export class PrismaCropRepository implements CropRepository {
       phenology: (row.phenology ?? []) as unknown as CropSnapshot['phenology'],
       nutrition: (row.nutrition ?? []) as unknown as CropSnapshot['nutrition'],
       yields: (row.yields ?? []) as unknown as CropSnapshot['yields'],
+      commercialization: (row.commercialization ?? []) as unknown as CropSnapshot['commercialization'],
       hasUnpublishedChanges: row.hasUnpublishedChanges,
       hasPublishedVersion: row.hasPublishedVersion,
       publishedVersion: row.publishedVersion,

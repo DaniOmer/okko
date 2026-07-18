@@ -52,6 +52,7 @@ import { PrismaPricePointRepository } from './infrastructure/price/prisma-price-
 import { PRICE_POINT_REPOSITORY } from './application/price/price-point.repository';
 import { SetCropNutritionUseCase } from './application/crop/set-crop-nutrition.use-case';
 import { SetCropYieldsUseCase } from './application/crop/set-crop-yields.use-case';
+import { SetCropCommercializationUseCase } from './application/crop/set-crop-commercialization.use-case';
 import { AddPricePointUseCase } from './application/price/add-price-point.use-case';
 import { UpdatePricePointUseCase } from './application/price/update-price-point.use-case';
 import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-case';
@@ -211,6 +212,11 @@ import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case
     {
       provide: SetCropYieldsUseCase,
       useFactory: (es, r, a, c) => new SetCropYieldsUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: SetCropCommercializationUseCase,
+      useFactory: (es, r, a, c) => new SetCropCommercializationUseCase(es, r, a, c),
       inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {

@@ -13,6 +13,7 @@ const snap: CropSnapshot = {
   id: 'c1', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae',
   cycleType: CycleType.SEASONAL_ANNUAL, status: CropStatus.DRAFT, version: 1, metadata: {},
   hasUnpublishedChanges: false, hasPublishedVersion: false, publishedVersion: 0,
+  commercialization: [],
 };
 
 // Stubs pour les listes enrichies (zones/pests) : execute renvoie [] .

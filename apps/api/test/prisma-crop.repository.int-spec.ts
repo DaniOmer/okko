@@ -23,6 +23,7 @@ describe('PrismaCropRepository (integration)', () => {
       hasUnpublishedChanges: true,
       hasPublishedVersion: false,
       publishedVersion: 3,
+      commercialization: [],
     };
     await repo.save(saved);
     const found = await repo.findById('itest-1');

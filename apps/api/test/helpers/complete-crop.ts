@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
-/** Remplit les 10 catégories de complétude d'une fiche existante (crée zone + ravageur globaux). */
+/** Remplit les 11 catégories de complétude d'une fiche existante (crée zone + ravageur globaux). */
 export async function fillAllSections(app: INestApplication, cropId: string): Promise<void> {
   const http = app.getHttpServer();
   await request(http).patch(`/crops/${cropId}/requirements`).send({
@@ -39,5 +39,8 @@ export async function fillAllSections(app: INestApplication, cropId: string): Pr
   }).expect(200);
   await request(http).post(`/crops/${cropId}/prices`).send({
     market: 'Parakou', periodStart: '2026-06-01', price: 200, unit: 'FCFA/kg', currency: 'XOF',
+  }).expect(201);
+  await request(http).post(`/crops/${cropId}/commercialization`).send({
+    commercialization: [{ form: 'GRAIN', saleUnits: ['KG'], outlets: ['Marché local'] }],
   }).expect(201);
 }

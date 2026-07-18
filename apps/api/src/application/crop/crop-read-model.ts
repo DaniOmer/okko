@@ -7,6 +7,7 @@ import { CropPestView } from '../pest/list-crop-pests.use-case';
 import { PricePointSnapshot } from '../../domain/price/price-point';
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
+import { CommercializationProductJSON } from '../../domain/crop/commercialization-product';
 import { computeCompleteness, CompletenessReport } from './crop-completeness';
 
 export interface CropDocument {
@@ -29,6 +30,7 @@ export interface CropDocument {
   pests: CropPestView[];
   nutrition: NutrientRequirementJSON[];
   yields: YieldReferenceJSON[];
+  commercialization: CommercializationProductJSON[];
   prices: PricePointSnapshot[];
   completeness: CompletenessReport;
   serializedText: string;
@@ -55,6 +57,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   const prices = opts.prices ?? [];
   const nutrition = s.nutrition ?? [];
   const yields = s.yields ?? [];
+  const commercialization = s.commercialization ?? [];
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
   const phenology = s.phenology ?? [];
   const lines = [
@@ -114,6 +117,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     phenology: phenology.length > 0,
     nutrition: nutrition.length > 0,
     yields: yields.length > 0,
+    commercialization: commercialization.length > 0,
     varieties: varieties.length > 0,
     zones: zones.length > 0,
     windows: windows.length > 0,
@@ -125,7 +129,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     cycleType: s.cycleType, usageCategory: s.usageCategory, description: s.description,
     status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, prices, completeness, serializedText: lines.join('\n'),
+    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, commercialization, prices, completeness, serializedText: lines.join('\n'),
     hasUnpublishedChanges: s.hasUnpublishedChanges,
     hasPublishedVersion: s.hasPublishedVersion,
     publishedVersion: s.publishedVersion,

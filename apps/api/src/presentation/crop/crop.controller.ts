@@ -36,6 +36,7 @@ import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 import { ControlMethodJSON } from '../../domain/pest/control-method';
 import { SetCropNutritionUseCase } from '../../application/crop/set-crop-nutrition.use-case';
 import { SetCropYieldsUseCase } from '../../application/crop/set-crop-yields.use-case';
+import { SetCropCommercializationUseCase } from '../../application/crop/set-crop-commercialization.use-case';
 import { AddPricePointUseCase, InvalidPricePeriodError } from '../../application/price/add-price-point.use-case';
 import { UpdatePricePointUseCase, PricePointNotFoundError } from '../../application/price/update-price-point.use-case';
 import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.use-case';
@@ -88,6 +89,7 @@ export class CropController {
     private readonly listCropPests: ListCropPestsUseCase,
     private readonly setNutrition: SetCropNutritionUseCase,
     private readonly setYields: SetCropYieldsUseCase,
+    private readonly setCommercializationUC: SetCropCommercializationUseCase,
     private readonly addPrice: AddPricePointUseCase,
     private readonly updatePriceUC: UpdatePricePointUseCase,
     private readonly listPrices: ListCropPricesUseCase,
@@ -288,6 +290,13 @@ export class CropController {
     } catch (e) {
       mapCropError(e, id);
     }
+  }
+
+  @Roles('superadmin')
+  @Post(':id/commercialization')
+  async setCommercialization(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { commercialization: { form: string; saleUnits: string[]; outlets: string[] }[] }) {
+    try { const snap = await this.setCommercializationUC.execute({ cropId: id, actor: user.email, commercialization: body.commercialization }); return this.composeCropDocument(id, snap); }
+    catch (e) { mapCropError(e, id); }
   }
 
   @Post(':id/prices')

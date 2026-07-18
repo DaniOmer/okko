@@ -6,6 +6,7 @@ import { EdaphicRequirements, EdaphicRequirementsJSON } from '../shared/edaphic-
 import { PhenologicalStage, PhenologicalStageJSON } from './phenological-stage';
 import { NutrientRequirement, NutrientRequirementJSON } from './nutrient-requirement';
 import { YieldReference, YieldReferenceJSON } from './yield-reference';
+import { CommercializationProduct, CommercializationProductJSON } from './commercialization-product';
 import { CropEvent } from './crop-event';
 import { VarietySnapshot } from './variety';
 import { CroppingWindowSnapshot } from '../window/cropping-window';
@@ -37,6 +38,7 @@ interface Checkpoint {
   phenology: PhenologicalStage[];
   nutrition: NutrientRequirement[];
   yields: YieldReference[];
+  commercialization: CommercializationProduct[];
   varieties: VarietySnapshot[];
   windows: CroppingWindowSnapshot[];
   zones: CropZoneSuitabilitySnapshot[];
@@ -60,6 +62,7 @@ export interface CropSnapshot {
   phenology?: PhenologicalStageJSON[];
   nutrition?: NutrientRequirementJSON[];
   yields?: YieldReferenceJSON[];
+  commercialization: CommercializationProductJSON[];
   hasUnpublishedChanges: boolean;
   hasPublishedVersion: boolean;
   publishedVersion: number;
@@ -101,6 +104,7 @@ export class Crop {
     private _phenology: PhenologicalStage[],
     private _nutrition: NutrientRequirement[],
     private _yields: YieldReference[],
+    private _commercialization: CommercializationProduct[],
     private _usageCategory: string | undefined,
     private _description: Record<string, string> | undefined,
   ) {}
@@ -108,7 +112,7 @@ export class Crop {
   static create(props: CreateCropProps): Crop {
     const crop = new Crop(
       props.id, props.commonNames, props.scientificName, props.family,
-      props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
+      props.cycleType, CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [], [],
       props.usageCategory, props.description,
     );
     crop._pending.push({ type: 'CropCreated', commonNames: props.commonNames.toJSON(), scientificName: props.scientificName, family: props.family, cycleType: props.cycleType, usageCategory: props.usageCategory, description: props.description });
@@ -123,7 +127,7 @@ export class Crop {
     const crop = new Crop(
       stored[0].streamId,
       TranslatableText.create(c.commonNames), c.scientificName, c.family, c.cycleType,
-      CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [],
+      CropStatus.DRAFT, 1, {}, undefined, undefined, [], [], [], [],
       c.usageCategory, c.description,
     );
     for (let i = 1; i < stored.length; i++) crop.apply(stored[i].event);
@@ -143,6 +147,7 @@ export class Crop {
   get phenology(): PhenologicalStage[] { return [...this._phenology]; }
   get nutrition(): NutrientRequirement[] { return [...this._nutrition]; }
   get yields(): YieldReference[] { return [...this._yields]; }
+  get commercialization(): CommercializationProduct[] { return [...this._commercialization]; }
   get usageCategory(): string | undefined { return this._usageCategory; }
   get description(): Record<string, string> | undefined { return this._description; }
   get varieties(): VarietySnapshot[] { return [...this._varieties]; }
@@ -158,6 +163,7 @@ export class Crop {
   setEdaphicRequirements(e: EdaphicRequirements): void { this.raise({ type: 'EdaphicRequirementsSet', edaphic: e.toJSON() }); }
   setNutrition(list: NutrientRequirement[]): void { this.raise({ type: 'NutritionSet', nutrition: list.map((n) => n.toJSON()) }); }
   setYields(list: YieldReference[]): void { this.raise({ type: 'YieldsSet', yields: list.map((y) => y.toJSON()) }); }
+  setCommercialization(list: CommercializationProduct[]): void { this.raise({ type: 'CommercializationSet', commercialization: list.map((p) => p.toJSON()) }); }
   rename(commonNames: TranslatableText): void { this.raise({ type: 'Renamed', commonNames: commonNames.toJSON() }); }
   editIdentity(p: { scientificName: string; family: string; cycleType: CycleType; usageCategory?: string; description?: Record<string, string> }): void { this.raise({ type: 'IdentityEdited', scientificName: p.scientificName, family: p.family, cycleType: p.cycleType, usageCategory: p.usageCategory, description: p.description }); }
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
@@ -192,6 +198,7 @@ export class Crop {
       case 'PhenologySet': this._phenology = e.phenology.map((j) => PhenologicalStage.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'CommercializationSet': this._commercialization = e.commercialization.map((j) => CommercializationProduct.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'IdentityEdited': this._scientificName = e.scientificName; this._family = e.family; this._cycleType = e.cycleType; this._usageCategory = e.usageCategory; this._description = e.description; this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; this._hasUnpublishedChanges = true; break;
@@ -217,6 +224,7 @@ export class Crop {
       commonNames: this._commonNames, status: this._status, version: this._version,
       metadata: { ...this._metadata }, climatic: this._climatic, edaphic: this._edaphic,
       phenology: [...this._phenology], nutrition: [...this._nutrition], yields: [...this._yields],
+      commercialization: [...this._commercialization],
       varieties: [...this._varieties], windows: [...this._windows], zones: [...this._zones],
       pests: [...this._pests], prices: [...this._prices],
     });
@@ -227,6 +235,7 @@ export class Crop {
     this._commonNames = cp.commonNames; this._status = cp.status; this._version = cp.version;
     this._metadata = { ...cp.metadata }; this._climatic = cp.climatic; this._edaphic = cp.edaphic;
     this._phenology = [...cp.phenology]; this._nutrition = [...cp.nutrition]; this._yields = [...cp.yields];
+    this._commercialization = [...cp.commercialization];
     this._varieties = [...cp.varieties]; this._windows = [...cp.windows]; this._zones = [...cp.zones];
     this._pests = [...cp.pests]; this._prices = [...cp.prices];
     this._hasUnpublishedChanges = (revision !== this._publishedRevision);
@@ -249,6 +258,7 @@ export class Crop {
       phenology: this._phenology.map((s) => s.toJSON()),
       nutrition: this._nutrition.map((n) => n.toJSON()),
       yields: this._yields.map((y) => y.toJSON()),
+      commercialization: this._commercialization.map((p) => p.toJSON()),
       hasUnpublishedChanges: this._hasUnpublishedChanges,
       hasPublishedVersion: this._hasPublishedVersion,
       publishedVersion: this._publishedRevision,
@@ -267,6 +277,7 @@ export class Crop {
       (s.phenology ?? []).map((j) => PhenologicalStage.fromJSON(j)),
       (s.nutrition ?? []).map((j) => NutrientRequirement.fromJSON(j)),
       (s.yields ?? []).map((j) => YieldReference.fromJSON(j)),
+      (s.commercialization ?? []).map((j) => CommercializationProduct.fromJSON(j)),
       s.usageCategory, s.description,
     );
     crop._hasUnpublishedChanges = s.hasUnpublishedChanges;

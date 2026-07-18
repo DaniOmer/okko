@@ -16,6 +16,7 @@ export interface CompletenessInput {
   windows: boolean;
   pests: boolean;
   prices: boolean;
+  commercialization: boolean;
 }
 
 export function computeCompleteness(input: CompletenessInput): CompletenessReport {
