@@ -67,6 +67,13 @@ describe('diffCropDocuments', () => {
     expect(d.fields).toEqual([{ field: 'phenology', before: [p(1)], after: [p(1), p(2)] }]);
   });
 
+  it('commercialisation (section-valeur) modifiée -> fields', () => {
+    const p = (form: string) => ({ form, saleUnits: ['KG'], outlets: ['Marché'] } as any);
+    const d = diffCropDocuments(1, 2, doc({ commercialization: [] }), doc({ commercialization: [p('GRAIN')] }));
+    expect(d.fields).toEqual([{ field: 'commercialization', before: [], after: [p('GRAIN')] }]);
+    expect(d.sections).toEqual([]);
+  });
+
   it('metadata insensible à l\'ordre des clés', () => {
     const d = diffCropDocuments(1, 2, doc({ metadata: { a: 1, b: 2 } }), doc({ metadata: { b: 2, a: 1 } }));
     expect(d.fields).toEqual([]);
