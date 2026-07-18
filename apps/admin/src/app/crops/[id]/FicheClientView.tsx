@@ -91,7 +91,7 @@ export function FicheClientView({ crop }: { crop: CropDetail }) {
 
       <Section title="Prix">
         <ul className="list-disc pl-5">
-          {crop.prices.map((p) => <li key={p.id}>{p.periodStart === p.periodEnd ? formatDayMonth(p.periodStart) : `${formatDayMonth(p.periodStart)} → ${formatDayMonth(p.periodEnd)}`} — {p.price} {p.unit} @ {p.market}</li>)}
+          {crop.prices.map((p) => <li key={p.id}>{labelOf(PRODUCT_FORM_LABELS, p.form)} — {p.price} {p.currency}/{labelOf(SALE_UNIT_LABELS, p.unit)} @ {p.market} ({p.periodStart === p.periodEnd ? formatDayMonth(p.periodStart) : `${formatDayMonth(p.periodStart)} → ${formatDayMonth(p.periodEnd)}`})</li>)}
         </ul>
       </Section>
 

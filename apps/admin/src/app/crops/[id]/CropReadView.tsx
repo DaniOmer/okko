@@ -113,7 +113,7 @@ export function CropReadView({ crop }: { crop: CropDetail }) {
         <CardHeader className="pb-3"><CardTitle className="text-base">Prix ({crop.prices.length})</CardTitle></CardHeader>
         <CardContent className="space-y-1 text-sm">
           <ul className="list-disc pl-5">
-            {crop.prices.map((p) => (<li key={p.id}>{p.periodStart === p.periodEnd ? p.periodStart : `${p.periodStart} → ${p.periodEnd}`} — {p.price} {p.unit} @ {p.market}</li>))}
+            {crop.prices.map((p) => (<li key={p.id}>{labelOf(PRODUCT_FORM_LABELS, p.form)} — {p.price} {p.currency}/{labelOf(SALE_UNIT_LABELS, p.unit)} @ {p.market} ({p.periodStart === p.periodEnd ? p.periodStart : `${p.periodStart} → ${p.periodEnd}`})</li>))}
           </ul>
         </CardContent>
       </Card>

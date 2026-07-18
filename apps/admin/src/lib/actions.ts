@@ -94,12 +94,12 @@ export async function updateWindow(cropId: string, windowId: string, body: {
   return res.json().catch(() => undefined);
 }
 
-export async function addPrice(cropId: string, body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
+export async function addPrice(cropId: string, body: { form: string; market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/prices`, jsonInit('POST', body));
   return res.json().catch(() => undefined);
 }
 
-export async function updatePrice(cropId: string, priceId: string, body: { market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
+export async function updatePrice(cropId: string, priceId: string, body: { form: string; market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/prices/${priceId}`, jsonInit('PUT', body));
   return res.json().catch(() => undefined);
 }
