@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { EditorShell } from './EditorShell';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { PRODUCT_FORM_LABELS, SALE_UNIT_LABELS } from '@/lib/labels';
+import { Badge } from '@/components/ui/badge';
+import { PRODUCT_FORM_LABELS, SALE_UNIT_LABELS, OUTLET_LABELS } from '@/lib/labels';
 import { setCommercialization } from '@/lib/actions';
 import type { CommercializationProduct } from '@/lib/api';
 
@@ -23,7 +23,7 @@ export function CommercializationEditor({
 
   const [form, setForm] = useState(initial?.form ?? 'GRAIN');
   const [saleUnits, setSaleUnits] = useState<string[]>(initial?.saleUnits ?? []);
-  const [outlets, setOutlets] = useState<string[]>(initial?.outlets?.length ? initial.outlets : ['']);
+  const [outlets, setOutlets] = useState<string[]>(initial?.outlets ?? []);
 
   function toggleUnit(code: string) {
     setSaleUnits((prev) =>
@@ -31,17 +31,9 @@ export function CommercializationEditor({
     );
   }
 
-  function addOutlet() {
-    setOutlets((prev) => [...prev, '']);
-  }
-
-  function removeOutlet(idx: number) {
-    setOutlets((prev) => prev.filter((_, i) => i !== idx));
-  }
-
-  function updateOutlet(idx: number, value: string) {
-    setOutlets((prev) => prev.map((o, i) => (i === idx ? value : o)));
-  }
+  const availableOutlets = Object.keys(OUTLET_LABELS).filter((c) => !outlets.includes(c));
+  function addOutlet(code: string) { setOutlets((prev) => (prev.includes(code) ? prev : [...prev, code])); }
+  function removeOutlet(code: string) { setOutlets((prev) => prev.filter((c) => c !== code)); }
 
   return (
     <EditorShell label={editing ? 'Modifier' : '+ Ajouter un produit'}>
@@ -52,7 +44,7 @@ export function CommercializationEditor({
             const nouvelItem: CommercializationProduct = {
               form,
               saleUnits,
-              outlets: outlets.map((o) => o.trim()).filter(Boolean),
+              outlets,
             };
             const next = editing
               ? current.map((it, i) => (i === editIndex ? nouvelItem : it))
@@ -62,7 +54,7 @@ export function CommercializationEditor({
               if (!editing) {
                 setForm('GRAIN');
                 setSaleUnits([]);
-                setOutlets(['']);
+                setOutlets([]);
               }
             });
           }}
@@ -99,31 +91,27 @@ export function CommercializationEditor({
             </div>
           </div>
 
-          {/* Débouchés (liste de chaînes répétable) */}
+          {/* Débouchés (sélection par codes) */}
           <div className="space-y-2">
             <Label>Débouchés</Label>
-            {outlets.map((outlet, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <Input
-                  className="flex-1"
-                  placeholder="ex. Marché local, Export…"
-                  value={outlet}
-                  onChange={(e) => updateOutlet(idx, e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeOutlet(idx)}
-                  disabled={outlets.length === 1}
-                >
-                  ✕
-                </Button>
-              </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={addOutlet}>
-              + débouché
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {outlets.map((code) => (
+                <Badge key={code} variant="secondary" className="cursor-pointer" onClick={() => removeOutlet(code)}>
+                  {OUTLET_LABELS[code] ?? code} ✕
+                </Badge>
+              ))}
+              {outlets.length === 0 && <span className="text-xs text-muted-foreground">Aucun débouché</span>}
+            </div>
+            {availableOutlets.length > 0 && (
+              <Select value="" onValueChange={addOutlet}>
+                <SelectTrigger className="w-56"><SelectValue placeholder="+ Ajouter un débouché" /></SelectTrigger>
+                <SelectContent>
+                  {availableOutlets.map((code) => (
+                    <SelectItem key={code} value={code}>{OUTLET_LABELS[code]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

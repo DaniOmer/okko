@@ -83,6 +83,14 @@ export const FERTILIZATION_METHOD_LABELS: Record<string, string> = {
 
 export const PRODUCT_FORM_LABELS: Record<string, string> = { GRAIN: 'Grain', FLOUR: 'Farine', OIL: 'Huile', LEAF: 'Feuille', FRUIT: 'Fruit', TUBER: 'Tubercule', OTHER: 'Autre' };
 export const SALE_UNIT_LABELS: Record<string, string> = { KG: 'Kg', BAG: 'Sac', CRATE: 'Caisse', TONNE: 'Tonne' };
+export const OUTLET_LABELS: Record<string, string> = {
+  SELF_CONSUMPTION: 'Autoconsommation',
+  LOCAL_MARKET: 'Marché local',
+  WHOLESALER: 'Grossiste / collecteur',
+  PROCESSOR: 'Transformateur',
+  EXPORT: 'Export',
+  COOPERATIVE: 'Coopérative / groupement',
+};
 
 export const WATER_NEED_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyen', HIGH: 'Élevé' };
 export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };

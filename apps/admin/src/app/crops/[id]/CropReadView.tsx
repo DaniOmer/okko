@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   labelOf, stageWithRange, SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
   OPERATION_TYPE_LABELS, INPUT_TYPE_LABELS, CONTROL_CATEGORY_LABELS,
-  PRODUCT_FORM_LABELS, SALE_UNIT_LABELS,
+  PRODUCT_FORM_LABELS, SALE_UNIT_LABELS, OUTLET_LABELS,
 } from '@/lib/labels';
 import { formatDayMonth } from '../../../lib/format';
 import type { CropDetail } from '../../../lib/api';
@@ -126,7 +126,7 @@ export function CropReadView({ crop }: { crop: CropDetail }) {
               <li key={i}>
                 {labelOf(PRODUCT_FORM_LABELS, p.form)}
                 {p.saleUnits.length > 0 && ` — ${p.saleUnits.map((u) => labelOf(SALE_UNIT_LABELS, u)).join(', ')}`}
-                {p.outlets.length > 0 && ` (${p.outlets.join(', ')})`}
+                {p.outlets.length > 0 && ` (${p.outlets.map((o) => labelOf(OUTLET_LABELS, o)).join(', ')})`}
               </li>
             ))}
           </ul>
