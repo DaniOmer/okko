@@ -1,7 +1,17 @@
 'use server';
 
-import { authFetch, jsonInit } from './http';
+import { authFetch, jsonInit, multipartInit } from './http';
 import type { CropDocument, Variety, Zone, Pest } from './api';
+
+export async function uploadImage(fd: FormData): Promise<{ key: string; url: string }> {
+  const res = await authFetch('/media', multipartInit('POST', fd));
+  return res.json();
+}
+
+export async function setCropImages(cropId: string, images: { key: string; caption?: string }[]): Promise<unknown> {
+  const res = await authFetch(`/crops/${cropId}/images`, jsonInit('POST', { images }));
+  return res.json().catch(() => undefined);
+}
 
 export async function createCrop(input: {
   commonNames: Record<string, string>; scientificName: string; family: string; cycleType: string;
@@ -117,12 +127,12 @@ export async function setPestControl(cropId: string, pestId: string, body: {
   return res.json().catch(() => undefined);
 }
 
-export async function createZone(input: { name: Record<string, string>; country: string; koppen?: string }): Promise<Zone> {
+export async function createZone(input: { name: Record<string, string>; country: string; koppen?: string; images?: { key: string; caption?: string }[] }): Promise<Zone> {
   const res = await authFetch('/zones', jsonInit('POST', input));
   return res.json();
 }
 
-export async function updateZone(id: string, input: { name: Record<string, string>; country: string; koppen?: string }): Promise<Zone> {
+export async function updateZone(id: string, input: { name: Record<string, string>; country: string; koppen?: string; images?: { key: string; caption?: string }[] }): Promise<Zone> {
   const res = await authFetch(`/zones/${id}`, jsonInit('PATCH', input));
   return res.json();
 }
@@ -131,12 +141,12 @@ export async function deleteZone(id: string): Promise<void> {
   await authFetch(`/zones/${id}`, { method: 'DELETE' });
 }
 
-export async function createPest(input: { name: Record<string, string>; type: string; scientificName?: string }): Promise<Pest> {
+export async function createPest(input: { name: Record<string, string>; type: string; scientificName?: string; images?: { key: string; caption?: string }[] }): Promise<Pest> {
   const res = await authFetch('/pests', jsonInit('POST', input));
   return res.json();
 }
 
-export async function updatePest(id: string, input: { name: Record<string, string>; type: string; scientificName?: string }): Promise<Pest> {
+export async function updatePest(id: string, input: { name: Record<string, string>; type: string; scientificName?: string; images?: { key: string; caption?: string }[] }): Promise<Pest> {
   const res = await authFetch(`/pests/${id}`, jsonInit('PATCH', input));
   return res.json();
 }

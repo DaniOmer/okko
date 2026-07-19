@@ -4,6 +4,8 @@ import type { Role } from './jwt';
 
 export { ApiError };
 
+export interface ImageRef { key: string; url: string; caption?: string; }
+
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
 
@@ -29,7 +31,7 @@ export interface Variety {
 }
 
 export interface Zone {
-  id: string; name: string; country: string; koppen?: string;
+  id: string; name: string; country: string; koppen?: string; images: ImageRef[];
 }
 export interface CropZone {
   zoneId: string; zoneName: Record<string, string>; rating: string; justification?: string;
@@ -66,6 +68,7 @@ export interface CropDetail extends CropDocument {
   yields: YieldReference[];
   prices: PricePoint[];
   commercialization: CommercializationProduct[];
+  images: ImageRef[];
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {
@@ -112,7 +115,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest { id: string; name: string; type: string; scientificName?: string; }
+export interface Pest { id: string; name: string; type: string; scientificName?: string; images: ImageRef[]; }
 export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;
   threshold?: string; sensitiveStages: string[];

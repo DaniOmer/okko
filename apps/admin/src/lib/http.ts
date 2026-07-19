@@ -15,6 +15,10 @@ export function jsonInit(method: string, body: unknown): RequestInit {
   return { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
 }
 
+export function multipartInit(method: string, fd: FormData): RequestInit {
+  return { method, body: fd }; // pas de Content-Type : le navigateur pose la boundary multipart
+}
+
 /** Appel API authentifié (token du cookie → Bearer). 401 → redirect login. */
 export async function authFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const token = getToken();
