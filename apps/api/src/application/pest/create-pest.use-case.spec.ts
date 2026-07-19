@@ -14,11 +14,13 @@ describe('CreatePestUseCase', () => {
     const repo = new InMemoryPestRepository();
     const audit = { record: jest.fn() };
     const out = await new CreatePestUseCase(repo, audit, clock, ids).execute({
-      name: { fr: 'Mouche des fruits' }, type: PestType.INSECT, photos: ['x.jpg'], actor: 'a',
+      name: { fr: 'Mouche des fruits' }, type: PestType.INSECT,
+      images: [{ key: 'images/mouche.jpg', caption: 'Larve' }], actor: 'a',
     });
     expect(out.id).toBe('pest-1');
     expect(out.name.fr).toBe('Mouche des fruits');
     expect(out.type).toBe(PestType.INSECT);
+    expect(out.images).toEqual([{ key: 'images/mouche.jpg', caption: 'Larve' }]);
     expect(audit.record).toHaveBeenCalled();
 
     const list = await new ListPestsUseCase(repo).execute();

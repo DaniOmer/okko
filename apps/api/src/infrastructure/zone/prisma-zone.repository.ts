@@ -4,6 +4,7 @@ import type { AgroEcologicalZone as PrismaZone } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ZoneRepository } from '../../application/zone/zone.repository';
 import { ZoneSnapshot } from '../../domain/zone/agro-ecological-zone';
+import { MediaImageJSON } from '../../domain/media/media-image';
 
 @Injectable()
 export class PrismaZoneRepository implements ZoneRepository {
@@ -39,6 +40,7 @@ export class PrismaZoneRepository implements ZoneRepository {
       annualRainfall: (z.annualRainfall ?? undefined) as Prisma.InputJsonValue | undefined,
       notes: z.notes ?? null,
       metadata: z.metadata as Prisma.InputJsonValue,
+      images: z.images as unknown as Prisma.InputJsonValue,
     };
   }
 
@@ -52,6 +54,7 @@ export class PrismaZoneRepository implements ZoneRepository {
       annualRainfall: (row.annualRainfall ?? undefined) as ZoneSnapshot['annualRainfall'],
       notes: row.notes ?? undefined,
       metadata: row.metadata as Record<string, unknown>,
+      images: (row.images ?? []) as unknown as MediaImageJSON[],
     };
   }
 }

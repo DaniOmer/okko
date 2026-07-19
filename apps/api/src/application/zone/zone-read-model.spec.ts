@@ -2,7 +2,7 @@ import { toZoneDocument } from './zone-read-model';
 
 const snap = {
   id: 'z1', name: { fr: 'Sahel', en: 'Sahel zone' }, country: 'BJ', koppen: 'BSh',
-  annualRainfall: { min: 600, optimal: 900, max: 1200, unit: 'mm' }, metadata: {},
+  annualRainfall: { min: 600, optimal: 900, max: 1200, unit: 'mm' }, metadata: {}, images: [],
 };
 
 describe('toZoneDocument', () => {

@@ -1,5 +1,6 @@
 import { TranslatableText } from '../shared/translatable-text';
 import { RangeValue } from '../shared/range-value';
+import { MediaImage, MediaImageJSON } from '../media/media-image';
 
 export interface ZoneSnapshot {
   id: string;
@@ -10,6 +11,7 @@ export interface ZoneSnapshot {
   annualRainfall?: ReturnType<RangeValue['toJSON']>;
   notes?: string;
   metadata: Record<string, unknown>;
+  images: MediaImageJSON[];
 }
 
 interface CreateZoneProps {
@@ -21,6 +23,7 @@ interface CreateZoneProps {
   annualRainfall?: RangeValue;
   notes?: string;
   metadata?: Record<string, unknown>;
+  images?: MediaImageJSON[];
 }
 
 export class AgroEcologicalZone {
@@ -33,12 +36,14 @@ export class AgroEcologicalZone {
     private readonly _annualRainfall: RangeValue | undefined,
     private readonly _notes: string | undefined,
     private readonly _metadata: Record<string, unknown>,
+    private readonly _images: MediaImage[],
   ) {}
 
   static create(props: CreateZoneProps): AgroEcologicalZone {
     return new AgroEcologicalZone(
       props.id, props.name, props.country, props.koppen, props.altitude,
       props.annualRainfall, props.notes, props.metadata ?? {},
+      (props.images ?? []).map(MediaImage.fromJSON),
     );
   }
 
@@ -50,6 +55,7 @@ export class AgroEcologicalZone {
   get annualRainfall(): RangeValue | undefined { return this._annualRainfall; }
   get notes(): string | undefined { return this._notes; }
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
+  get images(): MediaImage[] { return [...this._images]; }
 
   toSnapshot(): ZoneSnapshot {
     return {
@@ -61,10 +67,11 @@ export class AgroEcologicalZone {
       annualRainfall: this._annualRainfall?.toJSON(),
       notes: this._notes,
       metadata: { ...this._metadata },
+      images: this._images.map((img) => img.toJSON()),
     };
   }
 
-  update(fields: { name: TranslatableText; country: string; koppen?: string }): AgroEcologicalZone {
+  update(fields: { name: TranslatableText; country: string; koppen?: string; images?: MediaImageJSON[] }): AgroEcologicalZone {
     return new AgroEcologicalZone(
       this._id,
       fields.name,
@@ -74,6 +81,7 @@ export class AgroEcologicalZone {
       this._annualRainfall,
       this._notes,
       this._metadata,
+      fields.images !== undefined ? fields.images.map(MediaImage.fromJSON) : this._images,
     );
   }
 
@@ -83,6 +91,7 @@ export class AgroEcologicalZone {
       s.altitude ? RangeValue.create(s.altitude) : undefined,
       s.annualRainfall ? RangeValue.create(s.annualRainfall) : undefined,
       s.notes, { ...s.metadata },
+      (s.images ?? []).map(MediaImage.fromJSON),
     );
   }
 }

@@ -1,6 +1,7 @@
 import { AgroEcologicalZone, ZoneSnapshot } from '../../domain/zone/agro-ecological-zone';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { RangeValue } from '../../domain/shared/range-value';
+import { MediaImage, MediaImageJSON } from '../../domain/media/media-image';
 import { ZoneRepository } from './zone.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
@@ -14,6 +15,7 @@ export interface CreateZoneInput {
   altitude?: ReturnType<RangeValue['toJSON']>;
   annualRainfall?: ReturnType<RangeValue['toJSON']>;
   notes?: string;
+  images?: MediaImageJSON[];
   actor: string;
 }
 
@@ -34,6 +36,7 @@ export class CreateZoneUseCase {
       altitude: input.altitude ? RangeValue.create(input.altitude) : undefined,
       annualRainfall: input.annualRainfall ? RangeValue.create(input.annualRainfall) : undefined,
       notes: input.notes,
+      images: input.images,
     });
     const snap = zone.toSnapshot();
     await this.zones.save(snap);

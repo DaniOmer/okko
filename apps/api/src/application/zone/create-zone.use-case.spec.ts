@@ -14,11 +14,13 @@ describe('CreateZoneUseCase', () => {
     const audit = { record: jest.fn() };
     const out = await new CreateZoneUseCase(repo, audit, clock, ids).execute({
       name: { fr: 'Sahel' }, country: 'BJ', koppen: 'BSh',
-      annualRainfall: { min: 600, optimal: 900, max: 1200, unit: 'mm' }, actor: 'a',
+      annualRainfall: { min: 600, optimal: 900, max: 1200, unit: 'mm' },
+      images: [{ key: 'images/sahel.jpg', caption: 'Vue' }], actor: 'a',
     });
     expect(out.id).toBe('zone-1');
     expect(out.name.fr).toBe('Sahel');
     expect(out.annualRainfall?.optimal).toBe(900);
+    expect(out.images).toEqual([{ key: 'images/sahel.jpg', caption: 'Vue' }]);
     expect(audit.record).toHaveBeenCalled();
 
     const list = await new ListZonesUseCase(repo).execute();

@@ -20,11 +20,11 @@ describe('Prisma pest + control repositories (integration)', () => {
   it('saves/reads a pest and upserts a control by composite key', async () => {
     await pests.save({
       id: 'p-int-1', name: { fr: 'Mouche' }, type: PestType.INSECT,
-      photos: ['x.jpg'], metadata: {},
+      images: [{ key: 'images/x.jpg' }], metadata: {},
     });
     const found = await pests.findById('p-int-1');
     expect(found?.name.fr).toBe('Mouche');
-    expect(found?.photos).toEqual(['x.jpg']);
+    expect(found?.images).toEqual([{ key: 'images/x.jpg' }]);
 
     await controls.save({
       cropId: 'c-int-1', pestId: 'p-int-1', susceptibility: SusceptibilityLevel.HIGH,

@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PestRepository } from '../../application/pest/pest.repository';
 import { PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
 import { PestType } from '../../domain/pest/pest-type';
+import { MediaImageJSON } from '../../domain/media/media-image';
 
 @Injectable()
 export class PrismaPestRepository implements PestRepository {
@@ -33,7 +34,7 @@ export class PrismaPestRepository implements PestRepository {
       id: p.id, name: p.name as Prisma.InputJsonValue, type: p.type,
       scientificName: p.scientificName ?? null,
       symptoms: (p.symptoms ?? undefined) as Prisma.InputJsonValue | undefined,
-      photos: p.photos as unknown as Prisma.InputJsonValue,
+      photos: p.images as unknown as Prisma.InputJsonValue,
       notes: p.notes ?? null, metadata: p.metadata as Prisma.InputJsonValue,
     };
   }
@@ -43,7 +44,7 @@ export class PrismaPestRepository implements PestRepository {
       id: row.id, name: row.name as Record<string, string>, type: row.type as PestType,
       scientificName: row.scientificName ?? undefined,
       symptoms: (row.symptoms ?? undefined) as PestDiseaseSnapshot['symptoms'],
-      photos: row.photos as unknown as string[],
+      images: (row.photos ?? []) as unknown as MediaImageJSON[],
       notes: row.notes ?? undefined, metadata: row.metadata as Record<string, unknown>,
     };
   }

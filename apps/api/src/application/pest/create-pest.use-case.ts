@@ -1,6 +1,7 @@
 import { PestDisease, PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
 import { PestType } from '../../domain/pest/pest-type';
 import { TranslatableText } from '../../domain/shared/translatable-text';
+import { MediaImageJSON } from '../../domain/media/media-image';
 import { PestRepository } from './pest.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
@@ -12,7 +13,7 @@ export interface CreatePestInput {
   type: PestType;
   scientificName?: string;
   symptoms?: Record<string, string>;
-  photos?: string[];
+  images?: MediaImageJSON[];
   notes?: string;
   actor: string;
 }
@@ -32,7 +33,7 @@ export class CreatePestUseCase {
       type: input.type,
       scientificName: input.scientificName,
       symptoms: input.symptoms ? TranslatableText.create(input.symptoms) : undefined,
-      photos: input.photos,
+      images: input.images,
       notes: input.notes,
     });
     const snap = pest.toSnapshot();

@@ -1,5 +1,6 @@
 import { AgroEcologicalZone, ZoneSnapshot } from '../../domain/zone/agro-ecological-zone';
 import { TranslatableText } from '../../domain/shared/translatable-text';
+import { MediaImageJSON } from '../../domain/media/media-image';
 import { ZoneRepository } from './zone.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
@@ -9,7 +10,9 @@ export class ZoneNotFoundError extends Error {
 }
 
 export interface UpdateZoneInput {
-  id: string; name: Record<string, string>; country: string; koppen?: string; actor: string;
+  id: string; name: Record<string, string>; country: string; koppen?: string;
+  images?: MediaImageJSON[];
+  actor: string;
 }
 
 export class UpdateZoneUseCase {
@@ -26,6 +29,7 @@ export class UpdateZoneUseCase {
       name: TranslatableText.create(input.name),
       country: input.country,
       koppen: input.koppen || undefined,
+      images: input.images,
     });
     const snap = updated.toSnapshot();
     await this.zones.save(snap);

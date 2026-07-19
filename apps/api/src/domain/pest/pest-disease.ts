@@ -1,5 +1,6 @@
 import { TranslatableText } from '../shared/translatable-text';
 import { PestType } from './pest-type';
+import { MediaImage, MediaImageJSON } from '../media/media-image';
 
 export interface PestDiseaseSnapshot {
   id: string;
@@ -7,7 +8,7 @@ export interface PestDiseaseSnapshot {
   type: PestType;
   scientificName?: string;
   symptoms?: Record<string, string>;
-  photos: string[];
+  images: MediaImageJSON[];
   notes?: string;
   metadata: Record<string, unknown>;
 }
@@ -18,7 +19,7 @@ interface CreateProps {
   type: PestType;
   scientificName?: string;
   symptoms?: TranslatableText;
-  photos?: string[];
+  images?: MediaImageJSON[];
   notes?: string;
   metadata?: Record<string, unknown>;
 }
@@ -30,7 +31,7 @@ export class PestDisease {
     private readonly _type: PestType,
     private readonly _scientificName: string | undefined,
     private readonly _symptoms: TranslatableText | undefined,
-    private readonly _photos: string[],
+    private readonly _images: MediaImage[],
     private readonly _notes: string | undefined,
     private readonly _metadata: Record<string, unknown>,
   ) {}
@@ -38,7 +39,7 @@ export class PestDisease {
   static create(props: CreateProps): PestDisease {
     return new PestDisease(
       props.id, props.name, props.type, props.scientificName, props.symptoms,
-      props.photos ?? [], props.notes, props.metadata ?? {},
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {},
     );
   }
 
@@ -47,7 +48,7 @@ export class PestDisease {
   get type(): PestType { return this._type; }
   get scientificName(): string | undefined { return this._scientificName; }
   get symptoms(): TranslatableText | undefined { return this._symptoms; }
-  get photos(): string[] { return [...this._photos]; }
+  get images(): MediaImage[] { return [...this._images]; }
   get notes(): string | undefined { return this._notes; }
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
 
@@ -55,18 +56,19 @@ export class PestDisease {
     return {
       id: this._id, name: this._name.toJSON(), type: this._type,
       scientificName: this._scientificName, symptoms: this._symptoms?.toJSON(),
-      photos: [...this._photos], notes: this._notes, metadata: { ...this._metadata },
+      images: this._images.map((img) => img.toJSON()),
+      notes: this._notes, metadata: { ...this._metadata },
     };
   }
 
-  update(fields: { name: TranslatableText; type: PestType; scientificName?: string }): PestDisease {
+  update(fields: { name: TranslatableText; type: PestType; scientificName?: string; images?: MediaImageJSON[] }): PestDisease {
     return new PestDisease(
       this._id,
       fields.name,
       fields.type,
       fields.scientificName,
       this._symptoms,
-      this._photos,
+      fields.images !== undefined ? fields.images.map(MediaImage.fromJSON) : this._images,
       this._notes,
       this._metadata,
     );
@@ -76,7 +78,7 @@ export class PestDisease {
     return new PestDisease(
       s.id, TranslatableText.create(s.name), s.type, s.scientificName,
       s.symptoms ? TranslatableText.create(s.symptoms) : undefined,
-      [...s.photos], s.notes, { ...s.metadata },
+      (s.images ?? []).map(MediaImage.fromJSON), s.notes, { ...s.metadata },
     );
   }
 }

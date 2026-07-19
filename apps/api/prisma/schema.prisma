@@ -78,6 +78,7 @@ model AgroEcologicalZone {
   annualRainfall Json?
   notes          String?
   metadata       Json
+  images         Json?
   createdAt      DateTime @default(now())
 }
 

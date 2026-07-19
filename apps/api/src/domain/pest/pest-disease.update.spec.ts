@@ -5,7 +5,7 @@ import { PestType } from './pest-type';
 describe('PestDisease.update', () => {
   const base = () => PestDisease.create({
     id: 'p1', name: TranslatableText.create({ fr: 'Chenille' }), type: PestType.INSECT,
-    scientificName: 'Spodoptera', notes: 'note conservée', photos: ['a.jpg'],
+    scientificName: 'Spodoptera', notes: 'note conservée', images: [{ key: 'images/a.jpg' }],
   });
 
   it('remplace les champs éditables', () => {
@@ -19,7 +19,7 @@ describe('PestDisease.update', () => {
     const p = base().update({ name: TranslatableText.create({ fr: 'X' }), type: PestType.FUNGUS });
     const s = p.toSnapshot();
     expect(s.notes).toBe('note conservée');
-    expect(s.photos).toEqual(['a.jpg']);
+    expect(s.images).toEqual([{ key: 'images/a.jpg' }]);
     expect(s.type).toBe(PestType.FUNGUS);
     expect(s.scientificName).toBeUndefined();
   });

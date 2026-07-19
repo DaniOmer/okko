@@ -3,7 +3,7 @@ import { PestType } from '../../domain/pest/pest-type';
 
 const snap = {
   id: 'p1', name: { fr: 'Mouche des fruits', en: 'Fruit fly' }, type: PestType.INSECT,
-  scientificName: 'Bactrocera dorsalis', photos: ['x.jpg'], metadata: {},
+  scientificName: 'Bactrocera dorsalis', images: [{ key: 'images/x.jpg' }], metadata: {},
 };
 
 describe('toPestDocument', () => {

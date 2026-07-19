@@ -1,5 +1,6 @@
 import { PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
 import { PestType } from '../../domain/pest/pest-type';
+import { MediaImageJSON } from '../../domain/media/media-image';
 
 export interface PestDocument {
   id: string;
@@ -7,7 +8,7 @@ export interface PestDocument {
   type: PestType;
   scientificName?: string;
   symptoms?: PestDiseaseSnapshot['symptoms'];
-  photos: string[];
+  images: MediaImageJSON[];
   notes?: string;
   metadata: Record<string, unknown>;
   serializedText: string;
@@ -20,7 +21,7 @@ export function toPestDocument(p: PestDiseaseSnapshot, locale = 'fr'): PestDocum
   if (p.symptoms) lines.push(`Symptômes : ${p.symptoms[locale] ?? p.symptoms['fr']}`);
   return {
     id: p.id, name, type: p.type, scientificName: p.scientificName,
-    symptoms: p.symptoms, photos: p.photos, notes: p.notes,
+    symptoms: p.symptoms, images: p.images ?? [], notes: p.notes,
     metadata: p.metadata, serializedText: lines.join('\n'),
   };
 }

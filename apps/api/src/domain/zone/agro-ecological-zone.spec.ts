@@ -33,4 +33,50 @@ describe('AgroEcologicalZone', () => {
     expect(z.metadata).toEqual({});
     expect(z.altitude).toBeUndefined();
   });
+
+  it('stores images in snapshot and round-trips them', () => {
+    const z = AgroEcologicalZone.create({
+      id: 'zone-1',
+      name: TranslatableText.create({ fr: 'Zone soudano-sahélienne' }),
+      country: 'BJ',
+      images: [{ key: 'images/z.jpg', caption: 'Vue aérienne' }],
+    });
+    const snap = z.toSnapshot();
+    expect(snap.images).toEqual([{ key: 'images/z.jpg', caption: 'Vue aérienne' }]);
+    const restored = AgroEcologicalZone.fromSnapshot(snap);
+    expect(restored.images[0].key).toBe('images/z.jpg');
+    expect(restored.images[0].caption).toBe('Vue aérienne');
+  });
+
+  it('update replaces images when provided', () => {
+    const z = AgroEcologicalZone.create({
+      id: 'zone-1',
+      name: TranslatableText.create({ fr: 'A' }),
+      country: 'BJ',
+      images: [{ key: 'images/old.jpg' }],
+    });
+    const updated = z.update({
+      name: TranslatableText.create({ fr: 'B' }),
+      country: 'BJ',
+      images: [{ key: 'images/new.jpg', caption: 'Nouveau' }],
+    });
+    expect(updated.toSnapshot().images).toEqual([{ key: 'images/new.jpg', caption: 'Nouveau' }]);
+  });
+
+  it('update keeps existing images when images not provided', () => {
+    const z = AgroEcologicalZone.create({
+      id: 'zone-1',
+      name: TranslatableText.create({ fr: 'A' }),
+      country: 'BJ',
+      images: [{ key: 'images/keep.jpg' }],
+    });
+    const updated = z.update({ name: TranslatableText.create({ fr: 'B' }), country: 'BJ' });
+    expect(updated.toSnapshot().images).toEqual([{ key: 'images/keep.jpg' }]);
+  });
+
+  it('defaults images to []', () => {
+    const z = AgroEcologicalZone.create({ id: 'z', name: TranslatableText.create({ fr: 'X' }), country: 'BJ' });
+    expect(z.images).toEqual([]);
+    expect(z.toSnapshot().images).toEqual([]);
+  });
 });

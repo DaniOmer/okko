@@ -19,7 +19,7 @@ describe('Prisma zone + suitability repositories (integration)', () => {
     await zones.save({
       id: 'z-int-1', name: { fr: 'Sahel' }, country: 'BJ', koppen: 'BSh',
       annualRainfall: { min: 600, optimal: 900, max: 1200, unit: 'mm' },
-      metadata: {},
+      metadata: {}, images: [],
     });
     const found = await zones.findById('z-int-1');
     expect(found?.name.fr).toBe('Sahel');
