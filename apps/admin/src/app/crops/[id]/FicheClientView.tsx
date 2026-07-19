@@ -13,7 +13,7 @@ import { formatDayMonth } from '../../../lib/format';
 import type { CropDetail } from '../../../lib/api';
 import { tone, TONE_DOT } from '@/components/fiche/fiche-ui';
 import { ToneBadge } from '@/components/fiche/ToneBadge';
-import { RangeBar } from '@/components/fiche/RangeBar';
+import { StatRange } from '@/components/fiche/StatRange';
 import { Timeline, type TimelineStep } from '@/components/fiche/Timeline';
 import { SECTION_ICON } from '@/components/fiche/section-icon';
 
@@ -28,14 +28,14 @@ function Chip({ children }: { children: ReactNode }) {
   return <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px]">{children}</span>;
 }
 
-/** Section avec icône Lucide, titre et compteur optionnel */
+/** Section avec icône Lucide, titre, compteur et phrase d'intro en langage simple */
 function Section({
-  id, iconKey, title, count, children,
-}: { id: string; iconKey: string; title: string; count?: number; children: ReactNode }) {
+  id, iconKey, title, count, intro, children,
+}: { id: string; iconKey: string; title: string; count?: number; intro?: string; children: ReactNode }) {
   const Icon = SECTION_ICON[iconKey];
   return (
-    <section id={id} className="scroll-mt-16 border-t py-5">
-      <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+    <section id={id} className="scroll-mt-16 border-t py-6">
+      <h2 className={`flex items-center gap-2 text-base font-semibold ${intro ? 'mb-1' : 'mb-3'}`}>
         {Icon && (
           <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]">
             <Icon className="h-4 w-4" />
@@ -46,6 +46,7 @@ function Section({
           <span className="font-normal text-muted-foreground">({count})</span>
         )}
       </h2>
+      {intro && <p className="mb-3 text-sm text-muted-foreground">{intro}</p>}
       {children}
     </section>
   );
@@ -97,45 +98,44 @@ export function FicheClientView({
   pestNames: Record<string, string>;
   zoneNames: Record<string, string>;
 }) {
-  // ── Hero badges ──────────────────────────────────────────────────────────────
-  const heroBadges: { label: string; green: boolean }[] = [
-    { label: crop.family, green: true },
-    { label: labelOf(CYCLE_TYPE_LABELS, crop.cycleType), green: false },
-    ...(crop.usageCategory ? [{ label: labelOf(USAGE_CATEGORY_LABELS, crop.usageCategory), green: false }] : []),
-    { label: `v${crop.publishedVersion} · publiée`, green: false },
-  ];
+  // ── Pastille en langage simple (usage · cycle), sans jargon ni métadonnée admin ──
+  const tagline = [
+    crop.usageCategory ? labelOf(USAGE_CATEGORY_LABELS, crop.usageCategory) : '',
+    labelOf(CYCLE_TYPE_LABELS, crop.cycleType),
+  ].filter(Boolean).join(' · ');
 
   return (
     <div>
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <div
-        className="border-l-[6px] border-[#2e7d32] px-6 py-6"
-        style={{ background: 'linear-gradient(180deg,#f7faf7,#fff)' }}
+        className="flex gap-5 rounded-xl px-6 py-7"
+        style={{ background: 'linear-gradient(135deg,#f0f7f0,#fbfdfb)' }}
       >
-        <h1 className="text-3xl font-bold tracking-tight">
-          {crop.name}{' '}
-          <span className="text-lg font-normal italic text-muted-foreground">
-            {crop.scientificName}
-          </span>
-        </h1>
-        {crop.description?.fr && (
-          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-[#374151]">
-            {crop.description.fr}
-          </p>
-        )}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {heroBadges.map((b) => (
-            <span
-              key={b.label}
-              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                b.green
-                  ? 'bg-[#eaf3ea] text-[#245c27]'
-                  : 'bg-[#eef1f4] text-[#475569]'
-              }`}
-            >
-              {b.label}
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold tracking-tight">{crop.name}</h1>
+          {crop.scientificName && (
+            <p className="mt-0.5 text-sm italic text-muted-foreground">{crop.scientificName}</p>
+          )}
+          {tagline && (
+            <span className="mt-3 inline-block rounded-full bg-[#eaf3ea] px-3 py-1 text-[13px] font-semibold text-[#245c27]">
+              🌱 {tagline}
             </span>
-          ))}
+          )}
+          {crop.description?.fr && (
+            <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-[#374151]">
+              {crop.description.fr}
+            </p>
+          )}
+          {crop.family && (
+            <p className="mt-2 text-xs text-muted-foreground">Famille botanique : {crop.family}</p>
+          )}
+        </div>
+        <div
+          className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-[#dde8dd] text-center text-[11px] leading-tight text-[#9bb39b]"
+          style={{ background: 'repeating-linear-gradient(45deg,#eef3ee,#eef3ee 8px,#e5efe5 8px,#e5efe5 16px)' }}
+          aria-hidden
+        >
+          Photo<br />à venir
         </div>
       </div>
 
@@ -146,7 +146,8 @@ export function FicheClientView({
       <div className="px-6">
 
         {/* 1. Exigences agroécologiques */}
-        <Section id="exigences" iconKey="climatic" title="Exigences agroécologiques">
+        <Section id="exigences" iconKey="climatic" title="Exigences agroécologiques"
+          intro="Les conditions dans lesquelles cette culture pousse le mieux.">
           {(() => {
             const hasClim =
               crop.climatic?.temperature ||
@@ -159,7 +160,7 @@ export function FicheClientView({
             return (
               <div className="space-y-1">
                 {crop.climatic?.temperature && (
-                  <RangeBar
+                  <StatRange
                     label="Température"
                     min={crop.climatic.temperature.min}
                     optimal={crop.climatic.temperature.optimal}
@@ -168,7 +169,7 @@ export function FicheClientView({
                   />
                 )}
                 {crop.climatic?.rainfall && (
-                  <RangeBar
+                  <StatRange
                     label="Pluviométrie"
                     min={crop.climatic.rainfall.min}
                     optimal={crop.climatic.rainfall.optimal}
@@ -177,7 +178,7 @@ export function FicheClientView({
                   />
                 )}
                 {crop.climatic?.altitude && (
-                  <RangeBar
+                  <StatRange
                     label="Altitude"
                     min={crop.climatic.altitude.min}
                     optimal={crop.climatic.altitude.optimal}
@@ -186,7 +187,7 @@ export function FicheClientView({
                   />
                 )}
                 {crop.edaphic?.ph && (
-                  <RangeBar
+                  <StatRange
                     label="pH du sol"
                     min={crop.edaphic.ph.min}
                     optimal={crop.edaphic.ph.optimal}
@@ -217,7 +218,9 @@ export function FicheClientView({
         </Section>
 
         {/* 2. Variétés */}
-        <Section id="varietes" iconKey="varieties" title="Variétés" count={crop.varieties.length || undefined}>
+        <Section id="varietes" iconKey="varieties" title="Variétés" count={crop.varieties.length || undefined}
+          intro="Les variétés cultivées et leurs points forts (résistances, adaptation).">
+
           {crop.varieties.length === 0 ? EMPTY : (
             <div className="space-y-2">
               {crop.varieties.map((v) => (
@@ -263,7 +266,8 @@ export function FicheClientView({
         </Section>
 
         {/* 3. Zones de production */}
-        <Section id="zones" iconKey="zones" title="Zones de production" count={crop.zones.length || undefined}>
+        <Section id="zones" iconKey="zones" title="Zones de production" count={crop.zones.length || undefined}
+          intro="Les régions où cette culture se plaît, et à quel point.">
           {crop.zones.length === 0 ? EMPTY : (
             <div className="flex flex-wrap gap-2">
               {crop.zones.map((z) => (
@@ -285,7 +289,8 @@ export function FicheClientView({
         </Section>
 
         {/* 4. Phénologie */}
-        <Section id="phenologie" iconKey="phenology" title="Phénologie">
+        <Section id="phenologie" iconKey="phenology" title="Phénologie"
+          intro="Les grandes étapes de développement de la plante, en jours après le semis.">
           {crop.phenology.length === 0 ? EMPTY : (
             <Timeline
               steps={[...crop.phenology]
@@ -300,7 +305,8 @@ export function FicheClientView({
         </Section>
 
         {/* 5. Calendrier & itinéraire technique */}
-        <Section id="calendrier" iconKey="windows" title="Calendrier & itinéraire technique">
+        <Section id="calendrier" iconKey="windows" title="Calendrier & itinéraire technique"
+          intro="Quand semer et quelles opérations mener, tout au long du cycle.">
           {crop.croppingWindows.length === 0 ? EMPTY : (
             <div className="space-y-5">
               {crop.croppingWindows.map((w) => {
@@ -357,7 +363,8 @@ export function FicheClientView({
         </Section>
 
         {/* 6. Ravageurs & maladies */}
-        <Section id="ravageurs" iconKey="pests" title="Ravageurs & maladies" count={crop.pests.length || undefined}>
+        <Section id="ravageurs" iconKey="pests" title="Ravageurs & maladies" count={crop.pests.length || undefined}
+          intro="Les principaux ennemis de la culture et comment s'en protéger.">
           {crop.pests.length === 0 ? EMPTY : (
             <div className="space-y-2">
               {crop.pests.map((p) => (
@@ -392,7 +399,8 @@ export function FicheClientView({
         </Section>
 
         {/* 7. Nutrition */}
-        <Section id="nutrition" iconKey="nutrition" title="Nutrition">
+        <Section id="nutrition" iconKey="nutrition" title="Nutrition"
+          intro="Les apports d'engrais recommandés.">
           {crop.nutrition.length === 0 ? EMPTY : (
             <ul className="space-y-1 text-sm">
               {crop.nutrition.map((n, i) => (
@@ -412,7 +420,9 @@ export function FicheClientView({
         </Section>
 
         {/* 8. Rendement */}
-        <Section id="rendement" iconKey="yields" title="Rendement">
+        <Section id="rendement" iconKey="yields" title="Rendement"
+          intro="Ce que la culture peut produire.">
+
           {crop.yields.length === 0 ? EMPTY : (
             <ul className="space-y-1 text-sm">
               {crop.yields.map((y, i) => (
@@ -431,7 +441,9 @@ export function FicheClientView({
         </Section>
 
         {/* 9. Prix */}
-        <Section id="prix" iconKey="prices" title="Prix récents" count={crop.prices.length || undefined}>
+        <Section id="prix" iconKey="prices" title="Prix récents" count={crop.prices.length || undefined}
+          intro="Prix récents observés sur les marchés.">
+
           {crop.prices.length === 0 ? EMPTY : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
@@ -465,7 +477,8 @@ export function FicheClientView({
         </Section>
 
         {/* 10. Commercialisation */}
-        <Section id="commercialisation" iconKey="commercialization" title="Commercialisation">
+        <Section id="commercialisation" iconKey="commercialization" title="Commercialisation"
+          intro="Sous quelles formes et par quels circuits la culture se vend.">
           {(crop.commercialization ?? []).length === 0 ? EMPTY : (
             <div className="space-y-2">
               {(crop.commercialization ?? []).map((p, i) => (

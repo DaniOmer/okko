@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { tone, optimalPercent } from './fiche-ui';
+import { tone } from './fiche-ui';
 
 describe('tone', () => {
   it('suitability', () => {
@@ -19,10 +19,4 @@ describe('tone', () => {
     expect(tone('suitability', 'ZZZ')).toBe('neutral');
     expect(tone('resistance', undefined)).toBe('neutral');
   });
-});
-
-describe('optimalPercent', () => {
-  it('milieu', () => { expect(optimalPercent(0, 5, 10)).toBe(50); });
-  it('clampe', () => { expect(optimalPercent(10, 5, 20)).toBe(0); expect(optimalPercent(0, 30, 10)).toBe(100); });
-  it('plage nulle → 50', () => { expect(optimalPercent(5, 5, 5)).toBe(50); });
 });

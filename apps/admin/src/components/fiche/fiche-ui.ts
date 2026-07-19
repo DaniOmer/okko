@@ -28,9 +28,3 @@ export function tone(kind: ToneKind, code: string | undefined): Tone {
       return 'neutral';
   }
 }
-
-/** Position 0..100 de l'optimal dans [min,max], clampée ; plage nulle → 50. */
-export function optimalPercent(min: number, optimal: number, max: number): number {
-  if (max <= min) return 50;
-  return Math.min(100, Math.max(0, ((optimal - min) / (max - min)) * 100));
-}
