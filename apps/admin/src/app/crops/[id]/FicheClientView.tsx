@@ -7,7 +7,7 @@ import {
   SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, CONTROL_CATEGORY_LABELS,
   PRODUCT_FORM_LABELS, SALE_UNIT_LABELS, OUTLET_LABELS,
   INPUT_TYPE_LABELS, WATER_NEED_LABELS, DROUGHT_SENSITIVITY_LABELS,
-  RESISTANCE_LEVEL_LABELS,
+  RESISTANCE_LEVEL_LABELS, OPERATION_TYPE_LABELS,
 } from '@/lib/labels';
 import { formatDayMonth } from '../../../lib/format';
 import type { CropDetail } from '../../../lib/api';
@@ -314,10 +314,10 @@ export function FicheClientView({
                 };
                 const rawSteps: RawStep[] = [
                   // operations
-                  ...w.operations.map((op) => ({
+                  ...w.operations.map((op, i) => ({
                     timingDays: op.timingDays,
-                    key: `op-${op.timingDays}-${op.label.fr}`,
-                    label: op.label.fr,
+                    key: `op-${i}`,
+                    label: op.label.fr || labelOf(OPERATION_TYPE_LABELS, op.type),
                     chips: [...op.inputs, ...(op.equipment ?? [])],
                   })),
                   // sowing marker

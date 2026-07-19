@@ -4,7 +4,7 @@ import {
   SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
   PRODUCT_FORM_LABELS, SALE_UNIT_LABELS, OUTLET_LABELS,
   INPUT_TYPE_LABELS, WATER_NEED_LABELS, DROUGHT_SENSITIVITY_LABELS,
-  RESISTANCE_LEVEL_LABELS,
+  RESISTANCE_LEVEL_LABELS, OPERATION_TYPE_LABELS,
 } from '@/lib/labels';
 import { formatDayMonth } from '../../../lib/format';
 import type { CropDetail } from '../../../lib/api';
@@ -359,7 +359,7 @@ export function CropReadView({
                   const ops: { timingDays: number; label: string; sowing?: boolean }[] = [
                     ...w.operations.map((op) => ({
                       timingDays: op.timingDays,
-                      label: op.label.fr,
+                      label: op.label.fr || labelOf(OPERATION_TYPE_LABELS, op.type),
                     })),
                     { timingDays: 0, label: 'Semis', sowing: true },
                   ].sort((a, b) => a.timingDays - b.timingDays);
