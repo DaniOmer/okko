@@ -522,6 +522,32 @@ export function CropReadView({
             )}
         </DenseCard>
 
+        {/* ── 12. Photos (wide, conditional) ───────────────────────── */}
+        {(crop.images?.length ?? 0) > 0 && (
+          <DenseCard
+            iconKey="photos"
+            title="Photos"
+            count={crop.images!.length}
+            wide
+          >
+            <div className="flex flex-wrap gap-2 mt-1">
+              {crop.images!.map((img) => (
+                <div key={img.key} className="space-y-0.5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.url}
+                    alt={img.caption ?? ''}
+                    className="h-16 w-20 rounded object-cover border"
+                  />
+                  {img.caption && (
+                    <p className="text-[10px] text-muted-foreground w-20 truncate">{img.caption}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </DenseCard>
+        )}
+
       </div>
     </div>
   );

@@ -23,6 +23,7 @@ export default async function PestsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Nom scientifique</TableHead>
@@ -32,6 +33,12 @@ export default async function PestsPage() {
           <TableBody>
             {pests.map((p) => (
               <TableRow key={p.id}>
+                <TableCell>
+                  {p.images?.[0] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.images[0].url} alt={p.images[0].caption ?? ''} className="h-8 w-10 rounded object-cover" />
+                  )}
+                </TableCell>
                 <TableCell>{p.name}</TableCell>
                 <TableCell>{labelOf(PEST_TYPE_LABELS, p.type)}</TableCell>
                 <TableCell>{p.scientificName ?? '—'}</TableCell>

@@ -16,6 +16,7 @@ import { ToneBadge } from '@/components/fiche/ToneBadge';
 import { StatRange } from '@/components/fiche/StatRange';
 import { Timeline, type TimelineStep } from '@/components/fiche/Timeline';
 import { SECTION_ICON } from '@/components/fiche/section-icon';
+import { Images } from 'lucide-react';
 
 // ——————————————————————————————————————————
 // Local helpers
@@ -67,6 +68,7 @@ const NAV_ITEMS = [
   { href: '#rendement', label: 'Rendement' },
   { href: '#prix', label: 'Prix' },
   { href: '#commercialisation', label: 'Commercialisation' },
+  { href: '#photos', label: 'Photos' },
 ];
 
 function PillNav() {
@@ -130,13 +132,22 @@ export function FicheClientView({
             <p className="mt-2 text-xs text-muted-foreground">Famille botanique : {crop.family}</p>
           )}
         </div>
-        <div
-          className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-[#dde8dd] text-center text-[11px] leading-tight text-[#9bb39b]"
-          style={{ background: 'repeating-linear-gradient(45deg,#eef3ee,#eef3ee 8px,#e5efe5 8px,#e5efe5 16px)' }}
-          aria-hidden
-        >
-          Photo<br />à venir
-        </div>
+        {crop.images?.length ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={crop.images[0].url}
+            alt={crop.images[0].caption ?? crop.name}
+            className="h-28 w-28 shrink-0 rounded-2xl border border-[#dde8dd] object-cover"
+          />
+        ) : (
+          <div
+            className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-[#dde8dd] text-center text-[11px] leading-tight text-[#9bb39b]"
+            style={{ background: 'repeating-linear-gradient(45deg,#eef3ee,#eef3ee 8px,#e5efe5 8px,#e5efe5 16px)' }}
+            aria-hidden
+          >
+            Photo<br />à venir
+          </div>
+        )}
       </div>
 
       {/* ── Nav pilules collante ─────────────────────────────────────────────── */}
@@ -501,6 +512,34 @@ export function FicheClientView({
             </div>
           )}
         </Section>
+
+        {/* 11. Photos */}
+        {(crop.images?.length ?? 0) > 0 && (
+          <section id="photos" className="scroll-mt-16 border-t py-6">
+            <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]">
+                <Images className="h-4 w-4" />
+              </span>
+              Photos
+              <span className="font-normal text-muted-foreground">({crop.images!.length})</span>
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {crop.images!.map((img) => (
+                <div key={img.key} className="space-y-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.url}
+                    alt={img.caption ?? ''}
+                    className="h-36 w-44 rounded-lg border object-cover"
+                  />
+                  {img.caption && (
+                    <p className="text-xs text-muted-foreground w-44 truncate">{img.caption}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
       </div>
     </div>

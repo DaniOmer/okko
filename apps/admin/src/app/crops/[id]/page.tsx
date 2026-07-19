@@ -19,6 +19,7 @@ import { PestControlEditor } from './editors/PestControlEditor';
 import { IdentityEditor } from './editors/IdentityEditor';
 import { ArchiveButton } from './editors/ArchiveButton';
 import { CommercializationEditor } from './editors/CommercializationEditor';
+import { ImagesEditor } from './editors/ImagesEditor';
 
 export default async function CropDetailPage({ params }: { params: { id: string } }) {
   // The crop is required — a missing one is a genuine 404, not a crashed page.
@@ -276,6 +277,28 @@ export default async function CropDetailPage({ params }: { params: { id: string 
                 </li>
               ))}
             </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-base">Photos ({(crop.images ?? []).length})</CardTitle>
+            <ImagesEditor cropId={params.id} current={crop.images ?? []} />
+          </CardHeader>
+          <CardContent>
+            {(crop.images ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucune photo.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {(crop.images ?? []).map((img) => (
+                  <div key={img.key} className="space-y-0.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt={img.caption ?? ''} className="h-20 w-24 rounded object-cover border" />
+                    {img.caption && <p className="text-xs text-muted-foreground truncate w-24">{img.caption}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

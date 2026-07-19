@@ -8,14 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { PEST_TYPE_LABELS } from '@/lib/labels';
 import { updatePest, deletePest } from '@/lib/actions';
+import { ImageGalleryUploader } from '@/components/ImageGalleryUploader';
+import type { ImageRef } from '@/lib/api';
 
-export function PestRowActions({ pest }: { pest: { id: string; name: string; type: string; scientificName?: string } }) {
+export function PestRowActions({ pest }: { pest: { id: string; name: string; type: string; scientificName?: string; images: ImageRef[] } }) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [name, setName] = useState(pest.name);
   const [type, setType] = useState(pest.type);
   const [scientificName, setScientificName] = useState(pest.scientificName ?? '');
+  const [images, setImages] = useState<ImageRef[]>(pest.images ?? []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +48,11 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
               </Select>
             </div>
             <div className="space-y-1"><Label htmlFor="p-sci">Nom scientifique</Label><Input id="p-sci" value={scientificName} onChange={(e) => setScientificName(e.target.value)} /></div>
+            <div className="space-y-1"><Label>Photos</Label><ImageGalleryUploader value={images} onChange={setImages} /></div>
           </div>
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setEditOpen(false)}>Annuler</Button>
-            <Button size="sm" disabled={busy} onClick={() => run(() => updatePest(pest.id, { name: { fr: name }, type, scientificName: scientificName || undefined }), () => setEditOpen(false))}>Enregistrer</Button>
+            <Button size="sm" disabled={busy} onClick={() => run(() => updatePest(pest.id, { name: { fr: name }, type, scientificName: scientificName || undefined, images: images.map((i) => ({ key: i.key, caption: i.caption })) }), () => setEditOpen(false))}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

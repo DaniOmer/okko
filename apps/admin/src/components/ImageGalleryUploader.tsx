@@ -45,9 +45,9 @@ export function ImageGalleryUploader({ value, onChange }: { value: ImageRef[]; o
             <img src={img.url} alt={img.caption || ''} className="h-20 w-full rounded object-cover" />
             <Input className="h-7 text-xs" placeholder="légende" value={img.caption ?? ''} onChange={(e) => setCaption(i, e.target.value)} />
             <div className="flex justify-between">
-              <button type="button" className="text-xs text-muted-foreground" onClick={() => move(i, -1)} disabled={i === 0}>←</button>
+              <button type="button" aria-label="Monter" className="text-xs text-muted-foreground" onClick={() => move(i, -1)} disabled={i === 0}>←</button>
               <button type="button" className="text-xs text-destructive" onClick={() => remove(i)}>Supprimer</button>
-              <button type="button" className="text-xs text-muted-foreground" onClick={() => move(i, 1)} disabled={i === value.length - 1}>→</button>
+              <button type="button" aria-label="Descendre" className="text-xs text-muted-foreground" onClick={() => move(i, 1)} disabled={i === value.length - 1}>→</button>
             </div>
           </div>
         ))}

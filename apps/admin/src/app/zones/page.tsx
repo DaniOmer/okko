@@ -22,6 +22,7 @@ export default async function ZonesPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Pays</TableHead>
               <TableHead>Köppen</TableHead>
@@ -31,6 +32,12 @@ export default async function ZonesPage() {
           <TableBody>
             {zones.map((z) => (
               <TableRow key={z.id}>
+                <TableCell>
+                  {z.images?.[0] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={z.images[0].url} alt={z.images[0].caption ?? ''} className="h-8 w-10 rounded object-cover" />
+                  )}
+                </TableCell>
                 <TableCell>{z.name}</TableCell>
                 <TableCell>{z.country}</TableCell>
                 <TableCell>{z.koppen ?? '—'}</TableCell>

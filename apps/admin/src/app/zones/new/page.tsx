@@ -6,19 +6,22 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { ImageGalleryUploader } from '@/components/ImageGalleryUploader';
+import type { ImageRef } from '@/lib/api';
 
 export default function NewZonePage() {
   const router = useRouter();
   const [fr, setFr] = useState('');
   const [country, setCountry] = useState('');
   const [koppen, setKoppen] = useState('');
+  const [images, setImages] = useState<ImageRef[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     try {
-      await createZone({ name: { fr }, country, koppen: koppen || undefined });
+      await createZone({ name: { fr }, country, koppen: koppen || undefined, images: images.map((i) => ({ key: i.key, caption: i.caption })) });
       router.refresh();
       router.push('/zones');
     } catch (err) {
@@ -46,6 +49,10 @@ export default function NewZonePage() {
             <div className="space-y-1">
               <Label htmlFor="zone-koppen">Köppen (optionnel)</Label>
               <Input id="zone-koppen" placeholder="Köppen (optionnel)" value={koppen} onChange={(e) => setKoppen(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Photos (optionnel)</Label>
+              <ImageGalleryUploader value={images} onChange={setImages} />
             </div>
             <Button type="submit">Créer</Button>
           </form>
