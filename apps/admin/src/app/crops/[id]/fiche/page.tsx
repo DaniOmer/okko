@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { getCropPublished } from '../../../../lib/api';
-import { labelOf, CYCLE_TYPE_LABELS } from '@/lib/labels';
+import { getCropPublished, listPests, listZones } from '../../../../lib/api';
 import { FicheClientView } from '../FicheClientView';
 
 export default async function FicheClientPage({ params }: { params: { id: string } }) {
@@ -13,14 +12,14 @@ export default async function FicheClientPage({ params }: { params: { id: string
       </main>
     );
   }
+  const [pests, zones] = await Promise.all([listPests().catch(() => []), listZones().catch(() => [])]);
+  const pestNames = Object.fromEntries(pests.map((p) => [p.id, p.name]));
+  const zoneNames = Object.fromEntries(zones.map((z) => [z.id, z.name]));
+
   return (
-    <main className="p-8 max-w-2xl mx-auto space-y-6">
-      <header className="space-y-1 border-b pb-4">
-        <h1 className="text-3xl font-bold">{crop.name} <em className="text-lg font-normal text-muted-foreground">{crop.scientificName}</em></h1>
-        <p className="text-sm text-muted-foreground">{crop.family} · {labelOf(CYCLE_TYPE_LABELS, crop.cycleType)} · v{crop.publishedVersion}</p>
-      </header>
-      <FicheClientView crop={crop} />
-      <Link href={`/crops/${params.id}`} className="text-xs text-muted-foreground hover:underline">← Retour à l&apos;administration</Link>
+    <main className="mx-auto max-w-3xl p-6 md:p-8">
+      <FicheClientView crop={crop} pestNames={pestNames} zoneNames={zoneNames} />
+      <Link href={`/crops/${params.id}`} className="mt-6 inline-block text-xs text-muted-foreground hover:underline">← Retour à l&apos;administration</Link>
     </main>
   );
 }
