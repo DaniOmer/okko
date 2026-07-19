@@ -328,7 +328,7 @@ export function CropReadView({
               <div className="space-y-0.5">
                 {crop.pests.map((p) => (
                   <div key={p.pestId} className="text-[12.5px] leading-snug">
-                    {p.pestName.fr}{' '}
+                    {pestNames[p.pestId] ?? p.pestName.fr}{' '}
                     <ToneBadge tone={tone('susceptibility', p.susceptibility)}>
                       {labelOf(SUSCEPTIBILITY_LABELS, p.susceptibility)}
                     </ToneBadge>
@@ -364,16 +364,6 @@ export function CropReadView({
                     { timingDays: 0, label: 'Semis', sowing: true },
                   ].sort((a, b) => a.timingDays - b.timingDays);
 
-                  const itinerary = ops
-                    .map((op) => {
-                      const dayLabel =
-                        op.sowing ? 'J0' : `J${op.timingDays >= 0 ? '+' : ''}${op.timingDays}`;
-                      return op.sowing
-                        ? `<b>${dayLabel} ${op.label}</b>`
-                        : `${dayLabel} ${op.label}`;
-                    })
-                    .join(' · ');
-
                   return (
                     <div key={w.id}>
                       <div className="text-[12.5px] font-semibold leading-snug">
@@ -388,10 +378,18 @@ export function CropReadView({
                         {w.irrigationRequired ? 'irrigation requise' : 'sans irrigation'}
                       </div>
                       {ops.length > 1 && (
-                        <div
-                          className="text-[12.5px] leading-snug"
-                          dangerouslySetInnerHTML={{ __html: itinerary }}
-                        />
+                        <div className="text-[12.5px] leading-snug">
+                          {ops.map((op, i) => {
+                            const dayLabel = op.sowing ? 'J0' : `J${op.timingDays >= 0 ? '+' : ''}${op.timingDays}`;
+                            const text = `${dayLabel} ${op.label}`.trim();
+                            return (
+                              <span key={i}>
+                                {i > 0 && ' · '}
+                                {op.sowing ? <strong className="text-[#245c27]">{text}</strong> : text}
+                              </span>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
                   );
@@ -418,7 +416,7 @@ export function CropReadView({
                     {y.potential} {y.unit}
                     {y.zoneId && (
                       <span className="ml-1 text-xs text-muted-foreground">
-                        — {crop.zones.find((z) => z.zoneId === y.zoneId)?.zoneName.fr ?? y.zoneId}
+                        — {zoneNames[y.zoneId] ?? crop.zones.find((z) => z.zoneId === y.zoneId)?.zoneName.fr ?? y.zoneId}
                       </span>
                     )}
                   </div>
