@@ -74,6 +74,13 @@ describe('diffCropDocuments', () => {
     expect(d.sections).toEqual([]);
   });
 
+  it('images (section-valeur) modifiée -> fields', () => {
+    const img = (key: string) => ({ key, caption: 'x' } as any);
+    const d = diffCropDocuments(1, 2, doc({ images: [] }), doc({ images: [img('images/a.jpg')] }));
+    expect(d.fields).toEqual([{ field: 'images', before: [], after: [img('images/a.jpg')] }]);
+    expect(d.sections).toEqual([]);
+  });
+
   it('metadata insensible à l\'ordre des clés', () => {
     const d = diffCropDocuments(1, 2, doc({ metadata: { a: 1, b: 2 } }), doc({ metadata: { b: 2, a: 1 } }));
     expect(d.fields).toEqual([]);

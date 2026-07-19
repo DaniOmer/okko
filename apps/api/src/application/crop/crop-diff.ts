@@ -37,7 +37,7 @@ function diffObjectFields(before: unknown, after: unknown): FieldChange[] {
 }
 
 // Champs cœur + sections-valeur : tout devient un FieldChange (avant/après entier).
-const VALUE_FIELDS = ['name', 'scientificName', 'family', 'cycleType', 'climatic', 'edaphic', 'metadata', 'phenology', 'nutrition', 'yields', 'commercialization'] as const;
+const VALUE_FIELDS = ['name', 'scientificName', 'family', 'cycleType', 'climatic', 'edaphic', 'metadata', 'phenology', 'nutrition', 'yields', 'commercialization', 'images'] as const;
 // Sections à clé : added/removed/changed par clé.
 const KEYED_SECTIONS: { section: string; key: string }[] = [
   { section: 'varieties', key: 'id' },
