@@ -64,10 +64,14 @@ import { DiscardDraftUseCase } from './application/crop/discard-draft.use-case';
 import { RestoreDraftUseCase } from './application/crop/restore-draft.use-case';
 import { ArchiveCropUseCase } from './application/crop/archive-crop.use-case';
 import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case';
+import { STORAGE_PORT, StoragePort } from './application/media/storage.port';
+import { UploadImageUseCase } from './application/media/upload-image.use-case';
+import { S3Storage } from './infrastructure/media/s3-storage';
+import { MediaController } from './presentation/media/media.controller';
 
 @Module({
   imports: [AuthModule],
-  controllers: [CropController, ZoneController, PestController],
+  controllers: [CropController, ZoneController, PestController, MediaController],
   providers: [
     PrismaService,
     { provide: CLOCK, useClass: SystemClock },
@@ -258,6 +262,12 @@ import { UnarchiveCropUseCase } from './application/crop/unarchive-crop.use-case
       provide: UnarchiveCropUseCase,
       useFactory: (es, r, a, c) => new UnarchiveCropUseCase(es, r, a, c),
       inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    { provide: STORAGE_PORT, useFactory: () => S3Storage.fromEnv() },
+    {
+      provide: UploadImageUseCase,
+      useFactory: (s: StoragePort) => new UploadImageUseCase(s),
+      inject: [STORAGE_PORT],
     },
   ],
 })
