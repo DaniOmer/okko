@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getCropVersion } from '../../../../../lib/api';
+import { getCropVersion, listPests, listZones } from '../../../../../lib/api';
 import { CropReadView } from '../../CropReadView';
 import { RestoreButton } from '../RestoreButton';
 
@@ -8,6 +8,9 @@ export default async function CropVersionPage({ params }: { params: { id: string
   const revision = Number(params.revision);
   const version = await getCropVersion(params.id, revision).catch(() => null);
   if (!version) notFound();
+  const [pests, zones] = await Promise.all([listPests().catch(() => []), listZones().catch(() => [])]);
+  const pestNames = Object.fromEntries(pests.map((p) => [p.id, p.name]));
+  const zoneNames = Object.fromEntries(zones.map((z) => [z.id, z.name]));
 
   return (
     <main className="p-8 max-w-4xl space-y-6">
@@ -23,7 +26,7 @@ export default async function CropVersionPage({ params }: { params: { id: string
           Version {revision} (figée) — Lecture seule.
         </div>
       </div>
-      <CropReadView crop={version} />
+      <CropReadView crop={version} pestNames={pestNames} zoneNames={zoneNames} />
     </main>
   );
 }
