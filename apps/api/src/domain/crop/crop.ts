@@ -7,6 +7,7 @@ import { PhenologicalStage, PhenologicalStageJSON } from './phenological-stage';
 import { NutrientRequirement, NutrientRequirementJSON } from './nutrient-requirement';
 import { YieldReference, YieldReferenceJSON } from './yield-reference';
 import { CommercializationProduct, CommercializationProductJSON } from './commercialization-product';
+import { MediaImage, MediaImageJSON } from '../media/media-image';
 import { CropEvent } from './crop-event';
 import { VarietySnapshot } from './variety';
 import { CroppingWindowSnapshot } from '../window/cropping-window';
@@ -39,6 +40,7 @@ interface Checkpoint {
   nutrition: NutrientRequirement[];
   yields: YieldReference[];
   commercialization: CommercializationProduct[];
+  images: MediaImage[];
   varieties: VarietySnapshot[];
   windows: CroppingWindowSnapshot[];
   zones: CropZoneSuitabilitySnapshot[];
@@ -63,6 +65,7 @@ export interface CropSnapshot {
   nutrition?: NutrientRequirementJSON[];
   yields?: YieldReferenceJSON[];
   commercialization: CommercializationProductJSON[];
+  images: MediaImageJSON[];
   hasUnpublishedChanges: boolean;
   hasPublishedVersion: boolean;
   publishedVersion: number;
@@ -89,6 +92,8 @@ export class Crop {
   private _hasPublishedVersion = false;
   private _publishedRevision = 0;
   private _checkpoints = new Map<number, Checkpoint>();
+
+  private _images: MediaImage[] = [];
 
   private constructor(
     private readonly _id: string,
@@ -148,6 +153,7 @@ export class Crop {
   get nutrition(): NutrientRequirement[] { return [...this._nutrition]; }
   get yields(): YieldReference[] { return [...this._yields]; }
   get commercialization(): CommercializationProduct[] { return [...this._commercialization]; }
+  get images(): MediaImage[] { return [...this._images]; }
   get usageCategory(): string | undefined { return this._usageCategory; }
   get description(): Record<string, string> | undefined { return this._description; }
   get varieties(): VarietySnapshot[] { return [...this._varieties]; }
@@ -164,6 +170,7 @@ export class Crop {
   setNutrition(list: NutrientRequirement[]): void { this.raise({ type: 'NutritionSet', nutrition: list.map((n) => n.toJSON()) }); }
   setYields(list: YieldReference[]): void { this.raise({ type: 'YieldsSet', yields: list.map((y) => y.toJSON()) }); }
   setCommercialization(list: CommercializationProduct[]): void { this.raise({ type: 'CommercializationSet', commercialization: list.map((p) => p.toJSON()) }); }
+  setImages(list: MediaImage[]): void { this.raise({ type: 'CropImagesSet', images: list.map((i) => i.toJSON()) }); }
   rename(commonNames: TranslatableText): void { this.raise({ type: 'Renamed', commonNames: commonNames.toJSON() }); }
   editIdentity(p: { scientificName: string; family: string; cycleType: CycleType; usageCategory?: string; description?: Record<string, string> }): void { this.raise({ type: 'IdentityEdited', scientificName: p.scientificName, family: p.family, cycleType: p.cycleType, usageCategory: p.usageCategory, description: p.description }); }
   setMetadata(key: string, value: unknown): void { this.raise({ type: 'MetadataSet', key, value }); }
@@ -199,6 +206,7 @@ export class Crop {
       case 'NutritionSet': this._nutrition = e.nutrition.map((j) => NutrientRequirement.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'YieldsSet': this._yields = e.yields.map((j) => YieldReference.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'CommercializationSet': this._commercialization = e.commercialization.map((j) => CommercializationProduct.fromJSON(j)); this._version += 1; this._hasUnpublishedChanges = true; break;
+      case 'CropImagesSet': this._images = e.images.map(MediaImage.fromJSON); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'Renamed': this._commonNames = TranslatableText.create(e.commonNames); this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'IdentityEdited': this._scientificName = e.scientificName; this._family = e.family; this._cycleType = e.cycleType; this._usageCategory = e.usageCategory; this._description = e.description; this._version += 1; this._hasUnpublishedChanges = true; break;
       case 'MetadataSet': this._metadata = { ...this._metadata, [e.key]: e.value }; this._version += 1; this._hasUnpublishedChanges = true; break;
@@ -224,7 +232,7 @@ export class Crop {
       commonNames: this._commonNames, status: this._status, version: this._version,
       metadata: { ...this._metadata }, climatic: this._climatic, edaphic: this._edaphic,
       phenology: [...this._phenology], nutrition: [...this._nutrition], yields: [...this._yields],
-      commercialization: [...this._commercialization],
+      commercialization: [...this._commercialization], images: [...this._images],
       varieties: [...this._varieties], windows: [...this._windows], zones: [...this._zones],
       pests: [...this._pests], prices: [...this._prices],
     });
@@ -235,7 +243,7 @@ export class Crop {
     this._commonNames = cp.commonNames; this._status = cp.status; this._version = cp.version;
     this._metadata = { ...cp.metadata }; this._climatic = cp.climatic; this._edaphic = cp.edaphic;
     this._phenology = [...cp.phenology]; this._nutrition = [...cp.nutrition]; this._yields = [...cp.yields];
-    this._commercialization = [...cp.commercialization];
+    this._commercialization = [...cp.commercialization]; this._images = [...cp.images];
     this._varieties = [...cp.varieties]; this._windows = [...cp.windows]; this._zones = [...cp.zones];
     this._pests = [...cp.pests]; this._prices = [...cp.prices];
     this._hasUnpublishedChanges = (revision !== this._publishedRevision);
@@ -259,6 +267,7 @@ export class Crop {
       nutrition: this._nutrition.map((n) => n.toJSON()),
       yields: this._yields.map((y) => y.toJSON()),
       commercialization: this._commercialization.map((p) => p.toJSON()),
+      images: this._images.map((i) => i.toJSON()),
       hasUnpublishedChanges: this._hasUnpublishedChanges,
       hasPublishedVersion: this._hasPublishedVersion,
       publishedVersion: this._publishedRevision,
@@ -280,6 +289,7 @@ export class Crop {
       (s.commercialization ?? []).map((j) => CommercializationProduct.fromJSON(j)),
       s.usageCategory, s.description,
     );
+    crop._images = (s.images ?? []).map(MediaImage.fromJSON);
     crop._hasUnpublishedChanges = s.hasUnpublishedChanges;
     crop._hasPublishedVersion = s.hasPublishedVersion;
     return crop;

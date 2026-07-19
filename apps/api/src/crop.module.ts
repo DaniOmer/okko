@@ -53,6 +53,7 @@ import { PRICE_POINT_REPOSITORY } from './application/price/price-point.reposito
 import { SetCropNutritionUseCase } from './application/crop/set-crop-nutrition.use-case';
 import { SetCropYieldsUseCase } from './application/crop/set-crop-yields.use-case';
 import { SetCropCommercializationUseCase } from './application/crop/set-crop-commercialization.use-case';
+import { SetCropImagesUseCase } from './application/crop/set-crop-images.use-case';
 import { AddPricePointUseCase } from './application/price/add-price-point.use-case';
 import { UpdatePricePointUseCase } from './application/price/update-price-point.use-case';
 import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-case';
@@ -221,6 +222,11 @@ import { MediaController } from './presentation/media/media.controller';
     {
       provide: SetCropCommercializationUseCase,
       useFactory: (es, r, a, c) => new SetCropCommercializationUseCase(es, r, a, c),
+      inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: SetCropImagesUseCase,
+      useFactory: (es, r, a, c) => new SetCropImagesUseCase(es, r, a, c),
       inject: [CROP_EVENT_STORE, CROP_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {

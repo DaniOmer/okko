@@ -22,6 +22,7 @@ model Crop {
   nutrition      Json?
   yields                Json?
   commercialization     Json?
+  images                Json?
   hasUnpublishedChanges Boolean  @default(false)
   hasPublishedVersion   Boolean  @default(false)
   publishedVersion      Int      @default(0)

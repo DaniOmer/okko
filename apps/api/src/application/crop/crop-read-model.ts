@@ -8,6 +8,7 @@ import { PricePointSnapshot } from '../../domain/price/price-point';
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
 import { CommercializationProductJSON } from '../../domain/crop/commercialization-product';
+import { MediaImageJSON } from '../../domain/media/media-image';
 import { computeCompleteness, CompletenessReport } from './crop-completeness';
 
 export interface CropDocument {
@@ -31,6 +32,7 @@ export interface CropDocument {
   nutrition: NutrientRequirementJSON[];
   yields: YieldReferenceJSON[];
   commercialization: CommercializationProductJSON[];
+  images: MediaImageJSON[];
   prices: PricePointSnapshot[];
   completeness: CompletenessReport;
   serializedText: string;
@@ -58,6 +60,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
   const nutrition = s.nutrition ?? [];
   const yields = s.yields ?? [];
   const commercialization = s.commercialization ?? [];
+  const images = s.images ?? [];
   const name = s.commonNames[locale] ?? s.commonNames['fr'];
   const phenology = s.phenology ?? [];
   const lines = [
@@ -129,7 +132,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     cycleType: s.cycleType, usageCategory: s.usageCategory, description: s.description,
     status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,
-    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, commercialization, prices, completeness, serializedText: lines.join('\n'),
+    varieties, zones, phenology, croppingWindows: windows, pests, nutrition, yields, commercialization, images, prices, completeness, serializedText: lines.join('\n'),
     hasUnpublishedChanges: s.hasUnpublishedChanges,
     hasPublishedVersion: s.hasPublishedVersion,
     publishedVersion: s.publishedVersion,

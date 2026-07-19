@@ -37,6 +37,9 @@ import { ControlMethodJSON } from '../../domain/pest/control-method';
 import { SetCropNutritionUseCase } from '../../application/crop/set-crop-nutrition.use-case';
 import { SetCropYieldsUseCase } from '../../application/crop/set-crop-yields.use-case';
 import { SetCropCommercializationUseCase } from '../../application/crop/set-crop-commercialization.use-case';
+import { SetCropImagesUseCase } from '../../application/crop/set-crop-images.use-case';
+import { STORAGE_PORT, StoragePort } from '../../application/media/storage.port';
+import { toImageDto } from '../media/image-dto';
 import { AddPricePointUseCase, InvalidPricePeriodError } from '../../application/price/add-price-point.use-case';
 import { UpdatePricePointUseCase, PricePointNotFoundError } from '../../application/price/update-price-point.use-case';
 import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.use-case';
@@ -90,6 +93,8 @@ export class CropController {
     private readonly setNutrition: SetCropNutritionUseCase,
     private readonly setYields: SetCropYieldsUseCase,
     private readonly setCommercializationUC: SetCropCommercializationUseCase,
+    private readonly setImagesUC: SetCropImagesUseCase,
+    @Inject(STORAGE_PORT) private readonly storage: StoragePort,
     private readonly addPrice: AddPricePointUseCase,
     private readonly updatePriceUC: UpdatePricePointUseCase,
     private readonly listPrices: ListCropPricesUseCase,
@@ -299,6 +304,13 @@ export class CropController {
     catch (e) { mapCropError(e, id); }
   }
 
+  @Roles('superadmin')
+  @Post(':id/images')
+  async setImages(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { images: { key: string; caption?: string }[] }) {
+    try { const snap = await this.setImagesUC.execute({ cropId: id, actor: user.email, images: body.images }); return this.composeCropDocument(id, snap); }
+    catch (e) { mapCropError(e, id); }
+  }
+
   @Post(':id/prices')
   async createPrice(
     @CurrentUser() user: AuthUser,
@@ -338,7 +350,8 @@ export class CropController {
     try {
       const rec = await this.publishedCrops.findLatest(id);
       if (!rec) throw new NotFoundException(id);
-      return rec.document;
+      const doc = rec.document;
+      return { ...doc, images: (doc.images ?? []).map((img) => toImageDto(img, this.storage)) };
     } catch (e) {
       mapCropError(e, id);
     }
@@ -410,6 +423,7 @@ export class CropController {
   }
 
   private async composeCropDocument(id: string, snap: CropSnapshot) {
-    return this.composer.compose(id, snap);
+    const doc = await this.composer.compose(id, snap);
+    return { ...doc, images: doc.images.map((img) => toImageDto(img, this.storage)) };
   }
 }
