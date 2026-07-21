@@ -15,6 +15,7 @@ export interface CropDocument {
   status: string; version: number;
   publishedVersion: number;
   hasUnpublishedChanges: boolean; hasPublishedVersion: boolean;
+  images: ImageRef[];
   completeness: CompletenessReport;
 }
 
@@ -68,7 +69,6 @@ export interface CropDetail extends CropDocument {
   yields: YieldReference[];
   prices: PricePoint[];
   commercialization: CommercializationProduct[];
-  images: ImageRef[];
 }
 
 export async function getCrop(id: string): Promise<CropDetail> {

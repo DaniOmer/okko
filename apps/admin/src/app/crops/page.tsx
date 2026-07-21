@@ -49,6 +49,7 @@ export default async function CropsPage({ searchParams }: { searchParams: { q?: 
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-14" />
                 <TableHead>Nom</TableHead>
                 <TableHead>Nom scientifique</TableHead>
                 <TableHead>Cycle</TableHead>
@@ -60,6 +61,12 @@ export default async function CropsPage({ searchParams }: { searchParams: { q?: 
             <TableBody>
               {crops.map((c) => (
                 <TableRow key={c.id}>
+                  <TableCell>
+                    {c.images?.[0] && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.images[0].url} alt={c.images[0].caption ?? ''} className="h-8 w-10 rounded object-cover" />
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">
                     <Link href={`/crops/${c.id}`} className="text-primary hover:underline">{c.name}</Link>
                   </TableCell>

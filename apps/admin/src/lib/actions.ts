@@ -14,7 +14,7 @@ export async function setCropImages(cropId: string, images: { key: string; capti
 }
 
 export async function createCrop(input: {
-  commonNames: Record<string, string>; scientificName: string; family: string; cycleType: string;
+  commonNames: Record<string, string>; scientificName: string; family: string; cycleType: string; usageCategory?: string;
 }): Promise<CropDocument> {
   const res = await authFetch('/crops', jsonInit('POST', input));
   return res.json();
