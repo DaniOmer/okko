@@ -51,6 +51,8 @@ export class PrismaCropRepository implements CropRepository {
       scientificName: row.scientificName,
       family: row.family,
       cycleType: row.cycleType as CycleType,
+      usageCategory: (row.usageCategory ?? undefined) as string | undefined,
+      description: (row.description ?? undefined) as Record<string, string> | undefined,
       status: row.status as CropStatus,
       version: row.version,
       metadata: row.metadata as Record<string, unknown>,

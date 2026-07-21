@@ -13,6 +13,8 @@ model Crop {
   scientificName String
   family         String
   cycleType      String
+  usageCategory  String?
+  description    Json?
   status         String
   version        Int
   metadata       Json
