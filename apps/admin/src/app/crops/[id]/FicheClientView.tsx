@@ -16,6 +16,7 @@ import { ToneBadge } from '@/components/fiche/ToneBadge';
 import { StatRange } from '@/components/fiche/StatRange';
 import { Timeline, type TimelineStep } from '@/components/fiche/Timeline';
 import { SECTION_ICON } from '@/components/fiche/section-icon';
+import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
 import { Images } from 'lucide-react';
 
 // ——————————————————————————————————————————
@@ -58,6 +59,7 @@ function Section({
 // ——————————————————————————————————————————
 
 const NAV_ITEMS = [
+  { href: '#photos', label: 'Photos' },
   { href: '#exigences', label: 'Exigences' },
   { href: '#varietes', label: 'Variétés' },
   { href: '#zones', label: 'Zones' },
@@ -66,9 +68,8 @@ const NAV_ITEMS = [
   { href: '#ravageurs', label: 'Ravageurs' },
   { href: '#nutrition', label: 'Nutrition' },
   { href: '#rendement', label: 'Rendement' },
-  { href: '#prix', label: 'Prix' },
   { href: '#commercialisation', label: 'Commercialisation' },
-  { href: '#photos', label: 'Photos' },
+  { href: '#prix', label: 'Prix' },
 ];
 
 function PillNav() {
@@ -156,7 +157,21 @@ export function FicheClientView({
       {/* ── Sections ─────────────────────────────────────────────────────────── */}
       <div className="px-6">
 
-        {/* 1. Exigences agroécologiques */}
+        {/* Photos */}
+        {(crop.images?.length ?? 0) > 0 && (
+          <section id="photos" className="scroll-mt-16 border-t py-6">
+            <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]">
+                <Images className="h-4 w-4" />
+              </span>
+              Photos
+              <span className="font-normal text-muted-foreground">({crop.images!.length})</span>
+            </h2>
+            <PhotoCarousel images={crop.images!} />
+          </section>
+        )}
+
+        {/* Exigences agroécologiques */}
         <Section id="exigences" iconKey="climatic" title="Exigences agroécologiques"
           intro="Les conditions dans lesquelles cette culture pousse le mieux.">
           {(() => {
@@ -451,7 +466,33 @@ export function FicheClientView({
           )}
         </Section>
 
-        {/* 9. Prix */}
+        {/* Commercialisation */}
+        <Section id="commercialisation" iconKey="commercialization" title="Commercialisation"
+          intro="Sous quelles formes et par quels circuits la culture se vend.">
+          {(crop.commercialization ?? []).length === 0 ? EMPTY : (
+            <div className="space-y-2">
+              {(crop.commercialization ?? []).map((p, i) => (
+                <div key={i} className="rounded-lg border p-3">
+                  <p className="font-semibold">{labelOf(PRODUCT_FORM_LABELS, p.form)}</p>
+                  {p.saleUnits.length > 0 && (
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <span className="text-xs text-muted-foreground mr-1">Unités :</span>
+                      {p.saleUnits.map((u, j) => <Chip key={j}>{labelOf(SALE_UNIT_LABELS, u)}</Chip>)}
+                    </div>
+                  )}
+                  {p.outlets.length > 0 && (
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <span className="text-xs text-muted-foreground mr-1">Débouchés :</span>
+                      {p.outlets.map((o, j) => <Chip key={j}>{labelOf(OUTLET_LABELS, o)}</Chip>)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {/* Prix */}
         <Section id="prix" iconKey="prices" title="Prix récents" count={crop.prices.length || undefined}
           intro="Prix récents observés sur les marchés.">
 
@@ -486,60 +527,6 @@ export function FicheClientView({
             </div>
           )}
         </Section>
-
-        {/* 10. Commercialisation */}
-        <Section id="commercialisation" iconKey="commercialization" title="Commercialisation"
-          intro="Sous quelles formes et par quels circuits la culture se vend.">
-          {(crop.commercialization ?? []).length === 0 ? EMPTY : (
-            <div className="space-y-2">
-              {(crop.commercialization ?? []).map((p, i) => (
-                <div key={i} className="rounded-lg border p-3">
-                  <p className="font-semibold">{labelOf(PRODUCT_FORM_LABELS, p.form)}</p>
-                  {p.saleUnits.length > 0 && (
-                    <div className="mt-1 flex flex-wrap items-center gap-1">
-                      <span className="text-xs text-muted-foreground mr-1">Unités :</span>
-                      {p.saleUnits.map((u, j) => <Chip key={j}>{labelOf(SALE_UNIT_LABELS, u)}</Chip>)}
-                    </div>
-                  )}
-                  {p.outlets.length > 0 && (
-                    <div className="mt-1 flex flex-wrap items-center gap-1">
-                      <span className="text-xs text-muted-foreground mr-1">Débouchés :</span>
-                      {p.outlets.map((o, j) => <Chip key={j}>{labelOf(OUTLET_LABELS, o)}</Chip>)}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </Section>
-
-        {/* 11. Photos */}
-        {(crop.images?.length ?? 0) > 0 && (
-          <section id="photos" className="scroll-mt-16 border-t py-6">
-            <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]">
-                <Images className="h-4 w-4" />
-              </span>
-              Photos
-              <span className="font-normal text-muted-foreground">({crop.images!.length})</span>
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {crop.images!.map((img) => (
-                <div key={img.key} className="space-y-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img.url}
-                    alt={img.caption ?? ''}
-                    className="h-36 w-44 rounded-lg border object-cover"
-                  />
-                  {img.caption && (
-                    <p className="text-xs text-muted-foreground w-44 truncate">{img.caption}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
 
       </div>
     </div>
