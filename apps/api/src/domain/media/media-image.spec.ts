@@ -1,11 +1,12 @@
 import { MediaImage } from './media-image';
-describe('MediaImage', () => {
-  it('round-trips key + caption', () => {
-    const r = MediaImage.fromJSON(MediaImage.create({ key: 'images/a.jpg', caption: 'Feuille' }).toJSON());
-    expect(r.key).toBe('images/a.jpg');
-    expect(r.caption).toBe('Feuille');
+
+describe('MediaImage — category', () => {
+  it('round-trip JSON préserve la catégorie', () => {
+    const img = MediaImage.fromJSON({ key: 'k1', caption: 'adulte', category: 'ADULT' });
+    expect(img.category).toBe('ADULT');
+    expect(img.toJSON()).toEqual({ key: 'k1', caption: 'adulte', category: 'ADULT' });
   });
-  it('omet caption si absente', () => {
-    expect(MediaImage.create({ key: 'images/b.png' }).toJSON()).toEqual({ key: 'images/b.png' });
+  it('omet category si absente', () => {
+    expect(MediaImage.fromJSON({ key: 'k2' }).toJSON()).toEqual({ key: 'k2' });
   });
 });
