@@ -29,7 +29,7 @@ describe('Pest', () => {
   });
 
   it('defaults images to [] and metadata to {}', () => {
-    const p = Pest.create({ id: 'p', name: TranslatableText.create({ fr: 'X' }), type: PestType.FUNGUS });
+    const p = Pest.create({ id: 'p', name: TranslatableText.create({ fr: 'X' }), type: PestType.INSECT });
     expect(p.images).toEqual([]);
     expect(p.metadata).toEqual({});
     expect(p.symptoms).toBeUndefined();
@@ -58,10 +58,11 @@ describe('Pest', () => {
     });
     const updated = p.update({
       name: TranslatableText.create({ fr: 'B' }),
-      type: PestType.FUNGUS,
+      type: PestType.MITE,
       images: [{ key: 'images/new.jpg', caption: 'Nouveau' }],
     });
     expect(updated.toSnapshot().images).toEqual([{ key: 'images/new.jpg', caption: 'Nouveau' }]);
+    expect(updated.toSnapshot().type).toBe(PestType.MITE);
   });
 
   it('update keeps existing images when images not provided', () => {
@@ -71,7 +72,8 @@ describe('Pest', () => {
       type: PestType.INSECT,
       images: [{ key: 'images/keep.jpg' }],
     });
-    const updated = p.update({ name: TranslatableText.create({ fr: 'B' }), type: PestType.FUNGUS });
+    const updated = p.update({ name: TranslatableText.create({ fr: 'B' }), type: PestType.MITE });
     expect(updated.toSnapshot().images).toEqual([{ key: 'images/keep.jpg' }]);
+    expect(updated.toSnapshot().type).toBe(PestType.MITE);
   });
 });

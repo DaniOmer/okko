@@ -9,18 +9,19 @@ describe('Pest.update', () => {
   });
 
   it('remplace les champs éditables', () => {
-    const p = base().update({ name: TranslatableText.create({ fr: 'Chenille légionnaire' }), type: PestType.INSECT, scientificName: 'Spodoptera frugiperda' });
+    const p = base().update({ name: TranslatableText.create({ fr: 'Chenille légionnaire' }), type: PestType.MITE, scientificName: 'Spodoptera frugiperda' });
     const s = p.toSnapshot();
     expect(s.name.fr).toBe('Chenille légionnaire');
     expect(s.scientificName).toBe('Spodoptera frugiperda');
+    expect(s.type).toBe(PestType.MITE);
   });
 
   it('préserve les champs avancés', () => {
-    const p = base().update({ name: TranslatableText.create({ fr: 'X' }), type: PestType.FUNGUS });
+    const p = base().update({ name: TranslatableText.create({ fr: 'X' }), type: PestType.MITE });
     const s = p.toSnapshot();
     expect(s.notes).toBe('note conservée');
     expect(s.images).toEqual([{ key: 'images/a.jpg' }]);
-    expect(s.type).toBe(PestType.FUNGUS);
+    expect(s.type).toBe(PestType.MITE);
     expect(s.scientificName).toBeUndefined();
   });
 });

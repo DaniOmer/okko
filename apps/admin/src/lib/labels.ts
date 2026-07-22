@@ -54,11 +54,11 @@ export const NUTRITION_BASIS_LABELS: Record<string, string> = {
 
 export const PEST_TYPE_LABELS: Record<string, string> = {
   INSECT: 'Insecte',
-  FUNGUS: 'Champignon (maladie fongique)',
-  BACTERIA: 'Bactérie',
-  VIRUS: 'Virus',
-  WEED: 'Adventice (mauvaise herbe)',
+  MITE: 'Acarien',
   NEMATODE: 'Nématode',
+  MOLLUSC: 'Mollusque',
+  BIRD: 'Oiseau',
+  MAMMAL: 'Mammifère',
   OTHER: 'Autre',
 };
 

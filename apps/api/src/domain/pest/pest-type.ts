@@ -1,9 +1,9 @@
 export enum PestType {
   INSECT = 'INSECT',
-  FUNGUS = 'FUNGUS',
-  BACTERIA = 'BACTERIA',
-  VIRUS = 'VIRUS',
-  WEED = 'WEED',
+  MITE = 'MITE',
   NEMATODE = 'NEMATODE',
+  MOLLUSC = 'MOLLUSC',
+  BIRD = 'BIRD',
+  MAMMAL = 'MAMMAL',
   OTHER = 'OTHER',
 }

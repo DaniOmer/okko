@@ -15,9 +15,9 @@ describe('UpdatePestUseCase', () => {
       notes: 'garde', images: [{ key: 'images/x.jpg' }],
     }).toSnapshot());
     const uc = new UpdatePestUseCase(pests, audit() as any, clock);
-    const out = await uc.execute({ id: 'p1', name: { fr: 'Champignon' }, type: PestType.FUNGUS, scientificName: 'Fusarium sp.', actor: 'admin' });
-    expect(out.name.fr).toBe('Champignon');
-    expect(out.type).toBe(PestType.FUNGUS);
+    const out = await uc.execute({ id: 'p1', name: { fr: 'Insecte' }, type: PestType.MITE, scientificName: 'Fusarium sp.', actor: 'admin' });
+    expect(out.name.fr).toBe('Insecte');
+    expect(out.type).toBe(PestType.MITE);
     expect(out.scientificName).toBe('Fusarium sp.');
     expect(out.notes).toBe('garde');
     expect(out.images).toEqual([{ key: 'images/x.jpg' }]);
