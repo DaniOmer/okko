@@ -39,7 +39,9 @@ export default async function PestsPage() {
                     <img src={p.images[0].url} alt={p.images[0].caption ?? ''} className="h-8 w-10 rounded object-cover" />
                   )}
                 </TableCell>
-                <TableCell>{p.name}</TableCell>
+                <TableCell>
+                  <Link href={`/pests/${p.id}`} className="text-primary hover:underline">{p.name}</Link>
+                </TableCell>
                 <TableCell>{labelOf(PEST_TYPE_LABELS, p.type)}</TableCell>
                 <TableCell>{p.scientificName ?? '—'}</TableCell>
                 <TableCell className="text-right"><PestRowActions pest={p} /></TableCell>
