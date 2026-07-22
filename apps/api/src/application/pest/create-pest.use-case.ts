@@ -12,6 +12,8 @@ export interface CreatePestInput {
   name: Record<string, string>;
   type: PestType;
   scientificName?: string;
+  family?: string;
+  description?: Record<string, string>;
   symptoms?: Record<string, string>;
   images?: MediaImageJSON[];
   notes?: string;
@@ -32,6 +34,8 @@ export class CreatePestUseCase {
       name: TranslatableText.create(input.name),
       type: input.type,
       scientificName: input.scientificName,
+      family: input.family,
+      description: input.description ? TranslatableText.create(input.description) : undefined,
       symptoms: input.symptoms ? TranslatableText.create(input.symptoms) : undefined,
       images: input.images,
       notes: input.notes,

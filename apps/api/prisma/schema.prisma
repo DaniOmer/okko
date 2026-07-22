@@ -116,11 +116,14 @@ model Pest {
   name           Json
   type           String
   scientificName String?
+  family         String?
+  description    Json?
   symptoms       Json?
   photos         Json
   notes          String?
   metadata       Json
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
 }
 
 model CropPestControl {

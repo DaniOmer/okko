@@ -33,6 +33,8 @@ export class PrismaPestRepository implements PestRepository {
     return {
       id: p.id, name: p.name as Prisma.InputJsonValue, type: p.type,
       scientificName: p.scientificName ?? null,
+      family: p.family ?? null,
+      description: (p.description ?? undefined) as Prisma.InputJsonValue | undefined,
       symptoms: (p.symptoms ?? undefined) as Prisma.InputJsonValue | undefined,
       photos: p.images as unknown as Prisma.InputJsonValue,
       notes: p.notes ?? null, metadata: p.metadata as Prisma.InputJsonValue,
@@ -43,6 +45,9 @@ export class PrismaPestRepository implements PestRepository {
     return {
       id: row.id, name: row.name as Record<string, string>, type: row.type as PestType,
       scientificName: row.scientificName ?? undefined,
+      family: row.family ?? undefined,
+      description: (row.description ?? undefined) as Record<string, string> | undefined,
+      updatedAt: row.updatedAt?.toISOString(),
       symptoms: (row.symptoms ?? undefined) as PestSnapshot['symptoms'],
       images: (row.photos ?? []) as unknown as MediaImageJSON[],
       notes: row.notes ?? undefined, metadata: row.metadata as Record<string, unknown>,

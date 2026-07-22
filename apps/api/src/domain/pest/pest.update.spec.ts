@@ -25,3 +25,18 @@ describe('Pest.update', () => {
     expect(s.scientificName).toBeUndefined();
   });
 });
+
+describe('Pest.update — famille & description', () => {
+  it('met à jour family et description', () => {
+    const base = Pest.create({ id: 'p1', name: TranslatableText.create({ fr: 'Chenille' }), type: PestType.INSECT });
+    const updated = base.update({
+      name: TranslatableText.create({ fr: 'Chenille légionnaire' }),
+      type: PestType.INSECT,
+      family: 'Noctuidae',
+      description: TranslatableText.create({ fr: 'Ravageur polyphage.' }),
+    });
+    const snap = updated.toSnapshot();
+    expect(snap.family).toBe('Noctuidae');
+    expect(snap.description).toEqual({ fr: 'Ravageur polyphage.' });
+  });
+});

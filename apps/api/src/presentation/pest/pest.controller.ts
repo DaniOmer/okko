@@ -29,6 +29,7 @@ export class PestController {
   @Post()
   async create(@CurrentUser() user: AuthUser, @Body() body: {
     name: Record<string, string>; type: PestType; scientificName?: string;
+    family?: string; description?: Record<string, string>;
     symptoms?: Record<string, string>; images?: { key: string; caption?: string }[]; notes?: string;
   }) {
     const snap = await this.createPest.execute({ actor: user.email, ...body });
@@ -50,6 +51,7 @@ export class PestController {
   @Patch(':id')
   async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
     name: Record<string, string>; type: PestType; scientificName?: string;
+    family?: string; description?: Record<string, string>;
     images?: { key: string; caption?: string }[];
   }) {
     try {

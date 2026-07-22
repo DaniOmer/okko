@@ -12,6 +12,8 @@ export class PestNotFoundError extends Error {
 
 export interface UpdatePestInput {
   id: string; name: Record<string, string>; type: PestType; scientificName?: string;
+  family?: string;
+  description?: Record<string, string>;
   images?: MediaImageJSON[];
   actor: string;
 }
@@ -30,6 +32,8 @@ export class UpdatePestUseCase {
       name: TranslatableText.create(input.name),
       type: input.type,
       scientificName: input.scientificName || undefined,
+      family: input.family || undefined,
+      description: input.description ? TranslatableText.create(input.description) : undefined,
       images: input.images,
     });
     const snap = updated.toSnapshot();
