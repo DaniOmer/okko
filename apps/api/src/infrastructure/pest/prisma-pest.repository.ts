@@ -47,7 +47,7 @@ export class PrismaPestRepository implements PestRepository {
       scientificName: row.scientificName ?? undefined,
       family: row.family ?? undefined,
       description: (row.description ?? undefined) as Record<string, string> | undefined,
-      updatedAt: row.updatedAt?.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
       symptoms: (row.symptoms ?? undefined) as PestSnapshot['symptoms'],
       images: (row.photos ?? []) as unknown as MediaImageJSON[],
       notes: row.notes ?? undefined, metadata: row.metadata as Record<string, unknown>,

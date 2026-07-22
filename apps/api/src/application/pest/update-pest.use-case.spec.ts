@@ -27,4 +27,27 @@ describe('UpdatePestUseCase', () => {
     const uc = new UpdatePestUseCase(new InMemoryPestRepository(), audit() as any, clock);
     await expect(uc.execute({ id: 'nope', name: { fr: 'X' }, type: PestType.INSECT, actor: 'admin' })).rejects.toBeInstanceOf(PestNotFoundError);
   });
+
+  it('efface la description quand elle est absente du payload (full-replace)', async () => {
+    const pests = new InMemoryPestRepository();
+    await pests.save(Pest.create({
+      id: 'p2', name: TranslatableText.create({ fr: 'Mouche' }), type: PestType.INSECT,
+      description: TranslatableText.create({ fr: 'Une description existante' }),
+    }).toSnapshot());
+    const uc = new UpdatePestUseCase(pests, audit() as any, clock);
+    // No description in payload → must clear the existing one
+    const out = await uc.execute({ id: 'p2', name: { fr: 'Mouche' }, type: PestType.INSECT, actor: 'admin' });
+    expect(out.description).toBeUndefined();
+  });
+
+  it('remplace la description quand une nouvelle valeur est fournie', async () => {
+    const pests = new InMemoryPestRepository();
+    await pests.save(Pest.create({
+      id: 'p3', name: TranslatableText.create({ fr: 'Mouche' }), type: PestType.INSECT,
+      description: TranslatableText.create({ fr: 'Ancienne description' }),
+    }).toSnapshot());
+    const uc = new UpdatePestUseCase(pests, audit() as any, clock);
+    const out = await uc.execute({ id: 'p3', name: { fr: 'Mouche' }, type: PestType.INSECT, description: { fr: 'Nouvelle description' }, actor: 'admin' });
+    expect(out.description).toEqual({ fr: 'Nouvelle description' });
+  });
 });

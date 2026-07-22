@@ -82,7 +82,7 @@ export class Pest {
       fields.type,
       fields.scientificName,
       fields.family,
-      fields.description ?? this._description,
+      fields.description,
       this._symptoms,
       fields.images !== undefined ? fields.images.map(MediaImage.fromJSON) : this._images,
       this._notes,
