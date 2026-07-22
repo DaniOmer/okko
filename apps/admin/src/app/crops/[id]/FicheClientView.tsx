@@ -32,8 +32,9 @@ function Chip({ children }: { children: ReactNode }) {
 
 /** Section avec icône Lucide, titre, compteur et phrase d'intro en langage simple */
 function Section({
-  id, iconKey, title, count, intro, children,
-}: { id: string; iconKey: string; title: string; count?: number; intro?: string; children: ReactNode }) {
+  id, iconKey, title, count, intro, empty, hide, children,
+}: { id: string; iconKey: string; title: string; count?: number; intro?: string; empty?: boolean; hide?: boolean; children: ReactNode }) {
+  if (empty && hide) return null;
   const Icon = SECTION_ICON[iconKey];
   return (
     <section id={id} className="scroll-mt-16 border-t py-6">
@@ -72,10 +73,10 @@ const NAV_ITEMS = [
   { href: '#prix', label: 'Prix' },
 ];
 
-function PillNav() {
+function PillNav({ items }: { items: typeof NAV_ITEMS }) {
   return (
     <nav className="sticky top-0 z-10 flex gap-1.5 overflow-x-auto border-b border-t bg-white/95 px-6 py-2.5 backdrop-blur-sm">
-      {NAV_ITEMS.map((item) => (
+      {items.map((item) => (
         <a
           key={item.href}
           href={item.href}
@@ -96,16 +97,42 @@ export function FicheClientView({
   crop,
   pestNames,
   zoneNames,
+  hideEmpty = false,
+  stamp,
 }: {
   crop: CropDetail;
   pestNames: Record<string, string>;
   zoneNames: Record<string, string>;
+  /** Masque les sections vides (et leurs pilules de nav) — vue de consultation publiée */
+  hideEmpty?: boolean;
+  /** Tampon libre affiché en tête du hero (ex. « Publié · v3 ») */
+  stamp?: ReactNode;
 }) {
   // ── Pastille en langage simple (usage · cycle), sans jargon ni métadonnée admin ──
   const tagline = [
     crop.usageCategory ? labelOf(USAGE_CATEGORY_LABELS, crop.usageCategory) : '',
     labelOf(CYCLE_TYPE_LABELS, crop.cycleType),
   ].filter(Boolean).join(' · ');
+
+  // ── Présence de chaque section (source unique pour masquage + filtrage nav) ──
+  const has: Record<string, boolean> = {
+    photos: (crop.images?.length ?? 0) > 0,
+    exigences: !!(
+      crop.climatic?.temperature || crop.climatic?.rainfall || crop.climatic?.altitude ||
+      crop.climatic?.waterNeed || crop.climatic?.droughtSensitivity ||
+      crop.edaphic?.ph || crop.edaphic?.texture
+    ),
+    varietes: crop.varieties.length > 0,
+    zones: crop.zones.length > 0,
+    phenologie: crop.phenology.length > 0,
+    calendrier: crop.croppingWindows.length > 0,
+    ravageurs: crop.pests.length > 0,
+    nutrition: crop.nutrition.length > 0,
+    rendement: crop.yields.length > 0,
+    commercialisation: (crop.commercialization ?? []).length > 0,
+    prix: crop.prices.length > 0,
+  };
+  const navItems = hideEmpty ? NAV_ITEMS.filter((i) => has[i.href.slice(1)]) : NAV_ITEMS;
 
   return (
     <div>
@@ -115,6 +142,7 @@ export function FicheClientView({
         style={{ background: 'linear-gradient(135deg,#f0f7f0,#fbfdfb)' }}
       >
         <div className="flex-1">
+          {stamp && <div className="mb-2">{stamp}</div>}
           <h1 className="text-3xl font-bold tracking-tight">{crop.name}</h1>
           {crop.scientificName && (
             <p className="mt-0.5 text-sm italic text-muted-foreground">{crop.scientificName}</p>
@@ -152,7 +180,7 @@ export function FicheClientView({
       </div>
 
       {/* ── Nav pilules collante ─────────────────────────────────────────────── */}
-      <PillNav />
+      <PillNav items={navItems} />
 
       {/* ── Sections ─────────────────────────────────────────────────────────── */}
       <div className="px-6">
@@ -173,6 +201,7 @@ export function FicheClientView({
 
         {/* Exigences agroécologiques */}
         <Section id="exigences" iconKey="climatic" title="Exigences agroécologiques"
+          empty={!has.exigences} hide={hideEmpty}
           intro="Les conditions dans lesquelles cette culture pousse le mieux.">
           {(() => {
             const hasClim =
@@ -245,6 +274,7 @@ export function FicheClientView({
 
         {/* 2. Variétés */}
         <Section id="varietes" iconKey="varieties" title="Variétés" count={crop.varieties.length || undefined}
+          empty={!has.varietes} hide={hideEmpty}
           intro="Les variétés cultivées et leurs points forts (résistances, adaptation).">
 
           {crop.varieties.length === 0 ? EMPTY : (
@@ -293,6 +323,7 @@ export function FicheClientView({
 
         {/* 3. Zones de production */}
         <Section id="zones" iconKey="zones" title="Zones de production" count={crop.zones.length || undefined}
+          empty={!has.zones} hide={hideEmpty}
           intro="Les régions où cette culture se plaît, et à quel point.">
           {crop.zones.length === 0 ? EMPTY : (
             <div className="flex flex-wrap gap-2">
@@ -316,6 +347,7 @@ export function FicheClientView({
 
         {/* 4. Phénologie */}
         <Section id="phenologie" iconKey="phenology" title="Phénologie"
+          empty={!has.phenologie} hide={hideEmpty}
           intro="Les grandes étapes de développement de la plante, en jours après le semis.">
           {crop.phenology.length === 0 ? EMPTY : (
             <Timeline
@@ -332,6 +364,7 @@ export function FicheClientView({
 
         {/* 5. Calendrier & itinéraire technique */}
         <Section id="calendrier" iconKey="windows" title="Calendrier & itinéraire technique"
+          empty={!has.calendrier} hide={hideEmpty}
           intro="Quand semer et quelles opérations mener, tout au long du cycle.">
           {crop.croppingWindows.length === 0 ? EMPTY : (
             <div className="space-y-5">
@@ -390,6 +423,7 @@ export function FicheClientView({
 
         {/* 6. Ravageurs & maladies */}
         <Section id="ravageurs" iconKey="pests" title="Ravageurs & maladies" count={crop.pests.length || undefined}
+          empty={!has.ravageurs} hide={hideEmpty}
           intro="Les principaux ennemis de la culture et comment s'en protéger.">
           {crop.pests.length === 0 ? EMPTY : (
             <div className="space-y-2">
@@ -426,6 +460,7 @@ export function FicheClientView({
 
         {/* 7. Nutrition */}
         <Section id="nutrition" iconKey="nutrition" title="Nutrition"
+          empty={!has.nutrition} hide={hideEmpty}
           intro="Les apports d'engrais recommandés.">
           {crop.nutrition.length === 0 ? EMPTY : (
             <ul className="space-y-1 text-sm">
@@ -447,6 +482,7 @@ export function FicheClientView({
 
         {/* 8. Rendement */}
         <Section id="rendement" iconKey="yields" title="Rendement"
+          empty={!has.rendement} hide={hideEmpty}
           intro="Ce que la culture peut produire.">
 
           {crop.yields.length === 0 ? EMPTY : (
@@ -468,6 +504,7 @@ export function FicheClientView({
 
         {/* Commercialisation */}
         <Section id="commercialisation" iconKey="commercialization" title="Commercialisation"
+          empty={!has.commercialisation} hide={hideEmpty}
           intro="Sous quelles formes et par quels circuits la culture se vend.">
           {(crop.commercialization ?? []).length === 0 ? EMPTY : (
             <div className="space-y-2">
@@ -494,6 +531,7 @@ export function FicheClientView({
 
         {/* Prix */}
         <Section id="prix" iconKey="prices" title="Prix récents" count={crop.prices.length || undefined}
+          empty={!has.prix} hide={hideEmpty}
           intro="Prix récents observés sur les marchés.">
 
           {crop.prices.length === 0 ? EMPTY : (

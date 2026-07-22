@@ -67,9 +67,6 @@ export default async function CropDetailPage({ params }: { params: { id: string 
               <Link href={`/crops/${params.id}/versions`} className="text-sm text-primary hover:underline">
                 Historique des versions →
               </Link>
-              <Link href={`/crops/${params.id}/fiche`} className="text-sm text-primary hover:underline">
-                Aperçu client →
-              </Link>
             </div>
           )}
         </div>
