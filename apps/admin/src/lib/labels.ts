@@ -62,6 +62,10 @@ export const PEST_TYPE_LABELS: Record<string, string> = {
   OTHER: 'Autre',
 };
 
+export const PEST_PHOTO_CATEGORY_LABELS: Record<string, string> = {
+  ADULT: 'Adulte', LARVA: 'Larve', EGG: 'Œufs', DAMAGE: 'Dégâts', OTHER: 'Autre',
+};
+
 export const CROP_STATUS_LABELS: Record<string, string> = {
   DRAFT: 'Brouillon',
   PUBLISHED: 'Publiée',

@@ -141,12 +141,12 @@ export async function deleteZone(id: string): Promise<void> {
   await authFetch(`/zones/${id}`, { method: 'DELETE' });
 }
 
-export async function createPest(input: { name: Record<string, string>; type: string; scientificName?: string; images?: { key: string; caption?: string }[] }): Promise<Pest> {
+export async function createPest(input: { name: Record<string, string>; type: string; scientificName?: string; family?: string; description?: Record<string, string>; images?: { key: string; caption?: string; category?: string }[] }): Promise<Pest> {
   const res = await authFetch('/pests', jsonInit('POST', input));
   return res.json();
 }
 
-export async function updatePest(id: string, input: { name: Record<string, string>; type: string; scientificName?: string; images?: { key: string; caption?: string }[] }): Promise<Pest> {
+export async function updatePest(id: string, input: { name: Record<string, string>; type: string; scientificName?: string; family?: string; description?: Record<string, string>; images?: { key: string; caption?: string; category?: string }[] }): Promise<Pest> {
   const res = await authFetch(`/pests/${id}`, jsonInit('PATCH', input));
   return res.json();
 }

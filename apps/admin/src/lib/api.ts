@@ -4,7 +4,7 @@ import type { Role } from './jwt';
 
 export { ApiError };
 
-export interface ImageRef { key: string; url: string; caption?: string; }
+export interface ImageRef { key: string; url: string; caption?: string; category?: string; }
 
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
@@ -115,7 +115,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest { id: string; name: string; type: string; scientificName?: string; images: ImageRef[]; }
+export interface Pest { id: string; name: string; type: string; scientificName?: string; family?: string; description?: Record<string, string>; images: ImageRef[]; updatedAt?: string; }
 export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;
   threshold?: string; sensitiveStages: string[];
@@ -128,6 +128,11 @@ export interface PricePoint { id: string; cropId: string; form: string; market: 
 
 export async function listPests(): Promise<Pest[]> {
   const res = await authFetch('/pests', { cache: 'no-store' });
+  return res.json();
+}
+
+export async function getPest(id: string): Promise<Pest> {
+  const res = await authFetch(`/pests/${id}`, { cache: 'no-store' });
   return res.json();
 }
 
