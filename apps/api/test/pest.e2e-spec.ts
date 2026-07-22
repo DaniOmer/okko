@@ -15,12 +15,12 @@ describe('Pests e2e', () => {
     prisma = app.get(PrismaService);
     await app.init();
     await prisma.cropPestControl.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.crop.deleteMany();
   });
   afterAll(async () => {
     await prisma.cropPestControl.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.crop.deleteMany();
     await app.close();
   });

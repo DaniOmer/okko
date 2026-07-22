@@ -1,4 +1,4 @@
-import { PestDisease, PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
+import { Pest, PestSnapshot } from '../../domain/pest/pest';
 import { PestType } from '../../domain/pest/pest-type';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { MediaImageJSON } from '../../domain/media/media-image';
@@ -26,8 +26,8 @@ export class CreatePestUseCase {
     private readonly ids: IdGenerator,
   ) {}
 
-  async execute(input: CreatePestInput): Promise<PestDiseaseSnapshot> {
-    const pest = PestDisease.create({
+  async execute(input: CreatePestInput): Promise<PestSnapshot> {
+    const pest = Pest.create({
       id: input.id ?? this.ids.next(),
       name: TranslatableText.create(input.name),
       type: input.type,
@@ -39,7 +39,7 @@ export class CreatePestUseCase {
     const snap = pest.toSnapshot();
     await this.pests.save(snap);
     await this.audit.record({
-      entityType: 'PestDisease', entityId: pest.id, actor: input.actor,
+      entityType: 'Pest', entityId: pest.id, actor: input.actor,
       at: this.clock.nowIso(), changes: { created: snap },
     });
     return snap;

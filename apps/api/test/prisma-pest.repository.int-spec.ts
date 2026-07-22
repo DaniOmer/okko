@@ -13,7 +13,7 @@ describe('Prisma pest + control repositories (integration)', () => {
   beforeAll(async () => { await prisma.$connect(); });
   afterAll(async () => {
     await prisma.cropPestControl.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.$disconnect();
   });
 

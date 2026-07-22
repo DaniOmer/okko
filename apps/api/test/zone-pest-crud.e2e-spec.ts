@@ -20,7 +20,7 @@ describe('Zone & Pest CRUD e2e', () => {
     await prisma.cropZoneSuitability.deleteMany();
     await prisma.cropPestControl.deleteMany();
     await prisma.agroEcologicalZone.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.crop.deleteMany();
   });
 
@@ -28,7 +28,7 @@ describe('Zone & Pest CRUD e2e', () => {
     await prisma.cropZoneSuitability.deleteMany();
     await prisma.cropPestControl.deleteMany();
     await prisma.agroEcologicalZone.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.crop.deleteMany();
     await app.close();
   });

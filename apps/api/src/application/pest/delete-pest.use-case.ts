@@ -28,7 +28,7 @@ export class DeletePestUseCase {
     if (refs.length > 0) throw new PestInUseError(refs.length);
     await this.pests.delete(input.id);
     await this.audit.record({
-      entityType: 'PestDisease', entityId: input.id, actor: input.actor,
+      entityType: 'Pest', entityId: input.id, actor: input.actor,
       at: this.clock.nowIso(), changes: { deleted: { id: input.id } },
     });
   }

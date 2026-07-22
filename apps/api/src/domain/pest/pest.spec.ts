@@ -1,9 +1,9 @@
-import { PestDisease } from './pest-disease';
+import { Pest } from './pest';
 import { PestType } from './pest-type';
 import { TranslatableText } from '../shared/translatable-text';
 
-describe('PestDisease', () => {
-  const base = () => PestDisease.create({
+describe('Pest', () => {
+  const base = () => Pest.create({
     id: 'pest-1',
     name: TranslatableText.create({ fr: 'Mouche des fruits' }),
     type: PestType.INSECT,
@@ -21,7 +21,7 @@ describe('PestDisease', () => {
   });
 
   it('round-trips through snapshot', () => {
-    const restored = PestDisease.fromSnapshot(base().toSnapshot());
+    const restored = Pest.fromSnapshot(base().toSnapshot());
     expect(restored.name.getOrDefault('fr')).toBe('Mouche des fruits');
     expect(restored.symptoms?.getOrDefault('fr')).toBe('Piqûres et pourriture des fruits');
     expect(restored.type).toBe(PestType.INSECT);
@@ -29,14 +29,14 @@ describe('PestDisease', () => {
   });
 
   it('defaults images to [] and metadata to {}', () => {
-    const p = PestDisease.create({ id: 'p', name: TranslatableText.create({ fr: 'X' }), type: PestType.FUNGUS });
+    const p = Pest.create({ id: 'p', name: TranslatableText.create({ fr: 'X' }), type: PestType.FUNGUS });
     expect(p.images).toEqual([]);
     expect(p.metadata).toEqual({});
     expect(p.symptoms).toBeUndefined();
   });
 
   it('stores images in snapshot and round-trips them', () => {
-    const p = PestDisease.create({
+    const p = Pest.create({
       id: 'pest-1',
       name: TranslatableText.create({ fr: 'Mouche des fruits' }),
       type: PestType.INSECT,
@@ -44,13 +44,13 @@ describe('PestDisease', () => {
     });
     const snap = p.toSnapshot();
     expect(snap.images).toEqual([{ key: 'images/p.jpg', caption: 'Larve' }]);
-    const restored = PestDisease.fromSnapshot(snap);
+    const restored = Pest.fromSnapshot(snap);
     expect(restored.images[0].key).toBe('images/p.jpg');
     expect(restored.images[0].caption).toBe('Larve');
   });
 
   it('update replaces images when provided', () => {
-    const p = PestDisease.create({
+    const p = Pest.create({
       id: 'pest-1',
       name: TranslatableText.create({ fr: 'A' }),
       type: PestType.INSECT,
@@ -65,7 +65,7 @@ describe('PestDisease', () => {
   });
 
   it('update keeps existing images when images not provided', () => {
-    const p = PestDisease.create({
+    const p = Pest.create({
       id: 'pest-1',
       name: TranslatableText.create({ fr: 'A' }),
       type: PestType.INSECT,

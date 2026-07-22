@@ -1,6 +1,6 @@
 import { UpdatePestUseCase, PestNotFoundError } from './update-pest.use-case';
 import { InMemoryPestRepository } from './in-memory-pest.repository';
-import { PestDisease } from '../../domain/pest/pest-disease';
+import { Pest } from '../../domain/pest/pest';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { PestType } from '../../domain/pest/pest-type';
 
@@ -10,7 +10,7 @@ const clock = { nowIso: () => '2026-07-06T00:00:00.000Z' };
 describe('UpdatePestUseCase', () => {
   it('met à jour les champs éditables et préserve le reste', async () => {
     const pests = new InMemoryPestRepository();
-    await pests.save(PestDisease.create({
+    await pests.save(Pest.create({
       id: 'p1', name: TranslatableText.create({ fr: 'Mouche' }), type: PestType.INSECT,
       notes: 'garde', images: [{ key: 'images/x.jpg' }],
     }).toSnapshot());

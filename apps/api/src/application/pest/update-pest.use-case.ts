@@ -1,4 +1,4 @@
-import { PestDisease, PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
+import { Pest, PestSnapshot } from '../../domain/pest/pest';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { PestType } from '../../domain/pest/pest-type';
 import { MediaImageJSON } from '../../domain/media/media-image';
@@ -23,10 +23,10 @@ export class UpdatePestUseCase {
     private readonly clock: Clock,
   ) {}
 
-  async execute(input: UpdatePestInput): Promise<PestDiseaseSnapshot> {
+  async execute(input: UpdatePestInput): Promise<PestSnapshot> {
     const existing = await this.pests.findById(input.id);
     if (!existing) throw new PestNotFoundError(input.id);
-    const updated = PestDisease.fromSnapshot(existing).update({
+    const updated = Pest.fromSnapshot(existing).update({
       name: TranslatableText.create(input.name),
       type: input.type,
       scientificName: input.scientificName || undefined,
@@ -35,7 +35,7 @@ export class UpdatePestUseCase {
     const snap = updated.toSnapshot();
     await this.pests.save(snap);
     await this.audit.record({
-      entityType: 'PestDisease', entityId: snap.id, actor: input.actor,
+      entityType: 'Pest', entityId: snap.id, actor: input.actor,
       at: this.clock.nowIso(), changes: { updated: snap },
     });
     return snap;

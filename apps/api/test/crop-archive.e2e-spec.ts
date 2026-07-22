@@ -32,7 +32,7 @@ describe('Crop archive e2e', () => {
     await prisma.cropZoneSuitability.deleteMany();
     await prisma.variety.deleteMany();
     await prisma.crop.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.agroEcologicalZone.deleteMany();
   });
 
@@ -45,7 +45,7 @@ describe('Crop archive e2e', () => {
     await prisma.cropZoneSuitability.deleteMany();
     await prisma.variety.deleteMany();
     await prisma.crop.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.agroEcologicalZone.deleteMany();
     await app.close();
   });

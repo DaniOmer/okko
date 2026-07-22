@@ -11,7 +11,7 @@ import { toPestDocument } from '../../application/pest/pest-read-model';
 import { PestType } from '../../domain/pest/pest-type';
 import { STORAGE_PORT, StoragePort } from '../../application/media/storage.port';
 import { toImageDto } from '../media/image-dto';
-import { PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
+import { PestSnapshot } from '../../domain/pest/pest';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles('superadmin')
@@ -73,7 +73,7 @@ export class PestController {
     }
   }
 
-  private toResponse(snap: PestDiseaseSnapshot) {
+  private toResponse(snap: PestSnapshot) {
     const doc = toPestDocument(snap);
     return { ...doc, images: (snap.images ?? []).map((img) => toImageDto(img, this.storage)) };
   }

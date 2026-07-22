@@ -1,14 +1,14 @@
 import { DeletePestUseCase, PestNotFoundError, PestInUseError } from './delete-pest.use-case';
 import { InMemoryPestRepository } from './in-memory-pest.repository';
 import { InMemoryCropPestControlRepository } from './in-memory-crop-pest-control.repository';
-import { PestDisease } from '../../domain/pest/pest-disease';
+import { Pest } from '../../domain/pest/pest';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { PestType } from '../../domain/pest/pest-type';
 
 const audit = () => ({ record: jest.fn() });
 const clock = { nowIso: () => '2026-07-06T00:00:00.000Z' };
 const seedPest = async (pests: InMemoryPestRepository, id = 'p1') =>
-  pests.save(PestDisease.create({ id, name: TranslatableText.create({ fr: 'Mouche' }), type: PestType.INSECT }).toSnapshot());
+  pests.save(Pest.create({ id, name: TranslatableText.create({ fr: 'Mouche' }), type: PestType.INSECT }).toSnapshot());
 
 describe('DeletePestUseCase', () => {
   it('supprime un ravageur libre', async () => {

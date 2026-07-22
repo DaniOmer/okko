@@ -1,9 +1,9 @@
-import { PestDisease } from './pest-disease';
+import { Pest } from './pest';
 import { TranslatableText } from '../shared/translatable-text';
 import { PestType } from './pest-type';
 
-describe('PestDisease.update', () => {
-  const base = () => PestDisease.create({
+describe('Pest.update', () => {
+  const base = () => Pest.create({
     id: 'p1', name: TranslatableText.create({ fr: 'Chenille' }), type: PestType.INSECT,
     scientificName: 'Spodoptera', notes: 'note conservée', images: [{ key: 'images/a.jpg' }],
   });

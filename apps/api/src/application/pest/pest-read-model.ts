@@ -1,4 +1,4 @@
-import { PestDiseaseSnapshot } from '../../domain/pest/pest-disease';
+import { PestSnapshot } from '../../domain/pest/pest';
 import { PestType } from '../../domain/pest/pest-type';
 import { MediaImageJSON } from '../../domain/media/media-image';
 
@@ -7,14 +7,14 @@ export interface PestDocument {
   name: string;
   type: PestType;
   scientificName?: string;
-  symptoms?: PestDiseaseSnapshot['symptoms'];
+  symptoms?: PestSnapshot['symptoms'];
   images: MediaImageJSON[];
   notes?: string;
   metadata: Record<string, unknown>;
   serializedText: string;
 }
 
-export function toPestDocument(p: PestDiseaseSnapshot, locale = 'fr'): PestDocument {
+export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   const name = p.name[locale] ?? p.name['fr'];
   const lines = [`# ${name} (${p.type})`];
   if (p.scientificName) lines.push(`Nom scientifique : ${p.scientificName}`);

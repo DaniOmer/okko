@@ -25,7 +25,7 @@ describe('Crop completeness — list endpoint (B1)', () => {
     await prisma.cropZoneSuitability.deleteMany();
     await prisma.variety.deleteMany();
     await prisma.crop.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.agroEcologicalZone.deleteMany();
   });
 
@@ -38,7 +38,7 @@ describe('Crop completeness — list endpoint (B1)', () => {
     await prisma.cropZoneSuitability.deleteMany();
     await prisma.variety.deleteMany();
     await prisma.crop.deleteMany();
-    await prisma.pestDisease.deleteMany();
+    await prisma.pest.deleteMany();
     await prisma.agroEcologicalZone.deleteMany();
     await app.close();
   });

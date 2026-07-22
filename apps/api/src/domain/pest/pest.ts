@@ -2,7 +2,7 @@ import { TranslatableText } from '../shared/translatable-text';
 import { PestType } from './pest-type';
 import { MediaImage, MediaImageJSON } from '../media/media-image';
 
-export interface PestDiseaseSnapshot {
+export interface PestSnapshot {
   id: string;
   name: Record<string, string>;
   type: PestType;
@@ -24,7 +24,7 @@ interface CreateProps {
   metadata?: Record<string, unknown>;
 }
 
-export class PestDisease {
+export class Pest {
   private constructor(
     private readonly _id: string,
     private readonly _name: TranslatableText,
@@ -36,8 +36,8 @@ export class PestDisease {
     private readonly _metadata: Record<string, unknown>,
   ) {}
 
-  static create(props: CreateProps): PestDisease {
-    return new PestDisease(
+  static create(props: CreateProps): Pest {
+    return new Pest(
       props.id, props.name, props.type, props.scientificName, props.symptoms,
       (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {},
     );
@@ -52,7 +52,7 @@ export class PestDisease {
   get notes(): string | undefined { return this._notes; }
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
 
-  toSnapshot(): PestDiseaseSnapshot {
+  toSnapshot(): PestSnapshot {
     return {
       id: this._id, name: this._name.toJSON(), type: this._type,
       scientificName: this._scientificName, symptoms: this._symptoms?.toJSON(),
@@ -61,8 +61,8 @@ export class PestDisease {
     };
   }
 
-  update(fields: { name: TranslatableText; type: PestType; scientificName?: string; images?: MediaImageJSON[] }): PestDisease {
-    return new PestDisease(
+  update(fields: { name: TranslatableText; type: PestType; scientificName?: string; images?: MediaImageJSON[] }): Pest {
+    return new Pest(
       this._id,
       fields.name,
       fields.type,
@@ -74,8 +74,8 @@ export class PestDisease {
     );
   }
 
-  static fromSnapshot(s: PestDiseaseSnapshot): PestDisease {
-    return new PestDisease(
+  static fromSnapshot(s: PestSnapshot): Pest {
+    return new Pest(
       s.id, TranslatableText.create(s.name), s.type, s.scientificName,
       s.symptoms ? TranslatableText.create(s.symptoms) : undefined,
       (s.images ?? []).map(MediaImage.fromJSON), s.notes, { ...s.metadata },

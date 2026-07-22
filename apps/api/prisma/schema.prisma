@@ -111,7 +111,7 @@ model CroppingWindow {
   @@index([cropId])
 }
 
-model PestDisease {
+model Pest {
   id             String   @id
   name           Json
   type           String
