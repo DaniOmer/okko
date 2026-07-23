@@ -122,6 +122,12 @@ model Pest {
   photos         Json
   notes          String?
   metadata       Json
+  lifeCycle           Json?
+  cycleDurationDays   Json?
+  developmentStages   Json?
+  generationsPerYear  Json?
+  activityPeriods     Json?
+  favorableConditions Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
 }

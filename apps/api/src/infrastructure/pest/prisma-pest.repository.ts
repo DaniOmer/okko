@@ -38,6 +38,12 @@ export class PrismaPestRepository implements PestRepository {
       symptoms: (p.symptoms ?? undefined) as Prisma.InputJsonValue | undefined,
       photos: p.images as unknown as Prisma.InputJsonValue,
       notes: p.notes ?? null, metadata: p.metadata as Prisma.InputJsonValue,
+      lifeCycle: (p.lifeCycle ?? undefined) as Prisma.InputJsonValue | undefined,
+      cycleDurationDays: (p.cycleDurationDays ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      developmentStages: (p.developmentStages ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      generationsPerYear: (p.generationsPerYear ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      activityPeriods: (p.activityPeriods ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      favorableConditions: (p.favorableConditions ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
     };
   }
 
@@ -51,6 +57,12 @@ export class PrismaPestRepository implements PestRepository {
       symptoms: (row.symptoms ?? undefined) as PestSnapshot['symptoms'],
       images: (row.photos ?? []) as unknown as MediaImageJSON[],
       notes: row.notes ?? undefined, metadata: row.metadata as Record<string, unknown>,
+      lifeCycle: (row.lifeCycle ?? undefined) as Record<string, string> | undefined,
+      cycleDurationDays: (row.cycleDurationDays ?? undefined) as PestSnapshot['cycleDurationDays'],
+      developmentStages: (row.developmentStages ?? undefined) as PestSnapshot['developmentStages'],
+      generationsPerYear: (row.generationsPerYear ?? undefined) as PestSnapshot['generationsPerYear'],
+      activityPeriods: (row.activityPeriods ?? undefined) as string[] | undefined,
+      favorableConditions: (row.favorableConditions ?? undefined) as PestSnapshot['favorableConditions'],
     };
   }
 }
