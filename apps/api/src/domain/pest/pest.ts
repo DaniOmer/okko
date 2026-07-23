@@ -16,6 +16,8 @@ export interface BiologySnapshot {
   favorableConditions?: FavorableConditionsJSON;
 }
 
+export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; }
+
 export interface PestSnapshot {
   id: string;
   name: Record<string, string>;
@@ -34,6 +36,9 @@ export interface PestSnapshot {
   generationsPerYear?: MinMaxRangeJSON;
   activityPeriods?: string[];
   favorableConditions?: FavorableConditionsJSON;
+  attackedOrgans?: string[];
+  damageTypes?: string[];
+  harmfulnessLevel?: string;
 }
 
 interface CreateProps {
@@ -62,6 +67,7 @@ export class Pest {
     private readonly _notes: string | undefined,
     private readonly _metadata: Record<string, unknown>,
     private readonly _biology: BiologySnapshot,
+    private readonly _damage: DamageSnapshot,
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -69,7 +75,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {},
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {},
     );
   }
 
@@ -84,6 +90,7 @@ export class Pest {
   get notes(): string | undefined { return this._notes; }
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
   get biology(): BiologySnapshot { return { ...this._biology }; }
+  get damage(): DamageSnapshot { return { ...this._damage }; }
 
   toSnapshot(): PestSnapshot {
     return {
@@ -95,6 +102,7 @@ export class Pest {
       images: this._images.map((img) => img.toJSON()),
       notes: this._notes, metadata: { ...this._metadata },
       ...this._biology,
+      ...this._damage,
     };
   }
 
@@ -111,6 +119,7 @@ export class Pest {
       this._notes,
       this._metadata,
       this._biology,
+      this._damage,
     );
   }
 
@@ -133,7 +142,16 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, biology,
+      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage,
+    );
+  }
+
+  setDamage(d: { symptoms?: TranslatableText; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string }): Pest {
+    return new Pest(
+      this._id, this._name, this._type, this._scientificName, this._family, this._description,
+      d.symptoms,
+      this._images, this._notes, this._metadata, this._biology,
+      { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
     );
   }
 
@@ -152,6 +170,7 @@ export class Pest {
         activityPeriods: s.activityPeriods,
         favorableConditions: s.favorableConditions,
       },
+      { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel },
     );
   }
 }
