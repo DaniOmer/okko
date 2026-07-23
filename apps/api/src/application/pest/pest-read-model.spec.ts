@@ -18,4 +18,24 @@ describe('toPestDocument', () => {
   it('falls back to fr', () => {
     expect(toPestDocument(snap, 'wo').name).toBe('Mouche des fruits');
   });
+
+  it('exposes biology fields and serializes lifeCycle, cycleDurationDays, generationsPerYear', () => {
+    const snapWithBiology = {
+      id: 'p2',
+      name: { fr: 'Doryphore' },
+      type: PestType.INSECT,
+      images: [],
+      metadata: {},
+      lifeCycle: { fr: 'Holométabole' },
+      cycleDurationDays: { min: 20, max: 40, unit: 'j' },
+      generationsPerYear: { min: 3, max: 6 },
+    };
+    const doc = toPestDocument(snapWithBiology);
+    expect(doc.lifeCycle).toEqual({ fr: 'Holométabole' });
+    expect(doc.cycleDurationDays).toEqual({ min: 20, max: 40, unit: 'j' });
+    expect(doc.generationsPerYear).toEqual({ min: 3, max: 6 });
+    expect(doc.serializedText).toContain('Cycle de vie : Holométabole');
+    expect(doc.serializedText).toContain('Durée du cycle : 20–40 j');
+    expect(doc.serializedText).toContain('Générations/an : 3–6');
+  });
 });
