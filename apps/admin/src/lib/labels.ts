@@ -96,6 +96,11 @@ export const OUTLET_LABELS: Record<string, string> = {
   COOPERATIVE: 'Coopérative / groupement',
 };
 
+export const MONTH_LABELS: Record<string, string> = {
+  JAN: 'Janvier', FEB: 'Février', MAR: 'Mars', APR: 'Avril', MAY: 'Mai', JUN: 'Juin',
+  JUL: 'Juillet', AUG: 'Août', SEP: 'Septembre', OCT: 'Octobre', NOV: 'Novembre', DEC: 'Décembre',
+};
+
 export const WATER_NEED_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyen', HIGH: 'Élevé' };
 export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 

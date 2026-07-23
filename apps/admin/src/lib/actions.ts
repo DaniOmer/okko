@@ -154,3 +154,8 @@ export async function updatePest(id: string, input: { name: Record<string, strin
 export async function deletePest(id: string): Promise<void> {
   await authFetch(`/pests/${id}`, { method: 'DELETE' });
 }
+
+export async function setPestBiology(id: string, biology: import('./api').PestBiology): Promise<Pest> {
+  const res = await authFetch(`/pests/${id}/biology`, jsonInit('PATCH', biology));
+  return res.json();
+}

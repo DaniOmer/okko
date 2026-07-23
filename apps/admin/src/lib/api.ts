@@ -6,6 +6,18 @@ export { ApiError };
 
 export interface ImageRef { key: string; url: string; caption?: string; category?: string; }
 
+export interface MinMaxRangeJSON { min: number; max: number; unit?: string; }
+export interface DevelopmentStage { name: Record<string, string>; durationDays?: MinMaxRangeJSON; }
+export interface FavorableConditions { temperature?: MinMaxRangeJSON; humidity?: MinMaxRangeJSON; rainfall?: MinMaxRangeJSON; notes?: Record<string, string>; }
+export interface PestBiology {
+  lifeCycle?: Record<string, string>;
+  cycleDurationDays?: MinMaxRangeJSON;
+  developmentStages?: DevelopmentStage[];
+  generationsPerYear?: MinMaxRangeJSON;
+  activityPeriods?: string[];
+  favorableConditions?: FavorableConditions;
+}
+
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
 
@@ -115,7 +127,10 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest { id: string; name: string; type: string; scientificName?: string; family?: string; description?: Record<string, string>; images: ImageRef[]; updatedAt?: string; }
+export interface Pest extends PestBiology {
+  id: string; name: string; type: string; scientificName?: string;
+  family?: string; description?: Record<string, string>; images: ImageRef[]; updatedAt?: string;
+}
 export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;
   threshold?: string; sensitiveStages: string[];
