@@ -44,6 +44,9 @@ export class PrismaPestRepository implements PestRepository {
       generationsPerYear: (p.generationsPerYear ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       activityPeriods: (p.activityPeriods ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       favorableConditions: (p.favorableConditions ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      attackedOrgans: (p.attackedOrgans ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      damageTypes: (p.damageTypes ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      harmfulnessLevel: p.harmfulnessLevel ?? null,
     };
   }
 
@@ -63,6 +66,9 @@ export class PrismaPestRepository implements PestRepository {
       generationsPerYear: (row.generationsPerYear ?? undefined) as PestSnapshot['generationsPerYear'],
       activityPeriods: (row.activityPeriods ?? undefined) as string[] | undefined,
       favorableConditions: (row.favorableConditions ?? undefined) as PestSnapshot['favorableConditions'],
+      attackedOrgans: (row.attackedOrgans ?? undefined) as string[] | undefined,
+      damageTypes: (row.damageTypes ?? undefined) as string[] | undefined,
+      harmfulnessLevel: row.harmfulnessLevel ?? undefined,
     };
   }
 }
