@@ -1,9 +1,9 @@
 'use client';
 
 import type { Pest } from '../../../lib/api';
-import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS } from '@/lib/labels';
+import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
-import { Images } from 'lucide-react';
+import { Images, Dna } from 'lucide-react';
 
 export function PestFicheView({ pest }: { pest: Pest }) {
   const photos = (pest.images ?? []).map((img) => ({
@@ -11,6 +11,12 @@ export function PestFicheView({ pest }: { pest: Pest }) {
     caption: [img.category ? labelOf(PEST_PHOTO_CATEGORY_LABELS, img.category) : '', img.caption]
       .filter(Boolean).join(' — ') || undefined,
   }));
+
+  const b = pest;
+  const monthOrder = Object.keys(MONTH_LABELS);
+  const range = (r?: { min: number; max: number; unit?: string }) => (r ? `${r.min}–${r.max}${r.unit ? ' ' + r.unit : ''}` : null);
+  const hasBiology = !!(b.lifeCycle?.fr || b.cycleDurationDays || (b.developmentStages?.length) || b.generationsPerYear || (b.activityPeriods?.length) ||
+    b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr);
 
   return (
     <div>
@@ -39,21 +45,58 @@ export function PestFicheView({ pest }: { pest: Pest }) {
         )}
       </div>
 
-      {/* Photos */}
-      {photos.length > 0 && (
-        <div className="px-6">
+      {/* Biologie + Photos */}
+      <div className="px-6">
+        {hasBiology && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eef3f7] text-[#2c5a8a]"><Dna className="h-4 w-4" /></span>
+              Biologie
+            </h2>
+            <div className="space-y-2 text-sm">
+              {b.lifeCycle?.fr && <p><span className="text-muted-foreground">Cycle de vie : </span>{b.lifeCycle.fr}</p>}
+              {range(b.cycleDurationDays) && <p><span className="text-muted-foreground">Durée du cycle : </span>{range(b.cycleDurationDays)}</p>}
+              {range(b.generationsPerYear) && <p><span className="text-muted-foreground">Générations/an : </span>{range(b.generationsPerYear)}</p>}
+              {(b.developmentStages?.length ?? 0) > 0 && (
+                <div>
+                  <span className="text-muted-foreground">Stades : </span>
+                  {b.developmentStages!.map((s, i) => (
+                    <span key={i}>{i > 0 ? ' → ' : ''}{s.name.fr}{range(s.durationDays) ? ` (${range(s.durationDays)})` : ''}</span>
+                  ))}
+                </div>
+              )}
+              {(b.activityPeriods?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Activité : </span>
+                  {monthOrder.filter((m) => b.activityPeriods!.includes(m)).map((m) => (
+                    <span key={m} className="rounded-full bg-[#eef3f7] px-2 py-0.5 text-xs text-[#2c5a8a]">{MONTH_LABELS[m].slice(0, 4)}</span>
+                  ))}
+                </div>
+              )}
+              {(range(b.favorableConditions?.temperature) || range(b.favorableConditions?.humidity) || range(b.favorableConditions?.rainfall) || b.favorableConditions?.notes?.fr) && (
+                <div>
+                  <span className="text-muted-foreground">Conditions favorables : </span>
+                  {[range(b.favorableConditions?.temperature) && `T° ${range(b.favorableConditions?.temperature)}`,
+                    range(b.favorableConditions?.humidity) && `Humidité ${range(b.favorableConditions?.humidity)}`,
+                    range(b.favorableConditions?.rainfall) && `Pluie ${range(b.favorableConditions?.rainfall)}`].filter(Boolean).join(' · ')}
+                  {b.favorableConditions?.notes?.fr && <span className="text-muted-foreground"> — {b.favorableConditions.notes.fr}</span>}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {photos.length > 0 && (
           <section id="photos" className="scroll-mt-16 border-t py-6">
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f4e6e6] text-[#8a2c2c]">
-                <Images className="h-4 w-4" />
-              </span>
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f4e6e6] text-[#8a2c2c]"><Images className="h-4 w-4" /></span>
               Photos
               <span className="font-normal text-muted-foreground">({photos.length})</span>
             </h2>
             <PhotoCarousel images={photos} />
           </section>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
