@@ -1,6 +1,20 @@
 import { TranslatableText } from '../shared/translatable-text';
 import { PestType } from './pest-type';
 import { MediaImage, MediaImageJSON } from '../media/media-image';
+import { MinMaxRange, MinMaxRangeJSON } from '../shared/min-max-range';
+
+export interface DevelopmentStageJSON { name: Record<string, string>; durationDays?: MinMaxRangeJSON; }
+export interface FavorableConditionsJSON {
+  temperature?: MinMaxRangeJSON; humidity?: MinMaxRangeJSON; rainfall?: MinMaxRangeJSON; notes?: Record<string, string>;
+}
+export interface BiologySnapshot {
+  lifeCycle?: Record<string, string>;
+  cycleDurationDays?: MinMaxRangeJSON;
+  developmentStages?: DevelopmentStageJSON[];
+  generationsPerYear?: MinMaxRangeJSON;
+  activityPeriods?: string[];
+  favorableConditions?: FavorableConditionsJSON;
+}
 
 export interface PestSnapshot {
   id: string;
@@ -14,6 +28,12 @@ export interface PestSnapshot {
   images: MediaImageJSON[];
   notes?: string;
   metadata: Record<string, unknown>;
+  lifeCycle?: Record<string, string>;
+  cycleDurationDays?: MinMaxRangeJSON;
+  developmentStages?: DevelopmentStageJSON[];
+  generationsPerYear?: MinMaxRangeJSON;
+  activityPeriods?: string[];
+  favorableConditions?: FavorableConditionsJSON;
 }
 
 interface CreateProps {
@@ -41,6 +61,7 @@ export class Pest {
     private readonly _images: MediaImage[],
     private readonly _notes: string | undefined,
     private readonly _metadata: Record<string, unknown>,
+    private readonly _biology: BiologySnapshot,
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -48,7 +69,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {},
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {},
     );
   }
 
@@ -62,6 +83,7 @@ export class Pest {
   get images(): MediaImage[] { return [...this._images]; }
   get notes(): string | undefined { return this._notes; }
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
+  get biology(): BiologySnapshot { return { ...this._biology }; }
 
   toSnapshot(): PestSnapshot {
     return {
@@ -72,6 +94,7 @@ export class Pest {
       symptoms: this._symptoms?.toJSON(),
       images: this._images.map((img) => img.toJSON()),
       notes: this._notes, metadata: { ...this._metadata },
+      ...this._biology,
     };
   }
 
@@ -87,6 +110,30 @@ export class Pest {
       fields.images !== undefined ? fields.images.map(MediaImage.fromJSON) : this._images,
       this._notes,
       this._metadata,
+      this._biology,
+    );
+  }
+
+  setBiology(b: BiologySnapshot): Pest {
+    const range = (r?: MinMaxRangeJSON) => (r ? MinMaxRange.create(r).toJSON() : undefined);
+    const biology: BiologySnapshot = {
+      lifeCycle: b.lifeCycle,
+      cycleDurationDays: range(b.cycleDurationDays),
+      developmentStages: b.developmentStages?.map((s) => ({ name: s.name, durationDays: range(s.durationDays) })),
+      generationsPerYear: range(b.generationsPerYear),
+      activityPeriods: b.activityPeriods,
+      favorableConditions: b.favorableConditions
+        ? {
+            temperature: range(b.favorableConditions.temperature),
+            humidity: range(b.favorableConditions.humidity),
+            rainfall: range(b.favorableConditions.rainfall),
+            notes: b.favorableConditions.notes,
+          }
+        : undefined,
+    };
+    return new Pest(
+      this._id, this._name, this._type, this._scientificName, this._family, this._description,
+      this._symptoms, this._images, this._notes, this._metadata, biology,
     );
   }
 
@@ -97,6 +144,14 @@ export class Pest {
       s.description ? TranslatableText.create(s.description) : undefined,
       s.symptoms ? TranslatableText.create(s.symptoms) : undefined,
       (s.images ?? []).map(MediaImage.fromJSON), s.notes, { ...s.metadata },
+      {
+        lifeCycle: s.lifeCycle,
+        cycleDurationDays: s.cycleDurationDays,
+        developmentStages: s.developmentStages,
+        generationsPerYear: s.generationsPerYear,
+        activityPeriods: s.activityPeriods,
+        favorableConditions: s.favorableConditions,
+      },
     );
   }
 }
