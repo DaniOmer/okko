@@ -30,6 +30,8 @@ export interface ManagementSnapshot {
   knownResistances?: Record<string, string>;
 }
 
+export interface SourceJSON { title: string; url?: string; }
+
 export interface PestSnapshot {
   id: string;
   name: Record<string, string>;
@@ -60,6 +62,8 @@ export interface PestSnapshot {
   parasitoids?: string[];
   approvedProducts?: ApprovedProductJSON[];
   knownResistances?: Record<string, string>;
+  sources?: SourceJSON[];
+  createdAt?: string;
 }
 
 interface CreateProps {
@@ -91,6 +95,7 @@ export class Pest {
     private readonly _damage: DamageSnapshot,
     private readonly _distribution: DistributionSnapshot,
     private readonly _management: ManagementSnapshot,
+    private readonly _sources: SourceJSON[],
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -98,7 +103,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {},
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {}, [],
     );
   }
 
@@ -116,6 +121,7 @@ export class Pest {
   get damage(): DamageSnapshot { return { ...this._damage }; }
   get distribution(): DistributionSnapshot { return { ...this._distribution }; }
   get management(): ManagementSnapshot { return { ...this._management }; }
+  get sources(): SourceJSON[] { return [...this._sources]; }
 
   toSnapshot(): PestSnapshot {
     return {
@@ -130,6 +136,7 @@ export class Pest {
       ...this._damage,
       ...this._distribution,
       ...this._management,
+      sources: this._sources.length ? this._sources : undefined,
     };
   }
 
@@ -149,6 +156,7 @@ export class Pest {
       this._damage,
       this._distribution,
       this._management,
+      this._sources,
     );
   }
 
@@ -171,7 +179,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management,
+      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management, this._sources,
     );
   }
 
@@ -183,6 +191,7 @@ export class Pest {
       { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
       this._distribution,
       this._management,
+      this._sources,
     );
   }
 
@@ -194,7 +203,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management, this._sources,
     );
   }
 
@@ -209,7 +218,15 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management, this._sources,
+    );
+  }
+
+  setSources(sources: SourceJSON[]): Pest {
+    return new Pest(
+      this._id, this._name, this._type, this._scientificName, this._family, this._description,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, this._management,
+      sources,
     );
   }
 
@@ -231,6 +248,7 @@ export class Pest {
       { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel },
       { geographicAreas: s.geographicAreas, favorableClimate: s.favorableClimate, knownPresence: s.knownPresence },
       { prevention: s.prevention, biologicalControl: s.biologicalControl, predators: s.predators, parasitoids: s.parasitoids, approvedProducts: s.approvedProducts, knownResistances: s.knownResistances },
+      s.sources ?? [],
     );
   }
 }
