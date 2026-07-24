@@ -50,8 +50,19 @@ export function PestFicheView({ pest }: { pest: Pest }) {
         )}
       </div>
 
-      {/* Biologie + Photos */}
+      {/* Sections — carrousel photos en premier, puis les infos */}
       <div className="px-6">
+        {photos.length > 0 && (
+          <section id="photos" className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f4e6e6] text-[#8a2c2c]"><Images className="h-4 w-4" /></span>
+              Photos
+              <span className="font-normal text-muted-foreground">({photos.length})</span>
+            </h2>
+            <PhotoCarousel images={photos} />
+          </section>
+        )}
+
         {hasBiology && (
           <section className="scroll-mt-16 border-t py-6">
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
@@ -193,16 +204,6 @@ export function PestFicheView({ pest }: { pest: Pest }) {
           </section>
         )}
 
-        {photos.length > 0 && (
-          <section id="photos" className="scroll-mt-16 border-t py-6">
-            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f4e6e6] text-[#8a2c2c]"><Images className="h-4 w-4" /></span>
-              Photos
-              <span className="font-normal text-muted-foreground">({photos.length})</span>
-            </h2>
-            <PhotoCarousel images={photos} />
-          </section>
-        )}
       </div>
       {(frDate(pest.createdAt) || frDate(pest.updatedAt)) && (
         <div className="px-6 pb-6 pt-2 text-xs text-muted-foreground">
