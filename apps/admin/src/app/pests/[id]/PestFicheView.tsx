@@ -1,9 +1,9 @@
 'use client';
 
 import type { Pest } from '../../../lib/api';
-import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS } from '@/lib/labels';
+import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
-import { Images, Dna } from 'lucide-react';
+import { Images, Dna, Bug } from 'lucide-react';
 
 export function PestFicheView({ pest }: { pest: Pest }) {
   const photos = (pest.images ?? []).map((img) => ({
@@ -17,6 +17,7 @@ export function PestFicheView({ pest }: { pest: Pest }) {
   const range = (r?: { min: number; max: number; unit?: string }) => (r ? `${r.min}–${r.max}${r.unit ? ' ' + r.unit : ''}` : null);
   const hasBiology = !!(b.lifeCycle?.fr || b.cycleDurationDays || (b.developmentStages?.length) || b.generationsPerYear || (b.activityPeriods?.length) ||
     b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr);
+  const hasDamage = !!((b.attackedOrgans?.length) || (b.damageTypes?.length) || b.harmfulnessLevel || b.symptoms?.fr);
 
   return (
     <div>
@@ -82,6 +83,35 @@ export function PestFicheView({ pest }: { pest: Pest }) {
                   {b.favorableConditions?.notes?.fr && <span className="text-muted-foreground"> — {b.favorableConditions.notes.fr}</span>}
                 </div>
               )}
+            </div>
+          </section>
+        )}
+
+        {hasDamage && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f6efe6] text-[#8a5a2c]"><Bug className="h-4 w-4" /></span>
+              Dégâts
+              {b.harmfulnessLevel && (
+                <span className="ml-1 rounded-full bg-[#f6efe6] px-2 py-0.5 text-xs font-medium text-[#8a5a2c]">
+                  {labelOf(HARMFULNESS_LABELS, b.harmfulnessLevel)}
+                </span>
+              )}
+            </h2>
+            <div className="space-y-2 text-sm">
+              {(b.attackedOrgans?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Organes attaqués : </span>
+                  {b.attackedOrgans!.map((o) => <span key={o} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{labelOf(ATTACKED_ORGAN_LABELS, o)}</span>)}
+                </div>
+              )}
+              {(b.damageTypes?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Types de dégâts : </span>
+                  {b.damageTypes!.map((t) => <span key={t} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{labelOf(DAMAGE_TYPE_LABELS, t)}</span>)}
+                </div>
+              )}
+              {b.symptoms?.fr && <p><span className="text-muted-foreground">Symptômes : </span>{b.symptoms.fr}</p>}
             </div>
           </section>
         )}
