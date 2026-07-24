@@ -20,6 +20,16 @@ export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: strin
 
 export interface DistributionSnapshot { geographicAreas?: string[]; favorableClimate?: Record<string, string>; knownPresence?: Record<string, string>; }
 
+export interface ApprovedProductJSON { name: string; country?: string; }
+export interface ManagementSnapshot {
+  prevention?: Record<string, string>;
+  biologicalControl?: Record<string, string>;
+  predators?: string[];
+  parasitoids?: string[];
+  approvedProducts?: ApprovedProductJSON[];
+  knownResistances?: Record<string, string>;
+}
+
 export interface PestSnapshot {
   id: string;
   name: Record<string, string>;
@@ -44,6 +54,12 @@ export interface PestSnapshot {
   geographicAreas?: string[];
   favorableClimate?: Record<string, string>;
   knownPresence?: Record<string, string>;
+  prevention?: Record<string, string>;
+  biologicalControl?: Record<string, string>;
+  predators?: string[];
+  parasitoids?: string[];
+  approvedProducts?: ApprovedProductJSON[];
+  knownResistances?: Record<string, string>;
 }
 
 interface CreateProps {
@@ -74,6 +90,7 @@ export class Pest {
     private readonly _biology: BiologySnapshot,
     private readonly _damage: DamageSnapshot,
     private readonly _distribution: DistributionSnapshot,
+    private readonly _management: ManagementSnapshot,
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -81,7 +98,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {},
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {},
     );
   }
 
@@ -98,6 +115,7 @@ export class Pest {
   get biology(): BiologySnapshot { return { ...this._biology }; }
   get damage(): DamageSnapshot { return { ...this._damage }; }
   get distribution(): DistributionSnapshot { return { ...this._distribution }; }
+  get management(): ManagementSnapshot { return { ...this._management }; }
 
   toSnapshot(): PestSnapshot {
     return {
@@ -111,6 +129,7 @@ export class Pest {
       ...this._biology,
       ...this._damage,
       ...this._distribution,
+      ...this._management,
     };
   }
 
@@ -129,6 +148,7 @@ export class Pest {
       this._biology,
       this._damage,
       this._distribution,
+      this._management,
     );
   }
 
@@ -151,7 +171,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution,
+      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management,
     );
   }
 
@@ -162,6 +182,7 @@ export class Pest {
       this._images, this._notes, this._metadata, this._biology,
       { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
       this._distribution,
+      this._management,
     );
   }
 
@@ -173,7 +194,22 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management,
+    );
+  }
+
+  setManagement(m: { prevention?: TranslatableText; biologicalControl?: TranslatableText; predators?: string[]; parasitoids?: string[]; approvedProducts?: ApprovedProductJSON[]; knownResistances?: TranslatableText }): Pest {
+    const management: ManagementSnapshot = {
+      prevention: m.prevention?.toJSON(),
+      biologicalControl: m.biologicalControl?.toJSON(),
+      predators: m.predators,
+      parasitoids: m.parasitoids,
+      approvedProducts: m.approvedProducts,
+      knownResistances: m.knownResistances?.toJSON(),
+    };
+    return new Pest(
+      this._id, this._name, this._type, this._scientificName, this._family, this._description,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management,
     );
   }
 
@@ -194,6 +230,7 @@ export class Pest {
       },
       { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel },
       { geographicAreas: s.geographicAreas, favorableClimate: s.favorableClimate, knownPresence: s.knownPresence },
+      { prevention: s.prevention, biologicalControl: s.biologicalControl, predators: s.predators, parasitoids: s.parasitoids, approvedProducts: s.approvedProducts, knownResistances: s.knownResistances },
     );
   }
 }
