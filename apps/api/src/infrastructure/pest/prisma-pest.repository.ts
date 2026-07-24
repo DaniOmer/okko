@@ -56,6 +56,7 @@ export class PrismaPestRepository implements PestRepository {
       parasitoids: (p.parasitoids ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       approvedProducts: (p.approvedProducts ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       knownResistances: (p.knownResistances ?? undefined) as Prisma.InputJsonValue | undefined,
+      sources: (p.sources ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
     };
   }
 
@@ -87,6 +88,8 @@ export class PrismaPestRepository implements PestRepository {
       parasitoids: (row.parasitoids ?? undefined) as string[] | undefined,
       approvedProducts: (row.approvedProducts ?? undefined) as PestSnapshot['approvedProducts'],
       knownResistances: (row.knownResistances ?? undefined) as Record<string, string> | undefined,
+      sources: (row.sources ?? undefined) as PestSnapshot['sources'],
+      createdAt: row.createdAt.toISOString(),
     };
   }
 }

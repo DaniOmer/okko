@@ -10,6 +10,8 @@ export interface PestDocument {
   family?: string;
   description?: Record<string, string>;
   updatedAt?: string;
+  sources?: PestSnapshot['sources'];
+  createdAt?: string;
   symptoms?: PestSnapshot['symptoms'];
   images: MediaImageJSON[];
   notes?: string;
@@ -54,12 +56,14 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.parasitoids?.length) lines.push(`Parasitoïdes : ${p.parasitoids.join(', ')}`);
   if (p.approvedProducts?.length) lines.push(`Produits homologués : ${p.approvedProducts.map((x) => x.name).join(', ')}`);
   if (p.knownResistances) lines.push(`Résistances : ${p.knownResistances[locale] ?? p.knownResistances['fr']}`);
+  if (p.sources?.length) lines.push(`Sources : ${p.sources.map((s) => s.title).join(', ')}`);
   if (p.lifeCycle) lines.push(`Cycle de vie : ${p.lifeCycle[locale] ?? p.lifeCycle['fr']}`);
   if (p.cycleDurationDays) lines.push(`Durée du cycle : ${p.cycleDurationDays.min}–${p.cycleDurationDays.max} j`);
   if (p.generationsPerYear) lines.push(`Générations/an : ${p.generationsPerYear.min}–${p.generationsPerYear.max}`);
   return {
     id: p.id, name, type: p.type, scientificName: p.scientificName,
     family: p.family, description: p.description, updatedAt: p.updatedAt,
+    sources: p.sources, createdAt: p.createdAt,
     symptoms: p.symptoms, images: p.images ?? [], notes: p.notes,
     metadata: p.metadata, serializedText: lines.join('\n'),
     lifeCycle: p.lifeCycle, cycleDurationDays: p.cycleDurationDays,

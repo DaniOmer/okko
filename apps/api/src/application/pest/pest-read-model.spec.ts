@@ -76,6 +76,17 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Résistances : Pyréthrinoïdes');
   });
 
+  it('expose les sources + createdAt et enrichit le texte indexé', () => {
+    const doc = toPestDocument({
+      id: 'p1', name: { fr: 'Chenille' }, type: PestType.INSECT, images: [], metadata: {},
+      sources: [{ title: 'FAO', url: 'https://fao.org' }, { title: 'Note interne' }],
+      createdAt: '2026-07-21T00:00:00.000Z',
+    } as never);
+    expect(doc.sources).toEqual([{ title: 'FAO', url: 'https://fao.org' }, { title: 'Note interne' }]);
+    expect(doc.createdAt).toBe('2026-07-21T00:00:00.000Z');
+    expect(doc.serializedText).toContain('Sources : FAO, Note interne');
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',

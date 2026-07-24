@@ -140,6 +140,7 @@ model Pest {
   parasitoids       Json?
   approvedProducts  Json?
   knownResistances  Json?
+  sources        Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
 }
