@@ -107,6 +107,17 @@ export const DROUGHT_SENSITIVITY_LABELS: Record<string, string> = { LOW: 'Faible
 export const RESISTANCE_LEVEL_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 export const SUITABILITY_RATING_LABELS: Record<string, string> = { SUITABLE: 'Apte', MARGINAL: 'Marginale', UNSUITABLE: 'Inapte' };
 
+export const ATTACKED_ORGAN_LABELS: Record<string, string> = {
+  ROOTS: 'Racines', STEMS: 'Tiges', LEAVES: 'Feuilles', FLOWERS: 'Fleurs', FRUITS: 'Fruits', SEEDS: 'Graines',
+};
+
+export const DAMAGE_TYPE_LABELS: Record<string, string> = {
+  BITES: 'Morsures', MINES: 'Mines', GALLERIES: 'Galeries', SUCKING: 'Succion',
+  DEFOLIATION: 'Défoliation', PERFORATIONS: 'Perforations', DISEASE_TRANSMISSION: 'Transmission de maladies',
+};
+
+export const HARMFULNESS_LABELS: Record<string, string> = { MINOR: 'Mineur', MODERATE: 'Modéré', MAJOR: 'Majeur' };
+
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {
   return map[code] ?? code;

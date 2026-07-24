@@ -159,3 +159,8 @@ export async function setPestBiology(id: string, biology: import('./api').PestBi
   const res = await authFetch(`/pests/${id}/biology`, jsonInit('PATCH', biology));
   return res.json();
 }
+
+export async function setPestDamage(id: string, damage: import('./api').PestDamage): Promise<Pest> {
+  const res = await authFetch(`/pests/${id}/damage`, jsonInit('PATCH', damage));
+  return res.json();
+}

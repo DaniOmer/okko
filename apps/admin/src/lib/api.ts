@@ -18,6 +18,13 @@ export interface PestBiology {
   favorableConditions?: FavorableConditions;
 }
 
+export interface PestDamage {
+  symptoms?: Record<string, string>;
+  attackedOrgans?: string[];
+  damageTypes?: string[];
+  harmfulnessLevel?: string;
+}
+
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
 
@@ -127,7 +134,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest extends PestBiology {
+export interface Pest extends PestBiology, PestDamage {
   id: string; name: string; type: string; scientificName?: string;
   family?: string; description?: Record<string, string>; images: ImageRef[]; updatedAt?: string;
 }
