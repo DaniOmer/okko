@@ -58,15 +58,18 @@ describe('toPestDocument', () => {
     const doc = toPestDocument({
       id: 'p1', name: { fr: 'Chenille' }, type: PestType.INSECT, images: [], metadata: {},
       prevention: { fr: 'Rotation' },
+      biologicalControl: { fr: 'Filets anti-insectes' },
       predators: ['Coccinelle'],
       parasitoids: ['Trichogramma'],
       approvedProducts: [{ name: 'Bt', country: 'BJ' }, { name: 'Spinosad' }],
       knownResistances: { fr: 'Pyréthrinoïdes' },
     } as never);
     expect(doc.prevention).toEqual({ fr: 'Rotation' });
+    expect(doc.biologicalControl).toEqual({ fr: 'Filets anti-insectes' });
     expect(doc.predators).toEqual(['Coccinelle']);
     expect(doc.approvedProducts).toEqual([{ name: 'Bt', country: 'BJ' }, { name: 'Spinosad' }]);
     expect(doc.serializedText).toContain('Prévention : Rotation');
+    expect(doc.serializedText).toContain('Lutte biologique : Filets anti-insectes');
     expect(doc.serializedText).toContain('Prédateurs : Coccinelle');
     expect(doc.serializedText).toContain('Parasitoïdes : Trichogramma');
     expect(doc.serializedText).toContain('Produits homologués : Bt, Spinosad');

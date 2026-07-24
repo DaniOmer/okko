@@ -23,6 +23,7 @@ describe('Pest.setManagement', () => {
     expect(s.attackedOrgans).toEqual(['LEAVES']);                // dégâts préservés
     expect(s.geographicAreas).toEqual(['Afrique']);              // répartition préservée
     expect(s.prevention).toEqual({ fr: 'Rotation des cultures' });
+    expect(s.biologicalControl).toEqual({ fr: 'Lâchers de Trichogramma' });
     expect(s.predators).toEqual(['Coccinelle']);
     expect(s.parasitoids).toEqual(['Trichogramma']);
     expect(s.approvedProducts).toEqual([{ name: 'Bacillus thuringiensis', country: 'BJ' }, { name: 'Spinosad' }]);
