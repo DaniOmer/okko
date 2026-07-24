@@ -9,12 +9,13 @@ import { DeletePestUseCase, PestInUseError } from '../../application/pest/delete
 import { SetPestBiologyUseCase } from '../../application/pest/set-pest-biology.use-case';
 import { SetPestDamageUseCase } from '../../application/pest/set-pest-damage.use-case';
 import { SetPestDistributionUseCase } from '../../application/pest/set-pest-distribution.use-case';
+import { SetPestManagementUseCase } from '../../application/pest/set-pest-management.use-case';
 import { PEST_REPOSITORY, PestRepository } from '../../application/pest/pest.repository';
 import { toPestDocument } from '../../application/pest/pest-read-model';
 import { PestType } from '../../domain/pest/pest-type';
 import { STORAGE_PORT, StoragePort } from '../../application/media/storage.port';
 import { toImageDto } from '../media/image-dto';
-import { PestSnapshot, BiologySnapshot } from '../../domain/pest/pest';
+import { PestSnapshot, BiologySnapshot, ApprovedProductJSON } from '../../domain/pest/pest';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles('superadmin')
@@ -28,6 +29,7 @@ export class PestController {
     private readonly setPestBiology: SetPestBiologyUseCase,
     private readonly setPestDamage: SetPestDamageUseCase,
     private readonly setPestDistribution: SetPestDistributionUseCase,
+    private readonly setPestManagement: SetPestManagementUseCase,
     @Inject(PEST_REPOSITORY) private readonly pests: PestRepository,
     @Inject(STORAGE_PORT) private readonly storage: StoragePort,
   ) {}
@@ -99,6 +101,21 @@ export class PestController {
   }) {
     try {
       const snap = await this.setPestDistribution.execute({ id, actor: user.email, ...body });
+      return this.toResponse(snap);
+    } catch (e) {
+      if (e instanceof PestNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Patch(':id/management')
+  async management(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
+    prevention?: Record<string, string>; biologicalControl?: Record<string, string>;
+    predators?: string[]; parasitoids?: string[];
+    approvedProducts?: ApprovedProductJSON[]; knownResistances?: Record<string, string>;
+  }) {
+    try {
+      const snap = await this.setPestManagement.execute({ id, actor: user.email, ...body });
       return this.toResponse(snap);
     } catch (e) {
       if (e instanceof PestNotFoundError) throw new NotFoundException(id);
