@@ -38,4 +38,24 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Durée du cycle : 20–40 j');
     expect(doc.serializedText).toContain('Générations/an : 3–6');
   });
+
+  it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
+    const snapWithDamage = {
+      id: 'p3',
+      name: { fr: 'Punaise' },
+      type: PestType.INSECT,
+      images: [],
+      metadata: {},
+      attackedOrgans: ['LEAVES', 'FRUITS'],
+      damageTypes: ['BITES'],
+      harmfulnessLevel: 'MAJOR',
+    };
+    const doc = toPestDocument(snapWithDamage);
+    expect(doc.attackedOrgans).toEqual(['LEAVES', 'FRUITS']);
+    expect(doc.damageTypes).toEqual(['BITES']);
+    expect(doc.harmfulnessLevel).toBe('MAJOR');
+    expect(doc.serializedText).toContain('Organes attaqués : LEAVES, FRUITS');
+    expect(doc.serializedText).toContain('Types de dégâts : BITES');
+    expect(doc.serializedText).toContain('Nuisibilité : MAJOR');
+  });
 });
