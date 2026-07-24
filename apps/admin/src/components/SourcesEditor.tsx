@@ -13,8 +13,8 @@ export function SourcesEditor({ value, onChange }: { value: SourceRow[]; onChang
     <div className="space-y-2">
       {value.map((s, i) => (
         <div key={i} className="flex items-center gap-2">
-          <Input className="h-8" placeholder="Titre de la source" value={s.title} onChange={(e) => setTitle(i, e.target.value)} />
-          <Input className="h-8 flex-1" placeholder="Lien (optionnel)" value={s.url ?? ''} onChange={(e) => setUrl(i, e.target.value)} />
+          <Input className="h-8 flex-1 min-w-0" placeholder="Titre de la source" value={s.title} onChange={(e) => setTitle(i, e.target.value)} />
+          <Input className="h-8 flex-1 min-w-0" placeholder="Lien (optionnel)" value={s.url ?? ''} onChange={(e) => setUrl(i, e.target.value)} />
           <button type="button" className="text-xs text-destructive" onClick={() => remove(i)}>Supprimer</button>
         </div>
       ))}
