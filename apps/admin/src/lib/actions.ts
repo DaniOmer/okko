@@ -164,3 +164,8 @@ export async function setPestDamage(id: string, damage: import('./api').PestDama
   const res = await authFetch(`/pests/${id}/damage`, jsonInit('PATCH', damage));
   return res.json();
 }
+
+export async function setPestDistribution(id: string, distribution: import('./api').PestDistribution): Promise<Pest> {
+  const res = await authFetch(`/pests/${id}/distribution`, jsonInit('PATCH', distribution));
+  return res.json();
+}
