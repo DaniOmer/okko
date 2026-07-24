@@ -18,6 +18,8 @@ export interface BiologySnapshot {
 
 export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; }
 
+export interface DistributionSnapshot { geographicAreas?: string[]; favorableClimate?: Record<string, string>; knownPresence?: Record<string, string>; }
+
 export interface PestSnapshot {
   id: string;
   name: Record<string, string>;
@@ -39,6 +41,9 @@ export interface PestSnapshot {
   attackedOrgans?: string[];
   damageTypes?: string[];
   harmfulnessLevel?: string;
+  geographicAreas?: string[];
+  favorableClimate?: Record<string, string>;
+  knownPresence?: Record<string, string>;
 }
 
 interface CreateProps {
@@ -68,6 +73,7 @@ export class Pest {
     private readonly _metadata: Record<string, unknown>,
     private readonly _biology: BiologySnapshot,
     private readonly _damage: DamageSnapshot,
+    private readonly _distribution: DistributionSnapshot,
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -75,7 +81,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {},
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {},
     );
   }
 
@@ -91,6 +97,7 @@ export class Pest {
   get metadata(): Record<string, unknown> { return { ...this._metadata }; }
   get biology(): BiologySnapshot { return { ...this._biology }; }
   get damage(): DamageSnapshot { return { ...this._damage }; }
+  get distribution(): DistributionSnapshot { return { ...this._distribution }; }
 
   toSnapshot(): PestSnapshot {
     return {
@@ -103,6 +110,7 @@ export class Pest {
       notes: this._notes, metadata: { ...this._metadata },
       ...this._biology,
       ...this._damage,
+      ...this._distribution,
     };
   }
 
@@ -120,6 +128,7 @@ export class Pest {
       this._metadata,
       this._biology,
       this._damage,
+      this._distribution,
     );
   }
 
@@ -142,7 +151,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage,
+      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution,
     );
   }
 
@@ -152,6 +161,19 @@ export class Pest {
       d.symptoms,
       this._images, this._notes, this._metadata, this._biology,
       { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
+      this._distribution,
+    );
+  }
+
+  setDistribution(d: { geographicAreas?: string[]; favorableClimate?: TranslatableText; knownPresence?: TranslatableText }): Pest {
+    const distribution: DistributionSnapshot = {
+      geographicAreas: d.geographicAreas,
+      favorableClimate: d.favorableClimate?.toJSON(),
+      knownPresence: d.knownPresence?.toJSON(),
+    };
+    return new Pest(
+      this._id, this._name, this._type, this._scientificName, this._family, this._description,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution,
     );
   }
 
@@ -171,6 +193,7 @@ export class Pest {
         favorableConditions: s.favorableConditions,
       },
       { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel },
+      { geographicAreas: s.geographicAreas, favorableClimate: s.favorableClimate, knownPresence: s.knownPresence },
     );
   }
 }
