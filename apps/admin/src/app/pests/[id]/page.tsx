@@ -6,6 +6,7 @@ import { PestBiologyEditor } from './editors/PestBiologyEditor';
 import { PestDamageEditor } from './editors/PestDamageEditor';
 import { PestDistributionEditor } from './editors/PestDistributionEditor';
 import { PestManagementEditor } from './editors/PestManagementEditor';
+import { PestSourcesEditor } from './editors/PestSourcesEditor';
 
 export default async function PestFichePage({ params }: { params: { id: string } }) {
   const pest = await getPest(params.id).catch(() => null);
@@ -20,6 +21,7 @@ export default async function PestFichePage({ params }: { params: { id: string }
           <PestDamageEditor pest={pest} />
           <PestDistributionEditor pest={pest} />
           <PestManagementEditor pest={pest} />
+          <PestSourcesEditor pest={pest} />
         </div>
       </div>
     </main>

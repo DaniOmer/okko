@@ -3,7 +3,7 @@
 import type { Pest } from '../../../lib/api';
 import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
-import { Images, Dna, Bug, MapPin, ShieldCheck } from 'lucide-react';
+import { Images, Dna, Bug, MapPin, ShieldCheck, BookOpen } from 'lucide-react';
 
 export function PestFicheView({ pest }: { pest: Pest }) {
   const photos = (pest.images ?? []).map((img) => ({
@@ -20,6 +20,8 @@ export function PestFicheView({ pest }: { pest: Pest }) {
   const hasDamage = !!((b.attackedOrgans?.length) || (b.damageTypes?.length) || b.harmfulnessLevel || b.symptoms?.fr);
   const hasDistribution = !!((b.geographicAreas?.length) || b.favorableClimate?.fr || b.knownPresence?.fr);
   const hasManagement = !!(b.prevention?.fr || b.biologicalControl?.fr || (b.predators?.length) || (b.parasitoids?.length) || (b.approvedProducts?.length) || b.knownResistances?.fr);
+  const hasSources = (b.sources?.length ?? 0) > 0;
+  const frDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString('fr-FR') : null);
 
   return (
     <div>
@@ -171,6 +173,26 @@ export function PestFicheView({ pest }: { pest: Pest }) {
           </section>
         )}
 
+        {hasSources && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]"><BookOpen className="h-4 w-4" /></span>
+              Sources
+            </h2>
+            <ul className="space-y-1 text-sm">
+              {b.sources!.map((s, i) => (
+                <li key={i}>
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{s.title}</a>
+                  ) : (
+                    <span>{s.title}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {photos.length > 0 && (
           <section id="photos" className="scroll-mt-16 border-t py-6">
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
@@ -182,6 +204,13 @@ export function PestFicheView({ pest }: { pest: Pest }) {
           </section>
         )}
       </div>
+      {(frDate(pest.createdAt) || frDate(pest.updatedAt)) && (
+        <div className="px-6 pb-6 pt-2 text-xs text-muted-foreground">
+          {frDate(pest.createdAt) && <>Créé le {frDate(pest.createdAt)}</>}
+          {frDate(pest.createdAt) && frDate(pest.updatedAt) && ' · '}
+          {frDate(pest.updatedAt) && <>Mis à jour le {frDate(pest.updatedAt)}</>}
+        </div>
+      )}
     </div>
   );
 }
