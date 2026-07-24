@@ -3,7 +3,7 @@
 import type { Pest } from '../../../lib/api';
 import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
-import { Images, Dna, Bug, MapPin } from 'lucide-react';
+import { Images, Dna, Bug, MapPin, ShieldCheck } from 'lucide-react';
 
 export function PestFicheView({ pest }: { pest: Pest }) {
   const photos = (pest.images ?? []).map((img) => ({
@@ -19,6 +19,7 @@ export function PestFicheView({ pest }: { pest: Pest }) {
     b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr);
   const hasDamage = !!((b.attackedOrgans?.length) || (b.damageTypes?.length) || b.harmfulnessLevel || b.symptoms?.fr);
   const hasDistribution = !!((b.geographicAreas?.length) || b.favorableClimate?.fr || b.knownPresence?.fr);
+  const hasManagement = !!(b.prevention?.fr || b.biologicalControl?.fr || (b.predators?.length) || (b.parasitoids?.length) || (b.approvedProducts?.length) || b.knownResistances?.fr);
 
   return (
     <div>
@@ -132,6 +133,40 @@ export function PestFicheView({ pest }: { pest: Pest }) {
               )}
               {b.favorableClimate?.fr && <p><span className="text-muted-foreground">Climat favorable : </span>{b.favorableClimate.fr}</p>}
               {b.knownPresence?.fr && <p><span className="text-muted-foreground">Présence connue : </span>{b.knownPresence.fr}</p>}
+            </div>
+          </section>
+        )}
+
+        {hasManagement && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]"><ShieldCheck className="h-4 w-4" /></span>
+              Gestion
+            </h2>
+            <div className="space-y-2 text-sm">
+              {b.prevention?.fr && <p><span className="text-muted-foreground">Prévention : </span>{b.prevention.fr}</p>}
+              {b.biologicalControl?.fr && <p><span className="text-muted-foreground">Lutte biologique : </span>{b.biologicalControl.fr}</p>}
+              {(b.predators?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Prédateurs : </span>
+                  {b.predators!.map((x) => <span key={x} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{x}</span>)}
+                </div>
+              )}
+              {(b.parasitoids?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Parasitoïdes : </span>
+                  {b.parasitoids!.map((x) => <span key={x} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{x}</span>)}
+                </div>
+              )}
+              {(b.approvedProducts?.length ?? 0) > 0 && (
+                <div>
+                  <span className="text-muted-foreground">Produits homologués : </span>
+                  {b.approvedProducts!.map((p, i) => (
+                    <span key={i}>{i > 0 ? ' · ' : ''}{p.name}{p.country ? ` (${p.country})` : ''}</span>
+                  ))}
+                </div>
+              )}
+              {b.knownResistances?.fr && <p><span className="text-muted-foreground">Résistances : </span>{b.knownResistances.fr}</p>}
             </div>
           </section>
         )}
