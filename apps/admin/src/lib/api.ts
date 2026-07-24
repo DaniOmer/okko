@@ -31,6 +31,16 @@ export interface PestDistribution {
   knownPresence?: Record<string, string>;
 }
 
+export interface ApprovedProduct { name: string; country?: string; }
+export interface PestManagement {
+  prevention?: Record<string, string>;
+  biologicalControl?: Record<string, string>;
+  predators?: string[];
+  parasitoids?: string[];
+  approvedProducts?: ApprovedProduct[];
+  knownResistances?: Record<string, string>;
+}
+
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
 
@@ -140,7 +150,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest extends PestBiology, PestDamage, PestDistribution {
+export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement {
   id: string; name: string; type: string; scientificName?: string;
   family?: string; description?: Record<string, string>; images: ImageRef[]; updatedAt?: string;
 }
