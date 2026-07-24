@@ -4,6 +4,7 @@ import { getPest } from '../../../lib/api';
 import { PestFicheView } from './PestFicheView';
 import { PestBiologyEditor } from './editors/PestBiologyEditor';
 import { PestDamageEditor } from './editors/PestDamageEditor';
+import { PestDistributionEditor } from './editors/PestDistributionEditor';
 
 export default async function PestFichePage({ params }: { params: { id: string } }) {
   const pest = await getPest(params.id).catch(() => null);
@@ -16,6 +17,7 @@ export default async function PestFichePage({ params }: { params: { id: string }
         <div className="flex gap-2">
           <PestBiologyEditor pest={pest} />
           <PestDamageEditor pest={pest} />
+          <PestDistributionEditor pest={pest} />
         </div>
       </div>
     </main>

@@ -3,7 +3,7 @@
 import type { Pest } from '../../../lib/api';
 import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
-import { Images, Dna, Bug } from 'lucide-react';
+import { Images, Dna, Bug, MapPin } from 'lucide-react';
 
 export function PestFicheView({ pest }: { pest: Pest }) {
   const photos = (pest.images ?? []).map((img) => ({
@@ -18,6 +18,7 @@ export function PestFicheView({ pest }: { pest: Pest }) {
   const hasBiology = !!(b.lifeCycle?.fr || b.cycleDurationDays || (b.developmentStages?.length) || b.generationsPerYear || (b.activityPeriods?.length) ||
     b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr);
   const hasDamage = !!((b.attackedOrgans?.length) || (b.damageTypes?.length) || b.harmfulnessLevel || b.symptoms?.fr);
+  const hasDistribution = !!((b.geographicAreas?.length) || b.favorableClimate?.fr || b.knownPresence?.fr);
 
   return (
     <div>
@@ -112,6 +113,25 @@ export function PestFicheView({ pest }: { pest: Pest }) {
                 </div>
               )}
               {b.symptoms?.fr && <p><span className="text-muted-foreground">Symptômes : </span>{b.symptoms.fr}</p>}
+            </div>
+          </section>
+        )}
+
+        {hasDistribution && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]"><MapPin className="h-4 w-4" /></span>
+              Répartition
+            </h2>
+            <div className="space-y-2 text-sm">
+              {(b.geographicAreas?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Zones : </span>
+                  {b.geographicAreas!.map((a) => <span key={a} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{a}</span>)}
+                </div>
+              )}
+              {b.favorableClimate?.fr && <p><span className="text-muted-foreground">Climat favorable : </span>{b.favorableClimate.fr}</p>}
+              {b.knownPresence?.fr && <p><span className="text-muted-foreground">Présence connue : </span>{b.knownPresence.fr}</p>}
             </div>
           </section>
         )}
