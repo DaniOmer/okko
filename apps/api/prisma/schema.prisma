@@ -134,6 +134,12 @@ model Pest {
   geographicAreas  Json?
   favorableClimate Json?
   knownPresence    Json?
+  prevention        Json?
+  biologicalControl Json?
+  predators         Json?
+  parasitoids       Json?
+  approvedProducts  Json?
+  knownResistances  Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
 }

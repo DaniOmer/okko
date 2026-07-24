@@ -27,6 +27,12 @@ export interface PestDocument {
   geographicAreas?: string[];
   favorableClimate?: Record<string, string>;
   knownPresence?: Record<string, string>;
+  prevention?: Record<string, string>;
+  biologicalControl?: Record<string, string>;
+  predators?: string[];
+  parasitoids?: string[];
+  approvedProducts?: PestSnapshot['approvedProducts'];
+  knownResistances?: Record<string, string>;
 }
 
 export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
@@ -42,6 +48,12 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.geographicAreas?.length) lines.push(`Zones : ${p.geographicAreas.join(', ')}`);
   if (p.favorableClimate) lines.push(`Climat favorable : ${p.favorableClimate[locale] ?? p.favorableClimate['fr']}`);
   if (p.knownPresence) lines.push(`Présence connue : ${p.knownPresence[locale] ?? p.knownPresence['fr']}`);
+  if (p.prevention) lines.push(`Prévention : ${p.prevention[locale] ?? p.prevention['fr']}`);
+  if (p.biologicalControl) lines.push(`Lutte biologique : ${p.biologicalControl[locale] ?? p.biologicalControl['fr']}`);
+  if (p.predators?.length) lines.push(`Prédateurs : ${p.predators.join(', ')}`);
+  if (p.parasitoids?.length) lines.push(`Parasitoïdes : ${p.parasitoids.join(', ')}`);
+  if (p.approvedProducts?.length) lines.push(`Produits homologués : ${p.approvedProducts.map((x) => x.name).join(', ')}`);
+  if (p.knownResistances) lines.push(`Résistances : ${p.knownResistances[locale] ?? p.knownResistances['fr']}`);
   if (p.lifeCycle) lines.push(`Cycle de vie : ${p.lifeCycle[locale] ?? p.lifeCycle['fr']}`);
   if (p.cycleDurationDays) lines.push(`Durée du cycle : ${p.cycleDurationDays.min}–${p.cycleDurationDays.max} j`);
   if (p.generationsPerYear) lines.push(`Générations/an : ${p.generationsPerYear.min}–${p.generationsPerYear.max}`);
@@ -55,5 +67,8 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
     activityPeriods: p.activityPeriods, favorableConditions: p.favorableConditions,
     attackedOrgans: p.attackedOrgans, damageTypes: p.damageTypes, harmfulnessLevel: p.harmfulnessLevel,
     geographicAreas: p.geographicAreas, favorableClimate: p.favorableClimate, knownPresence: p.knownPresence,
+    prevention: p.prevention, biologicalControl: p.biologicalControl,
+    predators: p.predators, parasitoids: p.parasitoids,
+    approvedProducts: p.approvedProducts, knownResistances: p.knownResistances,
   };
 }

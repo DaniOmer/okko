@@ -50,6 +50,12 @@ export class PrismaPestRepository implements PestRepository {
       geographicAreas: (p.geographicAreas ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       favorableClimate: (p.favorableClimate ?? undefined) as Prisma.InputJsonValue | undefined,
       knownPresence: (p.knownPresence ?? undefined) as Prisma.InputJsonValue | undefined,
+      prevention: (p.prevention ?? undefined) as Prisma.InputJsonValue | undefined,
+      biologicalControl: (p.biologicalControl ?? undefined) as Prisma.InputJsonValue | undefined,
+      predators: (p.predators ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      parasitoids: (p.parasitoids ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      approvedProducts: (p.approvedProducts ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      knownResistances: (p.knownResistances ?? undefined) as Prisma.InputJsonValue | undefined,
     };
   }
 
@@ -75,6 +81,12 @@ export class PrismaPestRepository implements PestRepository {
       geographicAreas: (row.geographicAreas ?? undefined) as string[] | undefined,
       favorableClimate: (row.favorableClimate ?? undefined) as Record<string, string> | undefined,
       knownPresence: (row.knownPresence ?? undefined) as Record<string, string> | undefined,
+      prevention: (row.prevention ?? undefined) as Record<string, string> | undefined,
+      biologicalControl: (row.biologicalControl ?? undefined) as Record<string, string> | undefined,
+      predators: (row.predators ?? undefined) as string[] | undefined,
+      parasitoids: (row.parasitoids ?? undefined) as string[] | undefined,
+      approvedProducts: (row.approvedProducts ?? undefined) as PestSnapshot['approvedProducts'],
+      knownResistances: (row.knownResistances ?? undefined) as Record<string, string> | undefined,
     };
   }
 }

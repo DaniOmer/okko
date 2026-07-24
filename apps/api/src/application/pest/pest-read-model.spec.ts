@@ -54,6 +54,25 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Présence connue : Endémique zone soudanienne');
   });
 
+  it('expose la gestion et enrichit le texte indexé', () => {
+    const doc = toPestDocument({
+      id: 'p1', name: { fr: 'Chenille' }, type: PestType.INSECT, images: [], metadata: {},
+      prevention: { fr: 'Rotation' },
+      predators: ['Coccinelle'],
+      parasitoids: ['Trichogramma'],
+      approvedProducts: [{ name: 'Bt', country: 'BJ' }, { name: 'Spinosad' }],
+      knownResistances: { fr: 'Pyréthrinoïdes' },
+    } as never);
+    expect(doc.prevention).toEqual({ fr: 'Rotation' });
+    expect(doc.predators).toEqual(['Coccinelle']);
+    expect(doc.approvedProducts).toEqual([{ name: 'Bt', country: 'BJ' }, { name: 'Spinosad' }]);
+    expect(doc.serializedText).toContain('Prévention : Rotation');
+    expect(doc.serializedText).toContain('Prédateurs : Coccinelle');
+    expect(doc.serializedText).toContain('Parasitoïdes : Trichogramma');
+    expect(doc.serializedText).toContain('Produits homologués : Bt, Spinosad');
+    expect(doc.serializedText).toContain('Résistances : Pyréthrinoïdes');
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',
