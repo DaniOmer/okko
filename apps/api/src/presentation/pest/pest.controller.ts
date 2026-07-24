@@ -7,6 +7,7 @@ import { ListPestsUseCase } from '../../application/pest/list-pests.use-case';
 import { UpdatePestUseCase, PestNotFoundError } from '../../application/pest/update-pest.use-case';
 import { DeletePestUseCase, PestInUseError } from '../../application/pest/delete-pest.use-case';
 import { SetPestBiologyUseCase } from '../../application/pest/set-pest-biology.use-case';
+import { SetPestDamageUseCase } from '../../application/pest/set-pest-damage.use-case';
 import { PEST_REPOSITORY, PestRepository } from '../../application/pest/pest.repository';
 import { toPestDocument } from '../../application/pest/pest-read-model';
 import { PestType } from '../../domain/pest/pest-type';
@@ -24,6 +25,7 @@ export class PestController {
     private readonly updatePest: UpdatePestUseCase,
     private readonly deletePest: DeletePestUseCase,
     private readonly setPestBiology: SetPestBiologyUseCase,
+    private readonly setPestDamage: SetPestDamageUseCase,
     @Inject(PEST_REPOSITORY) private readonly pests: PestRepository,
     @Inject(STORAGE_PORT) private readonly storage: StoragePort,
   ) {}
@@ -69,6 +71,19 @@ export class PestController {
   async biology(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: BiologySnapshot) {
     try {
       const snap = await this.setPestBiology.execute({ id, actor: user.email, biology: body });
+      return this.toResponse(snap);
+    } catch (e) {
+      if (e instanceof PestNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Patch(':id/damage')
+  async damage(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
+    symptoms?: Record<string, string>; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string;
+  }) {
+    try {
+      const snap = await this.setPestDamage.execute({ id, actor: user.email, ...body });
       return this.toResponse(snap);
     } catch (e) {
       if (e instanceof PestNotFoundError) throw new NotFoundException(id);

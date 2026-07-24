@@ -49,6 +49,7 @@ import { DeletePestUseCase } from './application/pest/delete-pest.use-case';
 import { SetCropPestControlUseCase } from './application/pest/set-crop-pest-control.use-case';
 import { ListCropPestsUseCase } from './application/pest/list-crop-pests.use-case';
 import { SetPestBiologyUseCase } from './application/pest/set-pest-biology.use-case';
+import { SetPestDamageUseCase } from './application/pest/set-pest-damage.use-case';
 import { PrismaPricePointRepository } from './infrastructure/price/prisma-price-point.repository';
 import { PRICE_POINT_REPOSITORY } from './application/price/price-point.repository';
 import { SetCropNutritionUseCase } from './application/crop/set-crop-nutrition.use-case';
@@ -212,6 +213,11 @@ import { MediaController } from './presentation/media/media.controller';
     {
       provide: SetPestBiologyUseCase,
       useFactory: (p, a, c) => new SetPestBiologyUseCase(p, a, c),
+      inject: [PEST_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: SetPestDamageUseCase,
+      useFactory: (p, a, c) => new SetPestDamageUseCase(p, a, c),
       inject: [PEST_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     { provide: PRICE_POINT_REPOSITORY, useClass: PrismaPricePointRepository },
