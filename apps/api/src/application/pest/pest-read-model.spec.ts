@@ -39,6 +39,21 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Générations/an : 3–6');
   });
 
+  it('expose la répartition et enrichit le texte indexé', () => {
+    const doc = toPestDocument({
+      id: 'p1', name: { fr: 'Chenille' }, type: PestType.INSECT, images: [], metadata: {},
+      geographicAreas: ['Afrique', 'Asie'],
+      favorableClimate: { fr: 'Tropical humide' },
+      knownPresence: { fr: 'Endémique zone soudanienne' },
+    } as never);
+    expect(doc.geographicAreas).toEqual(['Afrique', 'Asie']);
+    expect(doc.favorableClimate).toEqual({ fr: 'Tropical humide' });
+    expect(doc.knownPresence).toEqual({ fr: 'Endémique zone soudanienne' });
+    expect(doc.serializedText).toContain('Zones : Afrique, Asie');
+    expect(doc.serializedText).toContain('Climat favorable : Tropical humide');
+    expect(doc.serializedText).toContain('Présence connue : Endémique zone soudanienne');
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',

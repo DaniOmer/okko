@@ -24,6 +24,9 @@ export interface PestDocument {
   attackedOrgans?: string[];
   damageTypes?: string[];
   harmfulnessLevel?: string;
+  geographicAreas?: string[];
+  favorableClimate?: Record<string, string>;
+  knownPresence?: Record<string, string>;
 }
 
 export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
@@ -36,6 +39,9 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.attackedOrgans?.length) lines.push(`Organes attaqués : ${p.attackedOrgans.join(', ')}`);
   if (p.damageTypes?.length) lines.push(`Types de dégâts : ${p.damageTypes.join(', ')}`);
   if (p.harmfulnessLevel) lines.push(`Nuisibilité : ${p.harmfulnessLevel}`);
+  if (p.geographicAreas?.length) lines.push(`Zones : ${p.geographicAreas.join(', ')}`);
+  if (p.favorableClimate) lines.push(`Climat favorable : ${p.favorableClimate[locale] ?? p.favorableClimate['fr']}`);
+  if (p.knownPresence) lines.push(`Présence connue : ${p.knownPresence[locale] ?? p.knownPresence['fr']}`);
   if (p.lifeCycle) lines.push(`Cycle de vie : ${p.lifeCycle[locale] ?? p.lifeCycle['fr']}`);
   if (p.cycleDurationDays) lines.push(`Durée du cycle : ${p.cycleDurationDays.min}–${p.cycleDurationDays.max} j`);
   if (p.generationsPerYear) lines.push(`Générations/an : ${p.generationsPerYear.min}–${p.generationsPerYear.max}`);
@@ -48,5 +54,6 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
     developmentStages: p.developmentStages, generationsPerYear: p.generationsPerYear,
     activityPeriods: p.activityPeriods, favorableConditions: p.favorableConditions,
     attackedOrgans: p.attackedOrgans, damageTypes: p.damageTypes, harmfulnessLevel: p.harmfulnessLevel,
+    geographicAreas: p.geographicAreas, favorableClimate: p.favorableClimate, knownPresence: p.knownPresence,
   };
 }

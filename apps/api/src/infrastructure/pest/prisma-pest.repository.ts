@@ -47,6 +47,9 @@ export class PrismaPestRepository implements PestRepository {
       attackedOrgans: (p.attackedOrgans ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       damageTypes: (p.damageTypes ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       harmfulnessLevel: p.harmfulnessLevel ?? null,
+      geographicAreas: (p.geographicAreas ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      favorableClimate: (p.favorableClimate ?? undefined) as Prisma.InputJsonValue | undefined,
+      knownPresence: (p.knownPresence ?? undefined) as Prisma.InputJsonValue | undefined,
     };
   }
 
@@ -69,6 +72,9 @@ export class PrismaPestRepository implements PestRepository {
       attackedOrgans: (row.attackedOrgans ?? undefined) as string[] | undefined,
       damageTypes: (row.damageTypes ?? undefined) as string[] | undefined,
       harmfulnessLevel: row.harmfulnessLevel ?? undefined,
+      geographicAreas: (row.geographicAreas ?? undefined) as string[] | undefined,
+      favorableClimate: (row.favorableClimate ?? undefined) as Record<string, string> | undefined,
+      knownPresence: (row.knownPresence ?? undefined) as Record<string, string> | undefined,
     };
   }
 }

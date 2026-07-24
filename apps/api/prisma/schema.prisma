@@ -131,6 +131,9 @@ model Pest {
   attackedOrgans   Json?
   damageTypes      Json?
   harmfulnessLevel String?
+  geographicAreas  Json?
+  favorableClimate Json?
+  knownPresence    Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
 }
