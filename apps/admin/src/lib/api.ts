@@ -41,6 +41,9 @@ export interface PestManagement {
   knownResistances?: Record<string, string>;
 }
 
+export interface Source { title: string; url?: string; }
+export interface PestSources { sources?: Source[]; }
+
 export interface CompletenessReport { categories: Record<string, boolean>; filled: number; total: number; percent: number; }
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
 
@@ -150,9 +153,9 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement {
+export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement, PestSources {
   id: string; name: string; type: string; scientificName?: string;
-  family?: string; description?: Record<string, string>; images: ImageRef[]; updatedAt?: string;
+  family?: string; description?: Record<string, string>; images: ImageRef[]; createdAt?: string; updatedAt?: string;
 }
 export interface CropPest {
   pestId: string; pestName: Record<string, string>; type: string; susceptibility: string;

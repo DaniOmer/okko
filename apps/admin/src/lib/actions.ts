@@ -174,3 +174,8 @@ export async function setPestManagement(id: string, management: import('./api').
   const res = await authFetch(`/pests/${id}/management`, jsonInit('PATCH', management));
   return res.json();
 }
+
+export async function setPestSources(id: string, sources: import('./api').PestSources): Promise<Pest> {
+  const res = await authFetch(`/pests/${id}/sources`, jsonInit('PATCH', sources));
+  return res.json();
+}
