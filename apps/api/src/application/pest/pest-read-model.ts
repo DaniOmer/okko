@@ -6,6 +6,7 @@ export interface PestDocument {
   id: string;
   name: string;
   type: PestType;
+  kind: PestSnapshot['kind'];
   scientificName?: string;
   family?: string;
   description?: Record<string, string>;
@@ -61,7 +62,7 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.cycleDurationDays) lines.push(`Durée du cycle : ${p.cycleDurationDays.min}–${p.cycleDurationDays.max} j`);
   if (p.generationsPerYear) lines.push(`Générations/an : ${p.generationsPerYear.min}–${p.generationsPerYear.max}`);
   return {
-    id: p.id, name, type: p.type, scientificName: p.scientificName,
+    id: p.id, name, type: p.type, kind: p.kind, scientificName: p.scientificName,
     family: p.family, description: p.description, updatedAt: p.updatedAt,
     sources: p.sources, createdAt: p.createdAt,
     symptoms: p.symptoms, images: p.images ?? [], notes: p.notes,

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Pest" ADD COLUMN     "kind" TEXT NOT NULL DEFAULT 'ANIMAL';

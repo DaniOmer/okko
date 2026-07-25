@@ -89,6 +89,11 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Sources : FAO, Note interne');
   });
 
+  it('expose le kind', () => {
+    const doc = toPestDocument({ id: 'p1', name: { fr: 'Chiendent' }, type: PestType.PERENNIAL_GRASS, kind: PestKind.WEED, images: [], metadata: {} } as never);
+    expect(doc.kind).toBe(PestKind.WEED);
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',
