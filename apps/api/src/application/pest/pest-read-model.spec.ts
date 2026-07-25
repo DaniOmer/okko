@@ -1,8 +1,9 @@
 import { toPestDocument } from './pest-read-model';
+import { PestKind } from '../../domain/pest/pest-kind';
 import { PestType } from '../../domain/pest/pest-type';
 
 const snap = {
-  id: 'p1', name: { fr: 'Mouche des fruits', en: 'Fruit fly' }, type: PestType.INSECT,
+  id: 'p1', name: { fr: 'Mouche des fruits', en: 'Fruit fly' }, type: PestType.INSECT, kind: PestKind.ANIMAL,
   scientificName: 'Bactrocera dorsalis', images: [{ key: 'images/x.jpg' }], metadata: {},
 };
 
@@ -24,6 +25,7 @@ describe('toPestDocument', () => {
       id: 'p2',
       name: { fr: 'Doryphore' },
       type: PestType.INSECT,
+      kind: PestKind.ANIMAL,
       images: [],
       metadata: {},
       lifeCycle: { fr: 'Holométabole' },
@@ -87,11 +89,17 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Sources : FAO, Note interne');
   });
 
+  it('expose le kind', () => {
+    const doc = toPestDocument({ id: 'p1', name: { fr: 'Chiendent' }, type: PestType.PERENNIAL_GRASS, kind: PestKind.WEED, images: [], metadata: {} } as never);
+    expect(doc.kind).toBe(PestKind.WEED);
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',
       name: { fr: 'Punaise' },
       type: PestType.INSECT,
+      kind: PestKind.ANIMAL,
       images: [],
       metadata: {},
       attackedOrgans: ['LEAVES', 'FRUITS'],

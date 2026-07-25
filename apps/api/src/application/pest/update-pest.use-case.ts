@@ -1,6 +1,7 @@
 import { Pest, PestSnapshot } from '../../domain/pest/pest';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { PestType } from '../../domain/pest/pest-type';
+import { PestKind } from '../../domain/pest/pest-kind';
 import { MediaImageJSON } from '../../domain/media/media-image';
 import { PestRepository } from './pest.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
@@ -11,7 +12,7 @@ export class PestNotFoundError extends Error {
 }
 
 export interface UpdatePestInput {
-  id: string; name: Record<string, string>; type: PestType; scientificName?: string;
+  id: string; name: Record<string, string>; type: PestType; kind?: PestKind; scientificName?: string;
   family?: string;
   description?: Record<string, string>;
   images?: MediaImageJSON[];
@@ -31,6 +32,7 @@ export class UpdatePestUseCase {
     const updated = Pest.fromSnapshot(existing).update({
       name: TranslatableText.create(input.name),
       type: input.type,
+      kind: input.kind,
       scientificName: input.scientificName || undefined,
       family: input.family || undefined,
       description: input.description ? TranslatableText.create(input.description) : undefined,

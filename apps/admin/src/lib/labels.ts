@@ -52,6 +52,14 @@ export const NUTRITION_BASIS_LABELS: Record<string, string> = {
   PER_TONNE: 'Par tonne de récolte (kg/t)',
 };
 
+export const PEST_KIND_LABELS: Record<string, string> = { ANIMAL: 'Ravageur', DISEASE: 'Maladie', WEED: 'Adventice' };
+
+export const WEED_CATEGORY_LABELS: Record<string, string> = {
+  ANNUAL_GRASS: 'Graminée annuelle', PERENNIAL_GRASS: 'Graminée vivace',
+  ANNUAL_BROADLEAF: 'Dicotylédone annuelle', PERENNIAL_BROADLEAF: 'Dicotylédone vivace',
+  SEDGE: 'Cypéracée', OTHER: 'Autre',
+};
+
 export const PEST_TYPE_LABELS: Record<string, string> = {
   INSECT: 'Insecte',
   MITE: 'Acarien',

@@ -1,5 +1,6 @@
 import { Pest, PestSnapshot } from '../../domain/pest/pest';
 import { PestType } from '../../domain/pest/pest-type';
+import { PestKind } from '../../domain/pest/pest-kind';
 import { TranslatableText } from '../../domain/shared/translatable-text';
 import { MediaImageJSON } from '../../domain/media/media-image';
 import { PestRepository } from './pest.repository';
@@ -11,6 +12,7 @@ export interface CreatePestInput {
   id?: string;
   name: Record<string, string>;
   type: PestType;
+  kind?: PestKind;
   scientificName?: string;
   family?: string;
   description?: Record<string, string>;
@@ -33,6 +35,7 @@ export class CreatePestUseCase {
       id: input.id ?? this.ids.next(),
       name: TranslatableText.create(input.name),
       type: input.type,
+      kind: input.kind,
       scientificName: input.scientificName,
       family: input.family,
       description: input.description ? TranslatableText.create(input.description) : undefined,

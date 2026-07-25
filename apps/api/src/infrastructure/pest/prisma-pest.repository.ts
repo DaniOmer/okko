@@ -31,7 +31,7 @@ export class PrismaPestRepository implements PestRepository {
 
   private toRow(p: PestSnapshot): Prisma.PestCreateInput {
     return {
-      id: p.id, name: p.name as Prisma.InputJsonValue, type: p.type,
+      id: p.id, name: p.name as Prisma.InputJsonValue, type: p.type, kind: p.kind,
       scientificName: p.scientificName ?? null,
       family: p.family ?? null,
       description: (p.description ?? undefined) as Prisma.InputJsonValue | undefined,
@@ -89,6 +89,7 @@ export class PrismaPestRepository implements PestRepository {
       approvedProducts: (row.approvedProducts ?? undefined) as PestSnapshot['approvedProducts'],
       knownResistances: (row.knownResistances ?? undefined) as Record<string, string> | undefined,
       sources: (row.sources ?? undefined) as PestSnapshot['sources'],
+      kind: row.kind as PestSnapshot['kind'],
       createdAt: row.createdAt.toISOString(),
     };
   }

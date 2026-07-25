@@ -115,6 +115,7 @@ model Pest {
   id             String   @id
   name           Json
   type           String
+  kind           String   @default("ANIMAL")
   scientificName String?
   family         String?
   description    Json?

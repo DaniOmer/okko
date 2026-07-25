@@ -1,6 +1,7 @@
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service';
 import { PrismaPestRepository } from '../src/infrastructure/pest/prisma-pest.repository';
 import { PrismaCropPestControlRepository } from '../src/infrastructure/pest/prisma-crop-pest-control.repository';
+import { PestKind } from '../src/domain/pest/pest-kind';
 import { PestType } from '../src/domain/pest/pest-type';
 import { SusceptibilityLevel } from '../src/domain/pest/susceptibility-level';
 import { ControlCategory } from '../src/domain/pest/control-category';
@@ -19,7 +20,7 @@ describe('Prisma pest + control repositories (integration)', () => {
 
   it('saves/reads a pest and upserts a control by composite key', async () => {
     await pests.save({
-      id: 'p-int-1', name: { fr: 'Mouche' }, type: PestType.INSECT,
+      id: 'p-int-1', name: { fr: 'Mouche' }, type: PestType.INSECT, kind: PestKind.ANIMAL,
       images: [{ key: 'images/x.jpg' }], metadata: {},
     });
     const found = await pests.findById('p-int-1');
