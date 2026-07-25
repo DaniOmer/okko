@@ -154,7 +154,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
 }
 
 export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement, PestSources {
-  id: string; name: string; type: string; scientificName?: string;
+  id: string; name: string; type: string; kind?: string; scientificName?: string;
   family?: string; description?: Record<string, string>; images: ImageRef[]; createdAt?: string; updatedAt?: string;
 }
 export interface CropPest {

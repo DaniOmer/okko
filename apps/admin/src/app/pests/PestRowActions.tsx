@@ -6,17 +6,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS } from '@/lib/labels';
+import { PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, WEED_CATEGORY_LABELS } from '@/lib/labels';
 import { updatePest, deletePest } from '@/lib/actions';
 import { ImageGalleryUploader } from '@/components/ImageGalleryUploader';
 import type { ImageRef } from '@/lib/api';
 
-export function PestRowActions({ pest }: { pest: { id: string; name: string; type: string; scientificName?: string; family?: string; description?: Record<string, string>; images: ImageRef[] } }) {
+export function PestRowActions({ pest }: { pest: { id: string; name: string; type: string; kind?: string; scientificName?: string; family?: string; description?: Record<string, string>; images: ImageRef[] } }) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [name, setName] = useState(pest.name);
+  const [kind, setKind] = useState(pest.kind ?? 'ANIMAL');
   const [type, setType] = useState(pest.type);
+  const categoryLabels = kind === 'WEED' ? WEED_CATEGORY_LABELS : PEST_TYPE_LABELS;
+
+  function onKindChange(k: string) {
+    setKind(k);
+    const first = Object.keys(k === 'WEED' ? WEED_CATEGORY_LABELS : PEST_TYPE_LABELS)[0];
+    setType(first);
+  }
   const [scientificName, setScientificName] = useState(pest.scientificName ?? '');
   const [family, setFamily] = useState(pest.family ?? '');
   const [description, setDescription] = useState(pest.description?.fr ?? '');
@@ -41,11 +49,21 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
           <div className="space-y-3">
             <div className="space-y-1"><Label htmlFor="p-name">Nom (fr) *</Label><Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} /></div>
             <div className="space-y-1">
-              <Label htmlFor="p-type">Type *</Label>
+              <Label>Type de bioagresseur</Label>
+              <Select value={kind} onValueChange={onKindChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ANIMAL">Ravageur</SelectItem>
+                  <SelectItem value="WEED">Adventice</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="p-type">Catégorie *</Label>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {Object.entries(PEST_TYPE_LABELS).map(([code, fr]) => <SelectItem key={code} value={code}>{fr}</SelectItem>)}
+                  {Object.entries(categoryLabels).map(([code, label]) => <SelectItem key={code} value={code}>{label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -62,7 +80,7 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
           </div>
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setEditOpen(false)}>Annuler</Button>
-            <Button size="sm" disabled={busy} onClick={() => run(() => updatePest(pest.id, { name: { fr: name }, type, scientificName: scientificName || undefined, family: family || undefined, description: description ? { fr: description } : undefined, images: images.map((i) => ({ key: i.key, caption: i.caption, category: i.category })) }), () => setEditOpen(false))}>Enregistrer</Button>
+            <Button size="sm" disabled={busy} onClick={() => run(() => updatePest(pest.id, { name: { fr: name }, type, kind, scientificName: scientificName || undefined, family: family || undefined, description: description ? { fr: description } : undefined, images: images.map((i) => ({ key: i.key, caption: i.caption, category: i.category })) }), () => setEditOpen(false))}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
