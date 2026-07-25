@@ -44,7 +44,7 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
       <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setError(null); }}>
         <DialogTrigger asChild><Button variant="outline" size="sm">Modifier</Button></DialogTrigger>
         <DialogContent>
-          <DialogHeader><DialogTitle>Modifier le ravageur</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Modifier le bioagresseur</DialogTitle></DialogHeader>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="space-y-3">
             <div className="space-y-1"><Label htmlFor="p-name">Nom (fr) *</Label><Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} /></div>
