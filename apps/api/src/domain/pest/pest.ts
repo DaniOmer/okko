@@ -1,4 +1,5 @@
 import { TranslatableText } from '../shared/translatable-text';
+import { PestKind } from './pest-kind';
 import { PestType } from './pest-type';
 import { MediaImage, MediaImageJSON } from '../media/media-image';
 import { MinMaxRange, MinMaxRangeJSON } from '../shared/min-max-range';
@@ -36,6 +37,7 @@ export interface PestSnapshot {
   id: string;
   name: Record<string, string>;
   type: PestType;
+  kind: PestKind;
   scientificName?: string;
   family?: string;
   description?: Record<string, string>;
@@ -70,6 +72,7 @@ interface CreateProps {
   id: string;
   name: TranslatableText;
   type: PestType;
+  kind?: PestKind;
   scientificName?: string;
   family?: string;
   description?: TranslatableText;
@@ -96,6 +99,7 @@ export class Pest {
     private readonly _distribution: DistributionSnapshot,
     private readonly _management: ManagementSnapshot,
     private readonly _sources: SourceJSON[],
+    private readonly _kind: PestKind,
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -103,7 +107,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {}, [],
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {}, [], props.kind ?? PestKind.ANIMAL,
     );
   }
 
@@ -122,10 +126,11 @@ export class Pest {
   get distribution(): DistributionSnapshot { return { ...this._distribution }; }
   get management(): ManagementSnapshot { return { ...this._management }; }
   get sources(): SourceJSON[] { return [...this._sources]; }
+  get kind(): PestKind { return this._kind; }
 
   toSnapshot(): PestSnapshot {
     return {
-      id: this._id, name: this._name.toJSON(), type: this._type,
+      id: this._id, name: this._name.toJSON(), type: this._type, kind: this._kind,
       scientificName: this._scientificName,
       family: this._family,
       description: this._description?.toJSON(),
@@ -140,7 +145,7 @@ export class Pest {
     };
   }
 
-  update(fields: { name: TranslatableText; type: PestType; scientificName?: string; family?: string; description?: TranslatableText; images?: MediaImageJSON[] }): Pest {
+  update(fields: { name: TranslatableText; type: PestType; scientificName?: string; family?: string; description?: TranslatableText; images?: MediaImageJSON[]; kind?: PestKind }): Pest {
     return new Pest(
       this._id,
       fields.name,
@@ -157,6 +162,7 @@ export class Pest {
       this._distribution,
       this._management,
       this._sources,
+      fields.kind ?? this._kind,
     );
   }
 
@@ -179,7 +185,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management, this._sources,
+      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management, this._sources, this._kind,
     );
   }
 
@@ -191,7 +197,7 @@ export class Pest {
       { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
       this._distribution,
       this._management,
-      this._sources,
+      this._sources, this._kind,
     );
   }
 
@@ -203,7 +209,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management, this._sources,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management, this._sources, this._kind,
     );
   }
 
@@ -218,7 +224,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management, this._sources,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management, this._sources, this._kind,
     );
   }
 
@@ -226,7 +232,7 @@ export class Pest {
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
       this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, this._management,
-      sources,
+      sources, this._kind,
     );
   }
 
@@ -249,6 +255,7 @@ export class Pest {
       { geographicAreas: s.geographicAreas, favorableClimate: s.favorableClimate, knownPresence: s.knownPresence },
       { prevention: s.prevention, biologicalControl: s.biologicalControl, predators: s.predators, parasitoids: s.parasitoids, approvedProducts: s.approvedProducts, knownResistances: s.knownResistances },
       s.sources ?? [],
+      s.kind ?? PestKind.ANIMAL,
     );
   }
 }

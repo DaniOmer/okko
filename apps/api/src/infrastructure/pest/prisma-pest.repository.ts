@@ -4,6 +4,7 @@ import type { Pest as PrismaPest } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PestRepository } from '../../application/pest/pest.repository';
 import { PestSnapshot } from '../../domain/pest/pest';
+import { PestKind } from '../../domain/pest/pest-kind';
 import { PestType } from '../../domain/pest/pest-type';
 import { MediaImageJSON } from '../../domain/media/media-image';
 
@@ -89,6 +90,7 @@ export class PrismaPestRepository implements PestRepository {
       approvedProducts: (row.approvedProducts ?? undefined) as PestSnapshot['approvedProducts'],
       knownResistances: (row.knownResistances ?? undefined) as Record<string, string> | undefined,
       sources: (row.sources ?? undefined) as PestSnapshot['sources'],
+      kind: ((row as Record<string, unknown>)['kind'] as PestKind | undefined) ?? PestKind.ANIMAL,
       createdAt: row.createdAt.toISOString(),
     };
   }
