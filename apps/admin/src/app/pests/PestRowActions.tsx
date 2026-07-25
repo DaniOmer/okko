@@ -88,7 +88,7 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
       <Dialog open={delOpen} onOpenChange={(o) => { setDelOpen(o); if (!o) setError(null); }}>
         <DialogTrigger asChild><Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">Supprimer</Button></DialogTrigger>
         <DialogContent>
-          <DialogHeader><DialogTitle>Supprimer le ravageur &laquo;&nbsp;{pest.name}&nbsp;&raquo; ?</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Supprimer le bioagresseur &laquo;&nbsp;{pest.name}&nbsp;&raquo; ?</DialogTitle></DialogHeader>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <p className="text-sm text-muted-foreground">Cette action est définitive.</p>
           <DialogFooter>
