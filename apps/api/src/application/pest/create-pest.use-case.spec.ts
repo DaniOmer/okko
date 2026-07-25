@@ -2,6 +2,7 @@ import { CreatePestUseCase } from './create-pest.use-case';
 import { ListPestsUseCase } from './list-pests.use-case';
 import { InMemoryPestRepository } from './in-memory-pest.repository';
 import { PestType } from '../../domain/pest/pest-type';
+import { PestKind } from '../../domain/pest/pest-kind';
 
 const clock = { nowIso: () => '2026-07-04T00:00:00.000Z' };
 let seq = 0;
@@ -25,5 +26,23 @@ describe('CreatePestUseCase', () => {
 
     const list = await new ListPestsUseCase(repo).execute();
     expect(list).toHaveLength(1);
+  });
+
+  it('propage kind quand fourni (DISEASE)', async () => {
+    const repo = new InMemoryPestRepository();
+    const audit = { record: jest.fn() };
+    const out = await new CreatePestUseCase(repo, audit, clock, ids).execute({
+      name: { fr: 'Mildiou' }, type: PestType.OTHER, kind: PestKind.DISEASE, actor: 'a',
+    });
+    expect(out.kind).toBe(PestKind.DISEASE);
+  });
+
+  it('utilise ANIMAL par défaut quand kind est absent', async () => {
+    const repo = new InMemoryPestRepository();
+    const audit = { record: jest.fn() };
+    const out = await new CreatePestUseCase(repo, audit, clock, ids).execute({
+      name: { fr: 'Thrips' }, type: PestType.INSECT, actor: 'a',
+    });
+    expect(out.kind).toBe(PestKind.ANIMAL);
   });
 });

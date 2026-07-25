@@ -14,6 +14,7 @@ import { SetPestSourcesUseCase } from '../../application/pest/set-pest-sources.u
 import { PEST_REPOSITORY, PestRepository } from '../../application/pest/pest.repository';
 import { toPestDocument } from '../../application/pest/pest-read-model';
 import { PestType } from '../../domain/pest/pest-type';
+import { PestKind } from '../../domain/pest/pest-kind';
 import { STORAGE_PORT, StoragePort } from '../../application/media/storage.port';
 import { toImageDto } from '../media/image-dto';
 import { PestSnapshot, BiologySnapshot, ApprovedProductJSON, SourceJSON } from '../../domain/pest/pest';
@@ -38,7 +39,7 @@ export class PestController {
 
   @Post()
   async create(@CurrentUser() user: AuthUser, @Body() body: {
-    name: Record<string, string>; type: PestType; scientificName?: string;
+    name: Record<string, string>; type: PestType; kind?: PestKind; scientificName?: string;
     family?: string; description?: Record<string, string>;
     symptoms?: Record<string, string>; images?: { key: string; caption?: string; category?: string }[]; notes?: string;
   }) {
@@ -60,7 +61,7 @@ export class PestController {
 
   @Patch(':id')
   async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
-    name: Record<string, string>; type: PestType; scientificName?: string;
+    name: Record<string, string>; type: PestType; kind?: PestKind; scientificName?: string;
     family?: string; description?: Record<string, string>;
     images?: { key: string; caption?: string; category?: string }[];
   }) {
