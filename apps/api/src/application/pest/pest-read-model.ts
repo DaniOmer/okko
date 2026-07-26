@@ -27,6 +27,11 @@ export interface PestDocument {
   attackedOrgans?: string[];
   damageTypes?: string[];
   harmfulnessLevel?: string;
+  nuisanceTypes?: string[];
+  reproductionMode?: string[];
+  disseminationCapacity?: string;
+  emergenceDepth?: PestSnapshot['emergenceDepth'];
+  seedBankLongevity?: PestSnapshot['seedBankLongevity'];
   geographicAreas?: string[];
   favorableClimate?: Record<string, string>;
   knownPresence?: Record<string, string>;
@@ -48,6 +53,11 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.attackedOrgans?.length) lines.push(`Organes attaqués : ${p.attackedOrgans.join(', ')}`);
   if (p.damageTypes?.length) lines.push(`Types de dégâts : ${p.damageTypes.join(', ')}`);
   if (p.harmfulnessLevel) lines.push(`Nuisibilité : ${p.harmfulnessLevel}`);
+  if (p.nuisanceTypes?.length) lines.push(`Nuisibilité : ${p.nuisanceTypes.join(', ')}`);
+  if (p.reproductionMode?.length) lines.push(`Reproduction : ${p.reproductionMode.join(', ')}`);
+  if (p.disseminationCapacity) lines.push(`Dissémination : ${p.disseminationCapacity}`);
+  if (p.emergenceDepth) lines.push(`Profondeur de levée : ${p.emergenceDepth.min}–${p.emergenceDepth.max} cm`);
+  if (p.seedBankLongevity) lines.push(`Banque de graines : ${p.seedBankLongevity.min}–${p.seedBankLongevity.max} ans`);
   if (p.geographicAreas?.length) lines.push(`Zones : ${p.geographicAreas.join(', ')}`);
   if (p.favorableClimate) lines.push(`Climat favorable : ${p.favorableClimate[locale] ?? p.favorableClimate['fr']}`);
   if (p.knownPresence) lines.push(`Présence connue : ${p.knownPresence[locale] ?? p.knownPresence['fr']}`);
@@ -71,6 +81,9 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
     developmentStages: p.developmentStages, generationsPerYear: p.generationsPerYear,
     activityPeriods: p.activityPeriods, favorableConditions: p.favorableConditions,
     attackedOrgans: p.attackedOrgans, damageTypes: p.damageTypes, harmfulnessLevel: p.harmfulnessLevel,
+    nuisanceTypes: p.nuisanceTypes,
+    reproductionMode: p.reproductionMode, disseminationCapacity: p.disseminationCapacity,
+    emergenceDepth: p.emergenceDepth, seedBankLongevity: p.seedBankLongevity,
     geographicAreas: p.geographicAreas, favorableClimate: p.favorableClimate, knownPresence: p.knownPresence,
     prevention: p.prevention, biologicalControl: p.biologicalControl,
     predators: p.predators, parasitoids: p.parasitoids,

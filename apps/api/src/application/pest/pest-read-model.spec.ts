@@ -94,6 +94,20 @@ describe('toPestDocument', () => {
     expect(doc.kind).toBe(PestKind.WEED);
   });
 
+  it('expose nuisanceTypes et les traits weed', () => {
+    const doc = toPestDocument({
+      id: 'p1', name: { fr: 'Chiendent' }, type: PestType.PERENNIAL_GRASS, kind: PestKind.WEED,
+      images: [], metadata: {},
+      nuisanceTypes: ['WATER_COMPETITION'], reproductionMode: ['RHIZOMES'],
+      disseminationCapacity: 'HIGH', emergenceDepth: { min: 0, max: 5, unit: 'cm' },
+      seedBankLongevity: { min: 2, max: 10, unit: 'ans' },
+    } as never);
+    expect(doc.nuisanceTypes).toEqual(['WATER_COMPETITION']);
+    expect(doc.disseminationCapacity).toBe('HIGH');
+    expect(doc.emergenceDepth).toEqual({ min: 0, max: 5, unit: 'cm' });
+    expect(doc.serializedText).toContain('Dissémination');
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',
