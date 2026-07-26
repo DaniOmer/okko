@@ -17,7 +17,7 @@ export interface BiologySnapshot {
   favorableConditions?: FavorableConditionsJSON;
 }
 
-export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; }
+export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; nuisanceTypes?: string[]; }
 
 export interface DistributionSnapshot { geographicAreas?: string[]; favorableClimate?: Record<string, string>; knownPresence?: Record<string, string>; }
 
@@ -55,6 +55,7 @@ export interface PestSnapshot {
   attackedOrgans?: string[];
   damageTypes?: string[];
   harmfulnessLevel?: string;
+  nuisanceTypes?: string[];
   geographicAreas?: string[];
   favorableClimate?: Record<string, string>;
   knownPresence?: Record<string, string>;
@@ -189,12 +190,12 @@ export class Pest {
     );
   }
 
-  setDamage(d: { symptoms?: TranslatableText; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string }): Pest {
+  setDamage(d: { symptoms?: TranslatableText; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; nuisanceTypes?: string[] }): Pest {
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
       d.symptoms,
       this._images, this._notes, this._metadata, this._biology,
-      { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
+      { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel, nuisanceTypes: d.nuisanceTypes },
       this._distribution,
       this._management,
       this._sources, this._kind,
@@ -251,7 +252,7 @@ export class Pest {
         activityPeriods: s.activityPeriods,
         favorableConditions: s.favorableConditions,
       },
-      { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel },
+      { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel, nuisanceTypes: s.nuisanceTypes },
       { geographicAreas: s.geographicAreas, favorableClimate: s.favorableClimate, knownPresence: s.knownPresence },
       { prevention: s.prevention, biologicalControl: s.biologicalControl, predators: s.predators, parasitoids: s.parasitoids, approvedProducts: s.approvedProducts, knownResistances: s.knownResistances },
       s.sources ?? [],
