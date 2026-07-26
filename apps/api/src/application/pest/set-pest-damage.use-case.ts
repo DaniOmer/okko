@@ -7,7 +7,7 @@ import { Clock } from '../shared/clock';
 
 export interface SetPestDamageInput {
   id: string; actor: string;
-  symptoms?: Record<string, string>; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string;
+  symptoms?: Record<string, string>; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; nuisanceTypes?: string[];
 }
 
 export class SetPestDamageUseCase {
@@ -25,12 +25,13 @@ export class SetPestDamageUseCase {
       attackedOrgans: input.attackedOrgans,
       damageTypes: input.damageTypes,
       harmfulnessLevel: input.harmfulnessLevel,
+      nuisanceTypes: input.nuisanceTypes,
     }).toSnapshot();
     await this.pests.save(snap);
     await this.audit.record({
       entityType: 'Pest', entityId: snap.id, actor: input.actor,
       at: this.clock.nowIso(),
-      changes: { damage: { symptoms: input.symptoms, attackedOrgans: input.attackedOrgans, damageTypes: input.damageTypes, harmfulnessLevel: input.harmfulnessLevel } },
+      changes: { damage: { symptoms: input.symptoms, attackedOrgans: input.attackedOrgans, damageTypes: input.damageTypes, harmfulnessLevel: input.harmfulnessLevel, nuisanceTypes: input.nuisanceTypes } },
     });
     return snap;
   }

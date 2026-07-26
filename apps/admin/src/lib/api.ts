@@ -23,6 +23,7 @@ export interface PestDamage {
   attackedOrgans?: string[];
   damageTypes?: string[];
   harmfulnessLevel?: string;
+  nuisanceTypes?: string[];
 }
 
 export interface PestDistribution {
@@ -39,6 +40,13 @@ export interface PestManagement {
   parasitoids?: string[];
   approvedProducts?: ApprovedProduct[];
   knownResistances?: Record<string, string>;
+}
+
+export interface PestWeed {
+  reproductionMode?: string[];
+  disseminationCapacity?: string;
+  emergenceDepth?: MinMaxRangeJSON;
+  seedBankLongevity?: MinMaxRangeJSON;
 }
 
 export interface Source { title: string; url?: string; }
@@ -153,7 +161,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement, PestSources {
+export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement, PestSources, PestWeed {
   id: string; name: string; type: string; kind?: string; scientificName?: string;
   family?: string; description?: Record<string, string>; images: ImageRef[]; createdAt?: string; updatedAt?: string;
 }

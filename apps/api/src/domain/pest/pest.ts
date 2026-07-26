@@ -3,6 +3,7 @@ import { PestKind } from './pest-kind';
 import { PestType } from './pest-type';
 import { MediaImage, MediaImageJSON } from '../media/media-image';
 import { MinMaxRange, MinMaxRangeJSON } from '../shared/min-max-range';
+import { WeedSnapshot } from './weed';
 
 export interface DevelopmentStageJSON { name: Record<string, string>; durationDays?: MinMaxRangeJSON; }
 export interface FavorableConditionsJSON {
@@ -17,7 +18,7 @@ export interface BiologySnapshot {
   favorableConditions?: FavorableConditionsJSON;
 }
 
-export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; }
+export interface DamageSnapshot { attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; nuisanceTypes?: string[]; }
 
 export interface DistributionSnapshot { geographicAreas?: string[]; favorableClimate?: Record<string, string>; knownPresence?: Record<string, string>; }
 
@@ -55,6 +56,7 @@ export interface PestSnapshot {
   attackedOrgans?: string[];
   damageTypes?: string[];
   harmfulnessLevel?: string;
+  nuisanceTypes?: string[];
   geographicAreas?: string[];
   favorableClimate?: Record<string, string>;
   knownPresence?: Record<string, string>;
@@ -66,6 +68,10 @@ export interface PestSnapshot {
   knownResistances?: Record<string, string>;
   sources?: SourceJSON[];
   createdAt?: string;
+  reproductionMode?: string[];
+  disseminationCapacity?: string;
+  emergenceDepth?: MinMaxRangeJSON;
+  seedBankLongevity?: MinMaxRangeJSON;
 }
 
 interface CreateProps {
@@ -100,6 +106,7 @@ export class Pest {
     private readonly _management: ManagementSnapshot,
     private readonly _sources: SourceJSON[],
     private readonly _kind: PestKind,
+    private readonly _weed: WeedSnapshot,
   ) {}
 
   static create(props: CreateProps): Pest {
@@ -107,7 +114,7 @@ export class Pest {
       props.id, props.name, props.type, props.scientificName,
       props.family, props.description,
       props.symptoms,
-      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {}, [], props.kind ?? PestKind.ANIMAL,
+      (props.images ?? []).map(MediaImage.fromJSON), props.notes, props.metadata ?? {}, {}, {}, {}, {}, [], props.kind ?? PestKind.ANIMAL, {},
     );
   }
 
@@ -127,6 +134,7 @@ export class Pest {
   get management(): ManagementSnapshot { return { ...this._management }; }
   get sources(): SourceJSON[] { return [...this._sources]; }
   get kind(): PestKind { return this._kind; }
+  get weed(): WeedSnapshot { return { ...this._weed }; }
 
   toSnapshot(): PestSnapshot {
     return {
@@ -141,6 +149,7 @@ export class Pest {
       ...this._damage,
       ...this._distribution,
       ...this._management,
+      ...this._weed,
       sources: this._sources.length ? this._sources : undefined,
     };
   }
@@ -163,6 +172,7 @@ export class Pest {
       this._management,
       this._sources,
       fields.kind ?? this._kind,
+      this._weed,
     );
   }
 
@@ -185,19 +195,19 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management, this._sources, this._kind,
+      this._symptoms, this._images, this._notes, this._metadata, biology, this._damage, this._distribution, this._management, this._sources, this._kind, this._weed,
     );
   }
 
-  setDamage(d: { symptoms?: TranslatableText; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string }): Pest {
+  setDamage(d: { symptoms?: TranslatableText; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; nuisanceTypes?: string[] }): Pest {
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
       d.symptoms,
       this._images, this._notes, this._metadata, this._biology,
-      { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel },
+      { attackedOrgans: d.attackedOrgans, damageTypes: d.damageTypes, harmfulnessLevel: d.harmfulnessLevel, nuisanceTypes: d.nuisanceTypes },
       this._distribution,
       this._management,
-      this._sources, this._kind,
+      this._sources, this._kind, this._weed,
     );
   }
 
@@ -209,7 +219,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management, this._sources, this._kind,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, distribution, this._management, this._sources, this._kind, this._weed,
     );
   }
 
@@ -224,7 +234,7 @@ export class Pest {
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
-      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management, this._sources, this._kind,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, management, this._sources, this._kind, this._weed,
     );
   }
 
@@ -232,7 +242,22 @@ export class Pest {
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
       this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, this._management,
-      sources, this._kind,
+      sources, this._kind, this._weed,
+    );
+  }
+
+  setWeed(w: WeedSnapshot): Pest {
+    const range = (r?: MinMaxRangeJSON) => (r ? MinMaxRange.create(r).toJSON() : undefined);
+    const weed: WeedSnapshot = {
+      reproductionMode: w.reproductionMode,
+      disseminationCapacity: w.disseminationCapacity,
+      emergenceDepth: range(w.emergenceDepth),
+      seedBankLongevity: range(w.seedBankLongevity),
+    };
+    return new Pest(
+      this._id, this._name, this._type, this._scientificName, this._family, this._description,
+      this._symptoms, this._images, this._notes, this._metadata, this._biology, this._damage, this._distribution, this._management,
+      this._sources, this._kind, weed,
     );
   }
 
@@ -251,11 +276,12 @@ export class Pest {
         activityPeriods: s.activityPeriods,
         favorableConditions: s.favorableConditions,
       },
-      { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel },
+      { attackedOrgans: s.attackedOrgans, damageTypes: s.damageTypes, harmfulnessLevel: s.harmfulnessLevel, nuisanceTypes: s.nuisanceTypes },
       { geographicAreas: s.geographicAreas, favorableClimate: s.favorableClimate, knownPresence: s.knownPresence },
       { prevention: s.prevention, biologicalControl: s.biologicalControl, predators: s.predators, parasitoids: s.parasitoids, approvedProducts: s.approvedProducts, knownResistances: s.knownResistances },
       s.sources ?? [],
       s.kind ?? PestKind.ANIMAL,
+      { reproductionMode: s.reproductionMode, disseminationCapacity: s.disseminationCapacity, emergenceDepth: s.emergenceDepth, seedBankLongevity: s.seedBankLongevity },
     );
   }
 }

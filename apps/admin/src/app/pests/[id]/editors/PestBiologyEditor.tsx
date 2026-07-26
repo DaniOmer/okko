@@ -10,6 +10,7 @@ import { setPestBiology } from '@/lib/actions';
 import type { Pest } from '@/lib/api';
 
 export function PestBiologyEditor({ pest }: { pest: Pest }) {
+  const isWeed = pest.kind === 'WEED';
   const [lifeCycle, setLifeCycle] = useState(pest.lifeCycle?.fr ?? '');
   const [cycleDuration, setCycleDuration] = useState<MinMax | undefined>(pest.cycleDurationDays);
   const [stages, setStages] = useState<DevStage[]>(pest.developmentStages ?? []);
@@ -30,7 +31,7 @@ export function PestBiologyEditor({ pest }: { pest: Pest }) {
           </div>
           <MinMaxRangeInput label="Durée du cycle" unit="j" value={cycleDuration} onChange={setCycleDuration} />
           <div className="space-y-1"><Label>Stades de développement</Label><DevelopmentStagesEditor value={stages} onChange={setStages} /></div>
-          <MinMaxRangeInput label="Générations par an" value={generations} onChange={setGenerations} />
+          {!isWeed && (<MinMaxRangeInput label="Générations par an" value={generations} onChange={setGenerations} />)}
           <div className="space-y-1"><Label>Périodes d&apos;activité</Label><MonthMultiSelect value={months} onChange={setMonths} /></div>
           <div className="space-y-2 rounded-md border p-2">
             <p className="text-sm font-medium">Conditions favorables</p>
@@ -49,7 +50,7 @@ export function PestBiologyEditor({ pest }: { pest: Pest }) {
                 lifeCycle: lifeCycle ? { fr: lifeCycle } : undefined,
                 cycleDurationDays: cycleDuration,
                 developmentStages: stages.filter((s) => (s.name.fr ?? '').trim() !== ''),
-                generationsPerYear: generations,
+                generationsPerYear: isWeed ? undefined : generations,
                 activityPeriods: months,
                 favorableConditions: (temperature || humidity || rainfall || condNotes)
                   ? { temperature, humidity, rainfall, notes: condNotes ? { fr: condNotes } : undefined }

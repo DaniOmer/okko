@@ -132,6 +132,11 @@ model Pest {
   attackedOrgans   Json?
   damageTypes      Json?
   harmfulnessLevel String?
+  nuisanceTypes        Json?
+  reproductionMode     Json?
+  disseminationCapacity String?
+  emergenceDepth       Json?
+  seedBankLongevity    Json?
   geographicAreas  Json?
   favorableClimate Json?
   knownPresence    Json?
