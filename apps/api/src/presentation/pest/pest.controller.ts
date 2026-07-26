@@ -11,6 +11,8 @@ import { SetPestDamageUseCase } from '../../application/pest/set-pest-damage.use
 import { SetPestDistributionUseCase } from '../../application/pest/set-pest-distribution.use-case';
 import { SetPestManagementUseCase } from '../../application/pest/set-pest-management.use-case';
 import { SetPestSourcesUseCase } from '../../application/pest/set-pest-sources.use-case';
+import { SetPestWeedUseCase } from '../../application/pest/set-pest-weed.use-case';
+import { MinMaxRangeJSON } from '../../domain/shared/min-max-range';
 import { PEST_REPOSITORY, PestRepository } from '../../application/pest/pest.repository';
 import { toPestDocument } from '../../application/pest/pest-read-model';
 import { PestType } from '../../domain/pest/pest-type';
@@ -33,6 +35,7 @@ export class PestController {
     private readonly setPestDistribution: SetPestDistributionUseCase,
     private readonly setPestManagement: SetPestManagementUseCase,
     private readonly setPestSources: SetPestSourcesUseCase,
+    private readonly setPestWeed: SetPestWeedUseCase,
     @Inject(PEST_REPOSITORY) private readonly pests: PestRepository,
     @Inject(STORAGE_PORT) private readonly storage: StoragePort,
   ) {}
@@ -87,7 +90,7 @@ export class PestController {
 
   @Patch(':id/damage')
   async damage(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
-    symptoms?: Record<string, string>; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string;
+    symptoms?: Record<string, string>; attackedOrgans?: string[]; damageTypes?: string[]; harmfulnessLevel?: string; nuisanceTypes?: string[];
   }) {
     try {
       const snap = await this.setPestDamage.execute({ id, actor: user.email, ...body });
@@ -130,6 +133,20 @@ export class PestController {
   async sources(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { sources?: SourceJSON[] }) {
     try {
       const snap = await this.setPestSources.execute({ id, actor: user.email, sources: body.sources });
+      return this.toResponse(snap);
+    } catch (e) {
+      if (e instanceof PestNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Patch(':id/weed')
+  async weed(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
+    reproductionMode?: string[]; disseminationCapacity?: string;
+    emergenceDepth?: MinMaxRangeJSON; seedBankLongevity?: MinMaxRangeJSON;
+  }) {
+    try {
+      const snap = await this.setPestWeed.execute({ id, actor: user.email, ...body });
       return this.toResponse(snap);
     } catch (e) {
       if (e instanceof PestNotFoundError) throw new NotFoundException(id);
