@@ -7,6 +7,7 @@ import { PestDamageEditor } from './editors/PestDamageEditor';
 import { PestDistributionEditor } from './editors/PestDistributionEditor';
 import { PestManagementEditor } from './editors/PestManagementEditor';
 import { PestSourcesEditor } from './editors/PestSourcesEditor';
+import { PestWeedEditor } from './editors/PestWeedEditor';
 
 export default async function PestFichePage({ params }: { params: { id: string } }) {
   const pest = await getPest(params.id).catch(() => null);
@@ -19,6 +20,7 @@ export default async function PestFichePage({ params }: { params: { id: string }
         <div className="flex gap-2">
           <PestBiologyEditor pest={pest} />
           <PestDamageEditor pest={pest} />
+          {pest.kind === 'WEED' && <PestWeedEditor pest={pest} />}
           <PestDistributionEditor pest={pest} />
           <PestManagementEditor pest={pest} />
           <PestSourcesEditor pest={pest} />
