@@ -31,6 +31,11 @@ describe('toCropDocument', () => {
     expect(doc.name).toBe('Carotte');
   });
 
+  it('expose le commonNames complet (toutes langues)', () => {
+    const doc = toCropDocument(snap, { locale: 'fr' });
+    expect(doc.commonNames).toEqual({ fr: 'Carotte', en: 'Carrot' });
+  });
+
   it('produit un texte markdown sérialisé pour un LLM', () => {
     const doc = toCropDocument(snap, { locale: 'fr' });
     expect(doc.serializedText).toContain('Carotte');

@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CYCLE_TYPE_LABELS, USAGE_CATEGORY_LABELS } from '@/lib/labels';
 import { updateCrop } from '@/lib/actions';
 
-export function IdentityEditor({ cropId, initial }: { cropId: string; initial: { name: string; scientificName: string; family: string; cycleType: string; usageCategory?: string; description?: Record<string, string> } }) {
+export function IdentityEditor({ cropId, initial }: { cropId: string; initial: { name: string; commonNames?: Record<string, string>; scientificName: string; family: string; cycleType: string; usageCategory?: string; description?: Record<string, string> } }) {
   const [name, setName] = useState(initial.name);
   const [scientificName, setSci] = useState(initial.scientificName);
   const [family, setFamily] = useState(initial.family);
@@ -20,7 +20,7 @@ export function IdentityEditor({ cropId, initial }: { cropId: string; initial: {
     <EditorShell label="Modifier l'identité">
       {({ submit, close, busy }) => (
         <form
-          onSubmit={(e) => { e.preventDefault(); submit(() => updateCrop(cropId, { commonNames: { fr: name }, scientificName, family, cycleType, usageCategory: usageCategory || undefined, description: description ? { fr: description } : undefined })); }}
+          onSubmit={(e) => { e.preventDefault(); submit(() => updateCrop(cropId, { commonNames: { ...(initial.commonNames ?? {}), fr: name }, scientificName, family, cycleType, usageCategory: usageCategory || undefined, description: description ? { fr: description } : undefined })); }}
           className="space-y-3 text-sm"
         >
           <div className="space-y-1"><Label htmlFor="id-name">Nom (fr)</Label><Input id="id-name" value={name} onChange={(e) => setName(e.target.value)} required /></div>

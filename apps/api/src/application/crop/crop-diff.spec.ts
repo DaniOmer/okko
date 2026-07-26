@@ -2,7 +2,7 @@ import { CropDocument } from './crop-read-model';
 import { diffCropDocuments, deepEqual } from './crop-diff';
 
 const base: CropDocument = {
-  id: 'c1', name: 'Maïs', scientificName: 'Zea mays', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL',
+  id: 'c1', name: 'Maïs', commonNames: { fr: 'Maïs' }, scientificName: 'Zea mays', family: 'Poaceae', cycleType: 'SEASONAL_ANNUAL',
   status: 'PUBLISHED', version: 1, metadata: {},
   climatic: undefined, edaphic: undefined,
   varieties: [], zones: [], phenology: [], croppingWindows: [], pests: [], nutrition: [], yields: [], commercialization: [], images: [], prices: [],

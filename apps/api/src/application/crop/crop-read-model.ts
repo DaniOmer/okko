@@ -14,6 +14,7 @@ import { computeCompleteness, CompletenessReport } from './crop-completeness';
 export interface CropDocument {
   id: string;
   name: string;
+  commonNames: Record<string, string>;
   scientificName: string;
   family: string;
   cycleType: string;
@@ -128,7 +129,7 @@ export function toCropDocument(s: CropSnapshot, opts: ToCropDocumentOptions = {}
     prices: prices.length > 0,
   });
   return {
-    id: s.id, name, scientificName: s.scientificName, family: s.family,
+    id: s.id, name, commonNames: s.commonNames, scientificName: s.scientificName, family: s.family,
     cycleType: s.cycleType, usageCategory: s.usageCategory, description: s.description,
     status: s.status, version: s.version,
     metadata: s.metadata, climatic: s.climatic, edaphic: s.edaphic,

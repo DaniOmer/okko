@@ -56,7 +56,7 @@ export interface CompletenessReport { categories: Record<string, boolean>; fille
 export interface AuditRecord { id: string; entityType: string; entityId: string; actor: string; at: string; changes: Record<string, unknown>; }
 
 export interface CropDocument {
-  id: string; name: string; scientificName: string; family: string;
+  id: string; name: string; commonNames?: Record<string, string>; scientificName: string; family: string;
   cycleType: string; usageCategory?: string; description?: Record<string, string>;
   status: string; version: number;
   publishedVersion: number;

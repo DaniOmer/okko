@@ -41,7 +41,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
           <h1 className="text-2xl font-bold">
             {crop.name} <em className="text-base font-normal text-muted-foreground">{crop.scientificName}</em>
           </h1>
-          <IdentityEditor cropId={params.id} initial={{ name: crop.name, scientificName: crop.scientificName, family: crop.family, cycleType: crop.cycleType }} />
+          <IdentityEditor cropId={params.id} initial={{ name: crop.name, commonNames: crop.commonNames, scientificName: crop.scientificName, family: crop.family, cycleType: crop.cycleType, usageCategory: crop.usageCategory, description: crop.description }} />
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{labelOf(CYCLE_TYPE_LABELS, crop.cycleType)}</span>
             <Badge variant={crop.status === 'PUBLISHED' ? 'default' : 'secondary'}>{labelOf(CROP_STATUS_LABELS, crop.status)}</Badge>
