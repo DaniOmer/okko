@@ -126,6 +126,16 @@ export const DAMAGE_TYPE_LABELS: Record<string, string> = {
 
 export const HARMFULNESS_LABELS: Record<string, string> = { MINOR: 'Mineur', MODERATE: 'Modéré', MAJOR: 'Majeur' };
 
+export const NUISANCE_TYPE_LABELS: Record<string, string> = {
+  WATER_COMPETITION: 'Concurrence hydrique', LIGHT_COMPETITION: 'Concurrence lumineuse',
+  NUTRIENT_COMPETITION: 'Concurrence nutritive', ALLELOPATHY: 'Allélopathie',
+  HOST_PLANT: 'Plante-hôte', HARVEST_HINDRANCE: 'Gêne à la récolte',
+};
+export const REPRODUCTION_MODE_LABELS: Record<string, string> = {
+  SEEDS: 'Graines', RHIZOMES: 'Rhizomes', STOLONS: 'Stolons', TUBERS: 'Tubercules',
+};
+export const DISSEMINATION_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
+
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {
   return map[code] ?? code;
