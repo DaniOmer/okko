@@ -94,7 +94,7 @@ export default async function CropDetailPage({ params }: { params: { id: string 
               ? <p>pH : {crop.edaphic.ph.min}–{crop.edaphic.ph.optimal}–{crop.edaphic.ph.max}</p>
               : <p className="text-muted-foreground">Non renseignées</p>}
             <div className="pt-2">
-              <RequirementsEditor cropId={params.id} />
+              <RequirementsEditor cropId={params.id} initial={{ climatic: crop.climatic, edaphic: crop.edaphic }} />
             </div>
           </CardContent>
         </Card>

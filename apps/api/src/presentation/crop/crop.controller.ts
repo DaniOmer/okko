@@ -306,7 +306,7 @@ export class CropController {
 
   @Roles('superadmin')
   @Post(':id/images')
-  async setImages(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { images: { key: string; caption?: string }[] }) {
+  async setImages(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: { images: { key: string; caption?: string; category?: string }[] }) {
     try { const snap = await this.setImagesUC.execute({ cropId: id, actor: user.email, images: body.images }); return this.composeCropDocument(id, snap); }
     catch (e) { mapCropError(e, id); }
   }

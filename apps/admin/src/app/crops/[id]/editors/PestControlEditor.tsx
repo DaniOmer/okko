@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { SUSCEPTIBILITY_LABELS, stageWithRange } from '@/lib/labels';
+import { SUSCEPTIBILITY_LABELS, CONTROL_CATEGORY_LABELS, stageWithRange } from '@/lib/labels';
 import { setPestControl } from '@/lib/actions';
 
 interface ControlMethod { category: string; description: Record<string, string>; inputs: string[]; }
@@ -33,6 +33,14 @@ export function PestControlEditor({
   const [susceptibility, setSusceptibility] = useState(initial?.susceptibility ?? 'MEDIUM');
   const [threshold, setThreshold] = useState(initial?.threshold ?? '');
   const [stages, setStages] = useState<string[]>(initial?.sensitiveStages ?? []);
+  const [methods, setMethods] = useState<ControlMethod[]>(initial?.controlMethods ?? []);
+
+  const addMethod = () => setMethods([...methods, { category: 'PREVENTION', description: { fr: '' }, inputs: [] }]);
+  const removeMethod = (i: number) => setMethods(methods.filter((_, k) => k !== i));
+  const setMethodCategory = (i: number, category: string) => setMethods(methods.map((m, k) => (k === i ? { ...m, category } : m)));
+  const setMethodDescription = (i: number, fr: string) => setMethods(methods.map((m, k) => (k === i ? { ...m, description: { ...m.description, fr } } : m)));
+  const setMethodInputs = (i: number, raw: string) => setMethods(methods.map((m, k) => (k === i ? { ...m, inputs: raw.split(',').map((x) => x.trim()).filter(Boolean) } : m)));
+
   if (pests.length === 0) {
     return <p className="text-sm text-muted-foreground">Créez d&apos;abord un <a href="/pests" className="underline">ravageur</a> pour le rattacher.</p>;
   }
@@ -43,15 +51,18 @@ export function PestControlEditor({
           onSubmit={(e) => {
             e.preventDefault();
             if (!pestId) return;
+            const cleanMethods = methods
+              .filter((m) => m.category && (m.description.fr ?? '').trim() !== '')
+              .map((m) => ({ category: m.category, description: { fr: m.description.fr.trim() }, inputs: m.inputs }));
             submit(async () => {
               await setPestControl(cropId, pestId, {
                 susceptibility,
                 threshold: threshold || undefined,
                 sensitiveStages: stages.length ? stages : undefined,
-                ...(editing ? { controlMethods: initial!.controlMethods } : {}),
+                controlMethods: cleanMethods,
               });
               if (!editing) {
-                setPestId(''); setSusceptibility('MEDIUM'); setThreshold(''); setStages([]);
+                setPestId(''); setSusceptibility('MEDIUM'); setThreshold(''); setStages([]); setMethods([]);
               }
             });
           }}
@@ -92,6 +103,25 @@ export function PestControlEditor({
                     </label>
                   );
                 })}
+          </div>
+          <div className="space-y-2">
+            <Label>Méthodes de lutte (optionnel)</Label>
+            {methods.map((m, i) => (
+              <div key={i} className="space-y-1 rounded-md border p-2">
+                <div className="flex items-center gap-2">
+                  <Select value={m.category} onValueChange={(v) => setMethodCategory(i, v)}>
+                    <SelectTrigger className="h-8 flex-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(CONTROL_CATEGORY_LABELS).map(([code, fr]) => <SelectItem key={code} value={code}>{fr}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <button type="button" className="text-xs text-destructive" onClick={() => removeMethod(i)}>Supprimer</button>
+                </div>
+                <Input placeholder="Description (fr)" value={m.description.fr ?? ''} onChange={(e) => setMethodDescription(i, e.target.value)} />
+                <Input placeholder="Intrants (séparés par des virgules)" value={m.inputs.join(', ')} onChange={(e) => setMethodInputs(i, e.target.value)} />
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={addMethod}>+ Ajouter une méthode</Button>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>

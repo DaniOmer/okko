@@ -4,26 +4,36 @@ import { EditorShell } from './EditorShell';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { setRequirements } from '@/lib/actions';
 import { WATER_NEED_LABELS, DROUGHT_SENSITIVITY_LABELS } from '@/lib/labels';
 
 const n = (v: string): number => Number(v);
+const s = (v?: number): string => (v === undefined || v === null ? '' : String(v));
 
-export function RequirementsEditor({ cropId }: { cropId: string }) {
-  const [tMin, setTMin] = useState(''); const [tOpt, setTOpt] = useState(''); const [tMax, setTMax] = useState('');
-  const [rMin, setRMin] = useState(''); const [rOpt, setROpt] = useState(''); const [rMax, setRMax] = useState('');
-  const [aMin, setAMin] = useState(''); const [aOpt, setAOpt] = useState(''); const [aMax, setAMax] = useState('');
-  const [waterNeed, setWaterNeed] = useState('');
-  const [droughtSensitivity, setDroughtSensitivity] = useState('');
-  const [phMin, setPhMin] = useState(''); const [phOpt, setPhOpt] = useState(''); const [phMax, setPhMax] = useState('');
-  const [texture, setTexture] = useState('');
+interface Range { min: number; optimal: number; max: number; unit: string }
+export interface RequirementsInitial {
+  climatic?: { temperature?: Range; rainfall?: Range; altitude?: Range; waterNeed?: string; droughtSensitivity?: string };
+  edaphic?: { ph?: Range; texture?: string };
+}
+
+export function RequirementsEditor({ cropId, initial }: { cropId: string; initial?: RequirementsInitial }) {
+  const c = initial?.climatic;
+  const e = initial?.edaphic;
+  const [tMin, setTMin] = useState(s(c?.temperature?.min)); const [tOpt, setTOpt] = useState(s(c?.temperature?.optimal)); const [tMax, setTMax] = useState(s(c?.temperature?.max));
+  const [rMin, setRMin] = useState(s(c?.rainfall?.min)); const [rOpt, setROpt] = useState(s(c?.rainfall?.optimal)); const [rMax, setRMax] = useState(s(c?.rainfall?.max));
+  const [aMin, setAMin] = useState(s(c?.altitude?.min)); const [aOpt, setAOpt] = useState(s(c?.altitude?.optimal)); const [aMax, setAMax] = useState(s(c?.altitude?.max));
+  const [waterNeed, setWaterNeed] = useState(c?.waterNeed ?? '');
+  const [droughtSensitivity, setDroughtSensitivity] = useState(c?.droughtSensitivity ?? '');
+  const [phMin, setPhMin] = useState(s(e?.ph?.min)); const [phOpt, setPhOpt] = useState(s(e?.ph?.optimal)); const [phMax, setPhMax] = useState(s(e?.ph?.max));
+  const [texture, setTexture] = useState(e?.texture ?? '');
 
   return (
     <EditorShell label="Éditer les exigences climat/sol">
       {({ submit, close, busy }) => (
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
+          onSubmit={(ev) => {
+            ev.preventDefault();
             const body: Parameters<typeof setRequirements>[1] = {};
             if (tMin && tOpt && tMax) body.climatic = { ...(body.climatic ?? {}), temperature: { min: n(tMin), optimal: n(tOpt), max: n(tMax), unit: '°C' } };
             if (rMin && rOpt && rMax) body.climatic = { ...(body.climatic ?? {}), rainfall: { min: n(rMin), optimal: n(rOpt), max: n(rMax), unit: 'mm' } };
@@ -61,32 +71,22 @@ export function RequirementsEditor({ cropId }: { cropId: string }) {
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="req-water-need">Besoin en eau</Label>
-            <select
-              id="req-water-need"
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-              value={waterNeed}
-              onChange={(e) => setWaterNeed(e.target.value)}
-            >
-              <option value="">— non renseigné —</option>
-              {Object.entries(WATER_NEED_LABELS).map(([code, label]) => (
-                <option key={code} value={code}>{label}</option>
-              ))}
-            </select>
+            <Label>Besoin en eau</Label>
+            <Select value={waterNeed} onValueChange={setWaterNeed}>
+              <SelectTrigger><SelectValue placeholder="— non renseigné —" /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(WATER_NEED_LABELS).map(([code, label]) => <SelectItem key={code} value={code}>{label}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="req-drought-sensitivity">Sensibilité à la sécheresse</Label>
-            <select
-              id="req-drought-sensitivity"
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-              value={droughtSensitivity}
-              onChange={(e) => setDroughtSensitivity(e.target.value)}
-            >
-              <option value="">— non renseigné —</option>
-              {Object.entries(DROUGHT_SENSITIVITY_LABELS).map(([code, label]) => (
-                <option key={code} value={code}>{label}</option>
-              ))}
-            </select>
+            <Label>Sensibilité à la sécheresse</Label>
+            <Select value={droughtSensitivity} onValueChange={setDroughtSensitivity}>
+              <SelectTrigger><SelectValue placeholder="— non renseigné —" /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(DROUGHT_SENSITIVITY_LABELS).map(([code, label]) => <SelectItem key={code} value={code}>{label}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1">
             <Label>pH du sol — min · optimal · max</Label>

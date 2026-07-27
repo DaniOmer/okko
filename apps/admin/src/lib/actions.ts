@@ -8,7 +8,7 @@ export async function uploadImage(fd: FormData): Promise<{ key: string; url: str
   return res.json();
 }
 
-export async function setCropImages(cropId: string, images: { key: string; caption?: string }[]): Promise<unknown> {
+export async function setCropImages(cropId: string, images: { key: string; caption?: string; category?: string }[]): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/images`, jsonInit('POST', { images }));
   return res.json().catch(() => undefined);
 }
