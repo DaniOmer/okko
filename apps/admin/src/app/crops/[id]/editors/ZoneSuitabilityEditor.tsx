@@ -6,9 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SUITABILITY_LABELS } from '@/lib/labels';
-import { setZoneSuitability } from '@/lib/actions';
+import { setZoneSuitability, deleteCropZone } from '@/lib/actions';
 import { DeleteWithConfirm } from './DeleteWithConfirm';
-import { deleteCropZone } from '@/lib/actions';
 
 interface ZoneInitial { zoneId: string; rating: string; justification?: string; }
 

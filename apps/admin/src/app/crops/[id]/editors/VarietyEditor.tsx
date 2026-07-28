@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { RESISTANCE_LEVEL_LABELS, SUITABILITY_RATING_LABELS } from '@/lib/labels';
-import { addVariety, updateVariety } from '@/lib/actions';
+import { addVariety, updateVariety, deleteCropVariety } from '@/lib/actions';
 import { DeleteWithConfirm } from './DeleteWithConfirm';
-import { deleteCropVariety } from '@/lib/actions';
 import type { Pest, Zone, Variety } from '@/lib/api';
 
 interface ResistanceRow { pestId: string; level: string; }

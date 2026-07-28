@@ -8,9 +8,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { ShadcnDatePicker } from '@/components/shadcn-date-picker';
 import { Badge } from '@/components/ui/badge';
 import { OPERATION_TYPE_LABELS, SEASONS } from '@/lib/labels';
-import { addWindow, updateWindow } from '@/lib/actions';
+import { addWindow, updateWindow, deleteCropWindow } from '@/lib/actions';
 import { DeleteWithConfirm } from './DeleteWithConfirm';
-import { deleteCropWindow } from '@/lib/actions';
 import type { CroppingWindow } from '@/lib/api';
 
 interface Op { type: string; label: string; timingDays: string; inputs: string[]; equipment: string[]; }
