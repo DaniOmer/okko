@@ -40,7 +40,7 @@ export default async function ZonesPage() {
                     <img src={z.images[0].url} alt={z.images[0].caption ?? ''} className="h-8 w-10 rounded object-cover" />
                   )}
                 </TableCell>
-                <TableCell>{z.name}</TableCell>
+                <TableCell><Link href={`/zones/${z.id}`} className="font-medium hover:underline">{z.name}</Link></TableCell>
                 <TableCell>{z.country}</TableCell>
                 <TableCell>{z.climateType ? <Badge variant="secondary">{labelOf(CLIMATE_TYPE_LABELS, z.climateType)}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                 <TableCell className="text-right"><ZoneRowActions zone={z} /></TableCell>

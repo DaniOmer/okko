@@ -96,6 +96,22 @@ export async function listZones(): Promise<Zone[]> {
   return res.json();
 }
 
+export interface ZoneCropView { cropId: string; cropName: Record<string, string>; rating: string; justification?: string; }
+export interface ZonePestView { pestId: string; pestName: Record<string, string>; kind: string; frequency: string; }
+
+export async function getZone(id: string): Promise<Zone> {
+  const res = await authFetch(`/zones/${id}`, { cache: 'no-store' });
+  return res.json();
+}
+export async function getZoneCrops(id: string): Promise<ZoneCropView[]> {
+  const res = await authFetch(`/zones/${id}/crops`, { cache: 'no-store' });
+  return res.json();
+}
+export async function getZonePests(id: string): Promise<ZonePestView[]> {
+  const res = await authFetch(`/zones/${id}/pests`, { cache: 'no-store' });
+  return res.json();
+}
+
 export interface PhenologicalStage { name: Record<string, string>; startDay: number; endDay: number; order: number; description?: string; recommendedWork?: string; }
 export interface TechnicalOperation { type: string; label: Record<string, string>; timingDays: number; inputs: string[]; equipment?: string[]; notes?: string; }
 export interface CroppingWindow {

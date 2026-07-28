@@ -109,6 +109,16 @@ model CropZoneSuitability {
   @@index([zoneId])
 }
 
+model ZonePestPresence {
+  zoneId    String
+  pestId    String
+  frequency String
+  createdAt DateTime @default(now())
+
+  @@id([zoneId, pestId])
+  @@index([pestId])
+}
+
 model CroppingWindow {
   id                 String   @id
   cropId             String

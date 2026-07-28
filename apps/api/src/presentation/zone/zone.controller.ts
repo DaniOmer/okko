@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Delete, HttpCode, NotFoundException, ConflictException, Inject, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, Delete, HttpCode, NotFoundException, ConflictException, Inject, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles, CurrentUser, AuthUser } from '../auth/decorators';
@@ -12,6 +12,11 @@ import { RangeValue } from '../../domain/shared/range-value';
 import { STORAGE_PORT, StoragePort } from '../../application/media/storage.port';
 import { toImageDto } from '../media/image-dto';
 import { ZoneSnapshot } from '../../domain/zone/agro-ecological-zone';
+import { SetZonePestPresenceUseCase } from '../../application/zone/set-zone-pest-presence.use-case';
+import { RemoveZonePestPresenceUseCase } from '../../application/zone/remove-zone-pest-presence.use-case';
+import { ListZonePestsUseCase } from '../../application/zone/list-zone-pests.use-case';
+import { ListZoneCropsUseCase } from '../../application/zone/list-zone-crops.use-case';
+import { PestNotFoundError } from '../../application/pest/update-pest.use-case';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles('superadmin')
@@ -22,6 +27,10 @@ export class ZoneController {
     private readonly listZones: ListZonesUseCase,
     private readonly updateZone: UpdateZoneUseCase,
     private readonly deleteZone: DeleteZoneUseCase,
+    private readonly setZonePest: SetZonePestPresenceUseCase,
+    private readonly removeZonePest: RemoveZonePestPresenceUseCase,
+    private readonly listZonePests: ListZonePestsUseCase,
+    private readonly listZoneCrops: ListZoneCropsUseCase,
     @Inject(ZONE_REPOSITORY) private readonly zones: ZoneRepository,
     @Inject(STORAGE_PORT) private readonly storage: StoragePort,
   ) {}
@@ -81,6 +90,32 @@ export class ZoneController {
       if (e instanceof ZoneInUseError) throw new ConflictException({ message: `Rattachée à ${e.count} culture(s) — détachez-la d'abord.`, count: e.count });
       throw e;
     }
+  }
+
+  @Get(':id/crops')
+  async crops(@Param('id') id: string) {
+    return this.listZoneCrops.execute({ zoneId: id });
+  }
+
+  @Get(':id/pests')
+  async pests(@Param('id') id: string) {
+    return this.listZonePests.execute({ zoneId: id });
+  }
+
+  @Put(':id/pests/:pestId')
+  async setPest(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('pestId') pestId: string, @Body() body: { frequency: string }) {
+    try {
+      return await this.setZonePest.execute({ zoneId: id, pestId, frequency: body.frequency, actor: user.email });
+    } catch (e) {
+      if (e instanceof ZoneNotFoundError || e instanceof PestNotFoundError) throw new NotFoundException((e as Error).message);
+      throw e;
+    }
+  }
+
+  @Delete(':id/pests/:pestId')
+  @HttpCode(204)
+  async removePest(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('pestId') pestId: string) {
+    await this.removeZonePest.execute({ zoneId: id, pestId, actor: user.email });
   }
 
   private toResponse(snap: ZoneSnapshot) {

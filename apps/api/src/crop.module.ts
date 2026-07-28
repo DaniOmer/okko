@@ -31,6 +31,12 @@ import { CreateZoneUseCase } from './application/zone/create-zone.use-case';
 import { ListZonesUseCase } from './application/zone/list-zones.use-case';
 import { UpdateZoneUseCase } from './application/zone/update-zone.use-case';
 import { DeleteZoneUseCase } from './application/zone/delete-zone.use-case';
+import { ZONE_PEST_PRESENCE_REPOSITORY } from './application/zone/zone-pest-presence.repository';
+import { PrismaZonePestPresenceRepository } from './infrastructure/zone/prisma-zone-pest-presence.repository';
+import { SetZonePestPresenceUseCase } from './application/zone/set-zone-pest-presence.use-case';
+import { RemoveZonePestPresenceUseCase } from './application/zone/remove-zone-pest-presence.use-case';
+import { ListZonePestsUseCase } from './application/zone/list-zone-pests.use-case';
+import { ListZoneCropsUseCase } from './application/zone/list-zone-crops.use-case';
 import { SetCropZoneSuitabilityUseCase } from './application/zone/set-crop-zone-suitability.use-case';
 import { RemoveCropZoneSuitabilityUseCase } from './application/zone/remove-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from './application/zone/list-crop-zones.use-case';
@@ -137,6 +143,7 @@ import { MediaController } from './presentation/media/media.controller';
     },
     { provide: ZONE_REPOSITORY, useClass: PrismaZoneRepository },
     { provide: CROP_ZONE_SUITABILITY_REPOSITORY, useClass: PrismaCropZoneSuitabilityRepository },
+    { provide: ZONE_PEST_PRESENCE_REPOSITORY, useClass: PrismaZonePestPresenceRepository },
     {
       provide: CreateZoneUseCase,
       useFactory: (z, a, c, ids) => new CreateZoneUseCase(z, a, c, ids),
@@ -154,8 +161,8 @@ import { MediaController } from './presentation/media/media.controller';
     },
     {
       provide: DeleteZoneUseCase,
-      useFactory: (z, l, a, c) => new DeleteZoneUseCase(z, l, a, c),
-      inject: [ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+      useFactory: (z, l, zpp, a, c) => new DeleteZoneUseCase(z, l, zpp, a, c),
+      inject: [ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, ZONE_PEST_PRESENCE_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
     {
       provide: SetCropZoneSuitabilityUseCase,
@@ -167,6 +174,26 @@ import { MediaController } from './presentation/media/media.controller';
       provide: ListCropZonesUseCase,
       useFactory: (s, z) => new ListCropZonesUseCase(s, z),
       inject: [CROP_ZONE_SUITABILITY_REPOSITORY, ZONE_REPOSITORY],
+    },
+    {
+      provide: SetZonePestPresenceUseCase,
+      useFactory: (z, p, zpp, a, c) => new SetZonePestPresenceUseCase(z, p, zpp, a, c),
+      inject: [ZONE_REPOSITORY, PEST_REPOSITORY, ZONE_PEST_PRESENCE_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: RemoveZonePestPresenceUseCase,
+      useFactory: (zpp, a, c) => new RemoveZonePestPresenceUseCase(zpp, a, c),
+      inject: [ZONE_PEST_PRESENCE_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
+    },
+    {
+      provide: ListZonePestsUseCase,
+      useFactory: (zpp, p) => new ListZonePestsUseCase(zpp, p),
+      inject: [ZONE_PEST_PRESENCE_REPOSITORY, PEST_REPOSITORY],
+    },
+    {
+      provide: ListZoneCropsUseCase,
+      useFactory: (s, cr) => new ListZoneCropsUseCase(s, cr),
+      inject: [CROP_ZONE_SUITABILITY_REPOSITORY, CROP_REPOSITORY],
     },
     { provide: CROPPING_WINDOW_REPOSITORY, useClass: PrismaCroppingWindowRepository },
     {

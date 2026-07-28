@@ -1,5 +1,6 @@
 import { ZoneRepository } from './zone.repository';
 import { CropZoneSuitabilityRepository } from './crop-zone-suitability.repository';
+import { ZonePestPresenceRepository } from './zone-pest-presence.repository';
 import { AuditLogRepository } from '../audit/audit-log.repository';
 import { Clock } from '../shared/clock';
 import { ZoneNotFoundError } from './update-zone.use-case';
@@ -17,6 +18,7 @@ export class DeleteZoneUseCase {
   constructor(
     private readonly zones: ZoneRepository,
     private readonly links: CropZoneSuitabilityRepository,
+    private readonly presences: ZonePestPresenceRepository,
     private readonly audit: AuditLogRepository,
     private readonly clock: Clock,
   ) {}
@@ -27,6 +29,7 @@ export class DeleteZoneUseCase {
     const refs = await this.links.listByZone(input.id);
     if (refs.length > 0) throw new ZoneInUseError(refs.length);
     await this.zones.delete(input.id);
+    await this.presences.deleteByZone(input.id);
     await this.audit.record({
       entityType: 'AgroEcologicalZone', entityId: input.id, actor: input.actor,
       at: this.clock.nowIso(), changes: { deleted: { id: input.id } },

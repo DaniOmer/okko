@@ -141,6 +141,8 @@ export const REPRODUCTION_MODE_LABELS: Record<string, string> = {
 };
 export const DISSEMINATION_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 
+export const FREQUENCY_LABELS: Record<string, string> = { OCCASIONAL: 'Occasionnel', FREQUENT: 'Fréquent', ENDEMIC: 'Endémique' };
+
 export const CLIMATE_TYPE_LABELS: Record<string, string> = {
   TROPICAL_HUMID: 'Tropical humide', TROPICAL_DRY: 'Tropical sec', SAHELIAN: 'Sahélien',
   MEDITERRANEAN: 'Méditerranéen', TEMPERATE: 'Tempéré', HIGHLAND: 'Montagnard',
