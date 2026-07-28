@@ -2,6 +2,49 @@ import { AgroEcologicalZone } from './agro-ecological-zone';
 import { TranslatableText } from '../shared/translatable-text';
 import { RangeValue } from '../shared/range-value';
 
+describe('AgroEcologicalZone — champs descriptifs', () => {
+  const full = () => AgroEcologicalZone.create({
+    id: 'z1', name: TranslatableText.create({ fr: 'Zone Nord' }), country: 'BJ',
+    code: 'ZN', region: 'Alibori', description: TranslatableText.create({ fr: 'Savane soudanienne' }),
+    climateType: 'SAHELIAN', koppen: 'BSh',
+    altitude: RangeValue.create({ min: 200, optimal: 300, max: 400, unit: 'm' }),
+    annualRainfall: RangeValue.create({ min: 600, optimal: 800, max: 1000, unit: 'mm' }),
+    meanTemperature: 28, meanHumidity: 55,
+    rainySeasonStart: 'JUN', rainySeasonEnd: 'OCT', drySeasonStart: 'NOV', drySeasonEnd: 'MAY',
+    soilTypes: ['Ferrugineux', 'Sableux'], fertility: 'MEDIUM', drainage: 'GOOD',
+  });
+
+  it('create expose tous les champs descriptifs dans le snapshot', () => {
+    const s = full().toSnapshot();
+    expect(s).toMatchObject({
+      code: 'ZN', region: 'Alibori', description: { fr: 'Savane soudanienne' },
+      climateType: 'SAHELIAN', koppen: 'BSh', meanTemperature: 28, meanHumidity: 55,
+      rainySeasonStart: 'JUN', rainySeasonEnd: 'OCT', drySeasonStart: 'NOV', drySeasonEnd: 'MAY',
+      soilTypes: ['Ferrugineux', 'Sableux'], fertility: 'MEDIUM', drainage: 'GOOD',
+    });
+    expect(s.altitude).toEqual({ min: 200, optimal: 300, max: 400, unit: 'm' });
+    expect(s.annualRainfall).toEqual({ min: 600, optimal: 800, max: 1000, unit: 'mm' });
+  });
+
+  it('update modifie les champs descriptifs et préserve id/metadata/images', () => {
+    const updated = full().update({
+      name: TranslatableText.create({ fr: 'Zone Nord' }), country: 'BJ',
+      climateType: 'TROPICAL_DRY', fertility: 'HIGH', meanTemperature: 30,
+    });
+    const s = updated.toSnapshot();
+    expect(s.id).toBe('z1');
+    expect(s.climateType).toBe('TROPICAL_DRY');
+    expect(s.fertility).toBe('HIGH');
+    expect(s.meanTemperature).toBe(30);
+    expect(s.region).toBeUndefined(); // remplacement : champ non fourni → absent
+  });
+
+  it('fromSnapshot round-trip complet', () => {
+    const s = full().toSnapshot();
+    expect(AgroEcologicalZone.fromSnapshot(s).toSnapshot()).toEqual(s);
+  });
+});
+
 describe('AgroEcologicalZone', () => {
   const base = () => AgroEcologicalZone.create({
     id: 'zone-1',
