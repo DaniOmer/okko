@@ -194,6 +194,11 @@ export class Crop {
   updatePricePoint(p: PricePointSnapshot): void { this.raise({ type: 'PricePointUpdated', price: p }); }
   setZoneSuitability(s: CropZoneSuitabilitySnapshot): void { this.raise({ type: 'ZoneSuitabilitySet', suitability: s }); }
   setPestControl(c: CropPestControlSnapshot): void { this.raise({ type: 'PestControlSet', control: c }); }
+  removeVariety(id: string): void { this.raise({ type: 'VarietyRemoved', varietyId: id }); }
+  removeCroppingWindow(id: string): void { this.raise({ type: 'CroppingWindowRemoved', windowId: id }); }
+  removePricePoint(id: string): void { this.raise({ type: 'PricePointRemoved', priceId: id }); }
+  removeZoneSuitability(zoneId: string): void { this.raise({ type: 'ZoneSuitabilityRemoved', zoneId }); }
+  removePestControl(pestId: string): void { this.raise({ type: 'PestControlRemoved', pestId }); }
 
   private raise(e: CropEvent): void { this.apply(e); this._pending.push(e); }
   pullPendingEvents(): CropEvent[] { const p = this._pending; this._pending = []; return p; }
@@ -224,6 +229,11 @@ export class Crop {
       case 'PricePointUpdated': this._prices = this._prices.map((x) => x.id === e.price.id ? e.price : x); this._hasUnpublishedChanges = true; break;
       case 'ZoneSuitabilitySet': this._zones = [...this._zones.filter((z) => z.zoneId !== e.suitability.zoneId), e.suitability]; this._hasUnpublishedChanges = true; break;
       case 'PestControlSet': this._pests = [...this._pests.filter((p) => p.pestId !== e.control.pestId), e.control]; this._hasUnpublishedChanges = true; break;
+      case 'VarietyRemoved': this._varieties = this._varieties.filter((x) => x.id !== e.varietyId); this._hasUnpublishedChanges = true; break;
+      case 'CroppingWindowRemoved': this._windows = this._windows.filter((x) => x.id !== e.windowId); this._hasUnpublishedChanges = true; break;
+      case 'PricePointRemoved': this._prices = this._prices.filter((x) => x.id !== e.priceId); this._hasUnpublishedChanges = true; break;
+      case 'ZoneSuitabilityRemoved': this._zones = this._zones.filter((z) => z.zoneId !== e.zoneId); this._hasUnpublishedChanges = true; break;
+      case 'PestControlRemoved': this._pests = this._pests.filter((p) => p.pestId !== e.pestId); this._hasUnpublishedChanges = true; break;
     }
   }
 
