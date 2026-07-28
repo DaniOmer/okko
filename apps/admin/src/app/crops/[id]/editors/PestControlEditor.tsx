@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SUSCEPTIBILITY_LABELS, CONTROL_CATEGORY_LABELS, stageWithRange } from '@/lib/labels';
-import { setPestControl } from '@/lib/actions';
+import { setPestControl, deleteCropPest } from '@/lib/actions';
+import { DeleteWithConfirm } from './DeleteWithConfirm';
 
 interface ControlMethod { category: string; description: Record<string, string>; inputs: string[]; }
 interface PestInitial {
@@ -123,9 +124,12 @@ export function PestControlEditor({
             ))}
             <Button type="button" variant="outline" size="sm" onClick={addMethod}>+ Ajouter une méthode</Button>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Rattacher'}</Button>
+          <div className="flex items-center gap-2 pt-2">
+            {editing && <DeleteWithConfirm disabled={busy} onConfirm={() => submit(() => deleteCropPest(cropId, initial!.pestId))} />}
+            <div className="ml-auto flex gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+              <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Rattacher'}</Button>
+            </div>
           </div>
         </form>
       )}

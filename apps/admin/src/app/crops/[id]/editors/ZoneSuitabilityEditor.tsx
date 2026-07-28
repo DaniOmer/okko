@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SUITABILITY_LABELS } from '@/lib/labels';
-import { setZoneSuitability } from '@/lib/actions';
+import { setZoneSuitability, deleteCropZone } from '@/lib/actions';
+import { DeleteWithConfirm } from './DeleteWithConfirm';
 
 interface ZoneInitial { zoneId: string; rating: string; justification?: string; }
 
@@ -55,9 +56,12 @@ export function ZoneSuitabilityEditor({
             <Label htmlFor="zone-justif">Justification</Label>
             <Textarea id="zone-justif" placeholder="ex. pluviométrie insuffisante en saison sèche…" value={justification} onChange={(e) => setJustification(e.target.value)} />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Rattacher'}</Button>
+          <div className="flex items-center gap-2 pt-2">
+            {editing && <DeleteWithConfirm disabled={busy} onConfirm={() => submit(() => deleteCropZone(cropId, initial!.zoneId))} />}
+            <div className="ml-auto flex gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+              <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Rattacher'}</Button>
+            </div>
           </div>
         </form>
       )}

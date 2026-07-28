@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, UnprocessableEntityException, Inject, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, NotFoundException, ConflictException, UnprocessableEntityException, Inject, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Public, Roles, CurrentUser, AuthUser } from '../auth/decorators';
@@ -15,22 +15,26 @@ import { CycleType } from '../../domain/crop/cycle-type';
 import { SetCropRequirementsUseCase } from '../../application/crop/set-crop-requirements.use-case';
 import { AddVarietyUseCase } from '../../application/crop/add-variety.use-case';
 import { UpdateVarietyUseCase, VarietyNotFoundError } from '../../application/crop/update-variety.use-case';
+import { RemoveVarietyUseCase } from '../../application/crop/remove-variety.use-case';
 import { ListVarietiesUseCase } from '../../application/crop/list-varieties.use-case';
 import { VARIETY_REPOSITORY, VarietyRepository } from '../../application/crop/variety.repository';
 import { ClimaticRequirementsJSON } from '../../domain/shared/climatic-requirements';
 import { EdaphicRequirementsJSON } from '../../domain/shared/edaphic-requirements';
 import { RangeValue } from '../../domain/shared/range-value';
 import { SetCropZoneSuitabilityUseCase, ZoneNotFoundError } from '../../application/zone/set-crop-zone-suitability.use-case';
+import { RemoveCropZoneSuitabilityUseCase, ZoneSuitabilityNotFoundError } from '../../application/zone/remove-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from '../../application/zone/list-crop-zones.use-case';
 import { SuitabilityRating } from '../../domain/zone/suitability-rating';
 import { ProvenanceProps } from '../../domain/shared/provenance';
 import { SetCropPhenologyUseCase } from '../../application/crop/set-crop-phenology.use-case';
 import { AddCroppingWindowUseCase } from '../../application/window/add-cropping-window.use-case';
 import { UpdateCroppingWindowUseCase, CroppingWindowNotFoundError } from '../../application/window/update-cropping-window.use-case';
+import { RemoveCroppingWindowUseCase } from '../../application/window/remove-cropping-window.use-case';
 import { ListCroppingWindowsUseCase } from '../../application/window/list-cropping-windows.use-case';
 import { PhenologicalStageJSON } from '../../domain/crop/phenological-stage';
 import { TechnicalOperationJSON } from '../../domain/window/technical-operation';
 import { SetCropPestControlUseCase, PestNotFoundError } from '../../application/pest/set-crop-pest-control.use-case';
+import { RemoveCropPestControlUseCase, PestControlNotFoundError } from '../../application/pest/remove-crop-pest-control.use-case';
 import { ListCropPestsUseCase } from '../../application/pest/list-crop-pests.use-case';
 import { SusceptibilityLevel } from '../../domain/pest/susceptibility-level';
 import { ControlMethodJSON } from '../../domain/pest/control-method';
@@ -42,6 +46,7 @@ import { STORAGE_PORT, StoragePort } from '../../application/media/storage.port'
 import { toImageDto } from '../media/image-dto';
 import { AddPricePointUseCase, InvalidPricePeriodError } from '../../application/price/add-price-point.use-case';
 import { UpdatePricePointUseCase, PricePointNotFoundError } from '../../application/price/update-price-point.use-case';
+import { RemovePricePointUseCase } from '../../application/price/remove-price-point.use-case';
 import { ListCropPricesUseCase } from '../../application/price/list-crop-prices.use-case';
 import { NutrientRequirementJSON } from '../../domain/crop/nutrient-requirement';
 import { YieldReferenceJSON } from '../../domain/crop/yield-reference';
@@ -80,15 +85,19 @@ export class CropController {
     private readonly setRequirements: SetCropRequirementsUseCase,
     private readonly addVariety: AddVarietyUseCase,
     private readonly updateVarietyUC: UpdateVarietyUseCase,
+    private readonly removeVarietyUC: RemoveVarietyUseCase,
     private readonly listVarieties: ListVarietiesUseCase,
     @Inject(VARIETY_REPOSITORY) private readonly varieties: VarietyRepository,
     private readonly setSuitability: SetCropZoneSuitabilityUseCase,
+    private readonly removeZoneUC: RemoveCropZoneSuitabilityUseCase,
     private readonly listCropZones: ListCropZonesUseCase,
     private readonly setPhenology: SetCropPhenologyUseCase,
     private readonly addWindow: AddCroppingWindowUseCase,
     private readonly updateWindowUC: UpdateCroppingWindowUseCase,
+    private readonly removeWindowUC: RemoveCroppingWindowUseCase,
     private readonly listWindows: ListCroppingWindowsUseCase,
     private readonly setPestControl: SetCropPestControlUseCase,
+    private readonly removePestUC: RemoveCropPestControlUseCase,
     private readonly listCropPests: ListCropPestsUseCase,
     private readonly setNutrition: SetCropNutritionUseCase,
     private readonly setYields: SetCropYieldsUseCase,
@@ -97,6 +106,7 @@ export class CropController {
     @Inject(STORAGE_PORT) private readonly storage: StoragePort,
     private readonly addPrice: AddPricePointUseCase,
     private readonly updatePriceUC: UpdatePricePointUseCase,
+    private readonly removePriceUC: RemovePricePointUseCase,
     private readonly listPrices: ListCropPricesUseCase,
     private readonly getHistory: GetCropHistoryUseCase,
     private readonly discardDraft: DiscardDraftUseCase,
@@ -191,6 +201,13 @@ export class CropController {
     } catch (e) { mapCropError(e, id); }
   }
 
+  @Delete(':id/varieties/:varietyId')
+  @HttpCode(204)
+  async removeVariety(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('varietyId') varietyId: string) {
+    try { await this.removeVarietyUC.execute({ cropId: id, varietyId, actor: user.email }); }
+    catch (e) { mapCropError(e, id); }
+  }
+
   @Put(':id/zones/:zoneId')
   async setZone(
     @CurrentUser() user: AuthUser,
@@ -202,6 +219,16 @@ export class CropController {
       return await this.setSuitability.execute({ cropId: id, zoneId, actor: user.email, ...body });
     } catch (e) {
       if (e instanceof CropNotFoundError || e instanceof ZoneNotFoundError) throw new NotFoundException(e.message);
+      throw e;
+    }
+  }
+
+  @Delete(':id/zones/:zoneId')
+  @HttpCode(204)
+  async removeZone(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('zoneId') zoneId: string) {
+    try { await this.removeZoneUC.execute({ cropId: id, zoneId, actor: user.email }); }
+    catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof ZoneSuitabilityNotFoundError) throw new NotFoundException((e as Error).message);
       throw e;
     }
   }
@@ -257,6 +284,16 @@ export class CropController {
     }
   }
 
+  @Delete(':id/windows/:windowId')
+  @HttpCode(204)
+  async removeWindow(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('windowId') windowId: string) {
+    try { await this.removeWindowUC.execute({ cropId: id, windowId, actor: user.email }); }
+    catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof CroppingWindowNotFoundError) throw new NotFoundException((e as Error).message);
+      throw e;
+    }
+  }
+
   @Put(':id/pests/:pestId')
   async setPest(
     @CurrentUser() user: AuthUser,
@@ -268,6 +305,16 @@ export class CropController {
       return await this.setPestControl.execute({ cropId: id, pestId, actor: user.email, ...body });
     } catch (e) {
       if (e instanceof CropNotFoundError || e instanceof PestNotFoundError) throw new NotFoundException((e as Error).message);
+      throw e;
+    }
+  }
+
+  @Delete(':id/pests/:pestId')
+  @HttpCode(204)
+  async removePest(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('pestId') pestId: string) {
+    try { await this.removePestUC.execute({ cropId: id, pestId, actor: user.email }); }
+    catch (e) {
+      if (e instanceof CropNotFoundError || e instanceof PestControlNotFoundError) throw new NotFoundException((e as Error).message);
       throw e;
     }
   }
@@ -332,6 +379,13 @@ export class CropController {
   @Put(':id/prices/:priceId')
   async updatePrice(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('priceId') priceId: string, @Body() body: { form: string; market: string; periodStart: string; periodEnd?: string; price: number; unit: string; currency: string }) {
     try { return await this.updatePriceUC.execute({ cropId: id, priceId, ...body, actor: user.email }); }
+    catch (e) { mapCropError(e, id); }
+  }
+
+  @Delete(':id/prices/:priceId')
+  @HttpCode(204)
+  async removePrice(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('priceId') priceId: string) {
+    try { await this.removePriceUC.execute({ cropId: id, priceId, actor: user.email }); }
     catch (e) { mapCropError(e, id); }
   }
 

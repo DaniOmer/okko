@@ -155,6 +155,22 @@ export async function deletePest(id: string): Promise<void> {
   await authFetch(`/pests/${id}`, { method: 'DELETE' });
 }
 
+export async function deleteCropVariety(cropId: string, varietyId: string): Promise<void> {
+  await authFetch(`/crops/${cropId}/varieties/${varietyId}`, { method: 'DELETE' });
+}
+export async function deleteCropWindow(cropId: string, windowId: string): Promise<void> {
+  await authFetch(`/crops/${cropId}/windows/${windowId}`, { method: 'DELETE' });
+}
+export async function deleteCropPrice(cropId: string, priceId: string): Promise<void> {
+  await authFetch(`/crops/${cropId}/prices/${priceId}`, { method: 'DELETE' });
+}
+export async function deleteCropZone(cropId: string, zoneId: string): Promise<void> {
+  await authFetch(`/crops/${cropId}/zones/${zoneId}`, { method: 'DELETE' });
+}
+export async function deleteCropPest(cropId: string, pestId: string): Promise<void> {
+  await authFetch(`/crops/${cropId}/pests/${pestId}`, { method: 'DELETE' });
+}
+
 export async function setPestBiology(id: string, biology: import('./api').PestBiology): Promise<Pest> {
   const res = await authFetch(`/pests/${id}/biology`, jsonInit('PATCH', biology));
   return res.json();

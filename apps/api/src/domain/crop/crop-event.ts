@@ -35,5 +35,10 @@ export type CropEvent =
   | { type: 'PestControlSet'; control: CropPestControlSnapshot }
   | { type: 'PricePointAdded'; price: PricePointSnapshot }
   | { type: 'PricePointUpdated'; price: PricePointSnapshot }
+  | { type: 'VarietyRemoved'; varietyId: string }
+  | { type: 'CroppingWindowRemoved'; windowId: string }
+  | { type: 'ZoneSuitabilityRemoved'; zoneId: string }
+  | { type: 'PestControlRemoved'; pestId: string }
+  | { type: 'PricePointRemoved'; priceId: string }
   | { type: 'DraftDiscarded' }
   | { type: 'DraftRestored'; revision: number };
