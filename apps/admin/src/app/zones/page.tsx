@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { listZones } from '../../lib/api';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
+import { CLIMATE_TYPE_LABELS, labelOf } from '@/lib/labels';
 import { ZoneRowActions } from './ZoneRowActions';
 
 export default async function ZonesPage() {
@@ -25,7 +27,7 @@ export default async function ZonesPage() {
               <TableHead className="w-12"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Pays</TableHead>
-              <TableHead>Köppen</TableHead>
+              <TableHead>Climat</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -40,7 +42,7 @@ export default async function ZonesPage() {
                 </TableCell>
                 <TableCell>{z.name}</TableCell>
                 <TableCell>{z.country}</TableCell>
-                <TableCell>{z.koppen ?? '—'}</TableCell>
+                <TableCell>{z.climateType ? <Badge variant="secondary">{labelOf(CLIMATE_TYPE_LABELS, z.climateType)}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                 <TableCell className="text-right"><ZoneRowActions zone={z} /></TableCell>
               </TableRow>
             ))}

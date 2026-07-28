@@ -3,20 +3,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { updateZone, deleteZone } from '@/lib/actions';
-import { ImageGalleryUploader } from '@/components/ImageGalleryUploader';
-import type { ImageRef } from '@/lib/api';
+import { ZoneFields, zoneFormFromZone, zoneFormToPayload, type ZoneFormValue } from './ZoneFields';
+import type { Zone } from '@/lib/api';
 
-export function ZoneRowActions({ zone }: { zone: { id: string; name: string; country: string; koppen?: string; images: ImageRef[] } }) {
+export function ZoneRowActions({ zone }: { zone: Zone }) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
-  const [name, setName] = useState(zone.name);
-  const [country, setCountry] = useState(zone.country);
-  const [koppen, setKoppen] = useState(zone.koppen ?? '');
-  const [images, setImages] = useState<ImageRef[]>(zone.images ?? []);
+  const [form, setForm] = useState<ZoneFormValue>(zoneFormFromZone(zone));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,15 +29,10 @@ export function ZoneRowActions({ zone }: { zone: { id: string; name: string; cou
         <DialogContent>
           <DialogHeader><DialogTitle>Modifier la zone</DialogTitle></DialogHeader>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <div className="space-y-3">
-            <div className="space-y-1"><Label htmlFor="z-name">Nom (fr) *</Label><Input id="z-name" value={name} onChange={(e) => setName(e.target.value)} /></div>
-            <div className="space-y-1"><Label htmlFor="z-country">Pays *</Label><Input id="z-country" value={country} onChange={(e) => setCountry(e.target.value)} /></div>
-            <div className="space-y-1"><Label htmlFor="z-koppen">Köppen</Label><Input id="z-koppen" value={koppen} onChange={(e) => setKoppen(e.target.value)} /></div>
-            <div className="space-y-1"><Label>Photos</Label><ImageGalleryUploader value={images} onChange={setImages} /></div>
-          </div>
+          <ZoneFields value={form} onChange={setForm} />
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setEditOpen(false)}>Annuler</Button>
-            <Button size="sm" disabled={busy} onClick={() => run(() => updateZone(zone.id, { name: { fr: name }, country, koppen: koppen || undefined, images: images.map((i) => ({ key: i.key, caption: i.caption })) }), () => setEditOpen(false))}>Enregistrer</Button>
+            <Button size="sm" disabled={busy} onClick={() => run(() => updateZone(zone.id, zoneFormToPayload(form)), () => setEditOpen(false))}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
