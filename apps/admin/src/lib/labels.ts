@@ -141,6 +141,13 @@ export const REPRODUCTION_MODE_LABELS: Record<string, string> = {
 };
 export const DISSEMINATION_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 
+export const CLIMATE_TYPE_LABELS: Record<string, string> = {
+  TROPICAL_HUMID: 'Tropical humide', TROPICAL_DRY: 'Tropical sec', SAHELIAN: 'Sahélien',
+  MEDITERRANEAN: 'Méditerranéen', TEMPERATE: 'Tempéré', HIGHLAND: 'Montagnard',
+};
+export const FERTILITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
+export const DRAINAGE_LABELS: Record<string, string> = { POOR: 'Faible', MODERATE: 'Modéré', GOOD: 'Bon' };
+
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {
   return map[code] ?? code;

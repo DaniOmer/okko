@@ -78,7 +78,14 @@ export interface Variety {
 }
 
 export interface Zone {
-  id: string; name: string; country: string; koppen?: string; images: ImageRef[];
+  id: string; name: string; country: string;
+  code?: string; region?: string; description?: Record<string, string>;
+  climateType?: string; koppen?: string;
+  altitude?: MinMaxRangeJSON; annualRainfall?: MinMaxRangeJSON;
+  meanTemperature?: number; meanHumidity?: number;
+  rainySeasonStart?: string; rainySeasonEnd?: string; drySeasonStart?: string; drySeasonEnd?: string;
+  soilTypes?: string[]; fertility?: string; drainage?: string;
+  images: ImageRef[];
 }
 export interface CropZone {
   zoneId: string; zoneName: Record<string, string>; rating: string; justification?: string;

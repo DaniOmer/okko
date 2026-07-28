@@ -127,12 +127,24 @@ export async function setPestControl(cropId: string, pestId: string, body: {
   return res.json().catch(() => undefined);
 }
 
-export async function createZone(input: { name: Record<string, string>; country: string; koppen?: string; images?: { key: string; caption?: string }[] }): Promise<Zone> {
+type ZonePayload = {
+  name: Record<string, string>; country: string;
+  code?: string; region?: string; description?: Record<string, string>;
+  climateType?: string; koppen?: string;
+  altitude?: { min: number; optimal: number; max: number; unit: string };
+  annualRainfall?: { min: number; optimal: number; max: number; unit: string };
+  meanTemperature?: number; meanHumidity?: number;
+  rainySeasonStart?: string; rainySeasonEnd?: string; drySeasonStart?: string; drySeasonEnd?: string;
+  soilTypes?: string[]; fertility?: string; drainage?: string;
+  images?: { key: string; caption?: string }[];
+};
+
+export async function createZone(input: ZonePayload): Promise<Zone> {
   const res = await authFetch('/zones', jsonInit('POST', input));
   return res.json();
 }
 
-export async function updateZone(id: string, input: { name: Record<string, string>; country: string; koppen?: string; images?: { key: string; caption?: string }[] }): Promise<Zone> {
+export async function updateZone(id: string, input: ZonePayload): Promise<Zone> {
   const res = await authFetch(`/zones/${id}`, jsonInit('PATCH', input));
   return res.json();
 }
