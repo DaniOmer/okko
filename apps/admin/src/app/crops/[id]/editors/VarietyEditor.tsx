@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { RESISTANCE_LEVEL_LABELS, SUITABILITY_RATING_LABELS } from '@/lib/labels';
 import { addVariety, updateVariety } from '@/lib/actions';
+import { DeleteWithConfirm } from './DeleteWithConfirm';
+import { deleteCropVariety } from '@/lib/actions';
 import type { Pest, Zone, Variety } from '@/lib/api';
 
 interface ResistanceRow { pestId: string; level: string; }
@@ -147,9 +149,12 @@ export function VarietyEditor({
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
+          <div className="flex items-center gap-2 pt-2">
+            {editing && <DeleteWithConfirm disabled={busy} onConfirm={() => submit(() => deleteCropVariety(cropId, initial!.id))} />}
+            <div className="ml-auto flex gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+              <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
+            </div>
           </div>
         </form>
       )}

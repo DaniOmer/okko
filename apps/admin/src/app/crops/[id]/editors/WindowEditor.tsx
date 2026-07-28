@@ -9,6 +9,8 @@ import { ShadcnDatePicker } from '@/components/shadcn-date-picker';
 import { Badge } from '@/components/ui/badge';
 import { OPERATION_TYPE_LABELS, SEASONS } from '@/lib/labels';
 import { addWindow, updateWindow } from '@/lib/actions';
+import { DeleteWithConfirm } from './DeleteWithConfirm';
+import { deleteCropWindow } from '@/lib/actions';
 import type { CroppingWindow } from '@/lib/api';
 
 interface Op { type: string; label: string; timingDays: string; inputs: string[]; equipment: string[]; }
@@ -171,9 +173,12 @@ export function WindowEditor({ cropId, zones, initial }: { cropId: string; zones
             <Button type="button" variant="ghost" size="sm" onClick={() => setOps([...ops, { type: 'PLANTING', label: '', timingDays: '0', inputs: [], equipment: [] }])}>+ opération</Button>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
+          <div className="flex items-center gap-2 pt-2">
+            {editing && <DeleteWithConfirm disabled={busy} onConfirm={() => submit(() => deleteCropWindow(cropId, initial!.id))} />}
+            <div className="ml-auto flex gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+              <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
+            </div>
           </div>
         </form>
       )}

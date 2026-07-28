@@ -8,6 +8,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { ShadcnDatePicker } from '@/components/shadcn-date-picker';
 import { PRODUCT_FORM_LABELS, SALE_UNIT_LABELS } from '@/lib/labels';
 import { addPrice, updatePrice } from '@/lib/actions';
+import { DeleteWithConfirm } from './DeleteWithConfirm';
+import { deleteCropPrice } from '@/lib/actions';
 import type { CommercializationProduct } from '@/lib/api';
 
 interface PriceInitial {
@@ -121,9 +123,12 @@ export function PriceEditor({ cropId, commercialization, initial }: {
               <Input id="price-currency" placeholder="XOF" value={currency} onChange={(e)=>setCurrency(e.target.value)} />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
-            <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
+          <div className="flex items-center gap-2 pt-2">
+            {editing && <DeleteWithConfirm disabled={busy} onConfirm={() => submit(() => deleteCropPrice(cropId, initial!.id))} />}
+            <div className="ml-auto flex gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={close}>Annuler</Button>
+              <Button type="submit" size="sm" disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
+            </div>
           </div>
         </form>
       )}
