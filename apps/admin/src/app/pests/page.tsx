@@ -8,7 +8,7 @@ import { PestRowActions } from './PestRowActions';
 
 export default async function PestsPage({ searchParams }: { searchParams: { kind?: string } }) {
   const all = await listPests().catch(() => []);
-  const kindFilter = searchParams.kind; // 'ANIMAL' | 'WEED' | undefined
+  const kindFilter = searchParams.kind; // 'ANIMAL' | 'DISEASE' | 'WEED' | undefined
   const pests = kindFilter ? all.filter((p) => (p.kind ?? 'ANIMAL') === kindFilter) : all;
   return (
     <main className="p-8">
