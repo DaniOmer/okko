@@ -25,15 +25,18 @@ import { SetCropRequirementsUseCase } from './application/crop/set-crop-requirem
 import { SetCropPhenologyUseCase } from './application/crop/set-crop-phenology.use-case';
 import { AddVarietyUseCase } from './application/crop/add-variety.use-case';
 import { UpdateVarietyUseCase } from './application/crop/update-variety.use-case';
+import { RemoveVarietyUseCase } from './application/crop/remove-variety.use-case';
 import { ListVarietiesUseCase } from './application/crop/list-varieties.use-case';
 import { CreateZoneUseCase } from './application/zone/create-zone.use-case';
 import { ListZonesUseCase } from './application/zone/list-zones.use-case';
 import { UpdateZoneUseCase } from './application/zone/update-zone.use-case';
 import { DeleteZoneUseCase } from './application/zone/delete-zone.use-case';
 import { SetCropZoneSuitabilityUseCase } from './application/zone/set-crop-zone-suitability.use-case';
+import { RemoveCropZoneSuitabilityUseCase } from './application/zone/remove-crop-zone-suitability.use-case';
 import { ListCropZonesUseCase } from './application/zone/list-crop-zones.use-case';
 import { AddCroppingWindowUseCase } from './application/window/add-cropping-window.use-case';
 import { UpdateCroppingWindowUseCase } from './application/window/update-cropping-window.use-case';
+import { RemoveCroppingWindowUseCase } from './application/window/remove-cropping-window.use-case';
 import { ListCroppingWindowsUseCase } from './application/window/list-cropping-windows.use-case';
 import { CropController } from './presentation/crop/crop.controller';
 import { ZoneController } from './presentation/zone/zone.controller';
@@ -47,6 +50,7 @@ import { ListPestsUseCase } from './application/pest/list-pests.use-case';
 import { UpdatePestUseCase } from './application/pest/update-pest.use-case';
 import { DeletePestUseCase } from './application/pest/delete-pest.use-case';
 import { SetCropPestControlUseCase } from './application/pest/set-crop-pest-control.use-case';
+import { RemoveCropPestControlUseCase } from './application/pest/remove-crop-pest-control.use-case';
 import { ListCropPestsUseCase } from './application/pest/list-crop-pests.use-case';
 import { SetPestBiologyUseCase } from './application/pest/set-pest-biology.use-case';
 import { SetPestDamageUseCase } from './application/pest/set-pest-damage.use-case';
@@ -62,6 +66,7 @@ import { SetCropCommercializationUseCase } from './application/crop/set-crop-com
 import { SetCropImagesUseCase } from './application/crop/set-crop-images.use-case';
 import { AddPricePointUseCase } from './application/price/add-price-point.use-case';
 import { UpdatePricePointUseCase } from './application/price/update-price-point.use-case';
+import { RemovePricePointUseCase } from './application/price/remove-price-point.use-case';
 import { ListCropPricesUseCase } from './application/price/list-crop-prices.use-case';
 import { GetCropHistoryUseCase } from './application/crop/get-crop-history.use-case';
 import { CropDocumentComposer } from './application/crop/compose-crop-document';
@@ -124,6 +129,7 @@ import { MediaController } from './presentation/media/media.controller';
       useFactory: (es, vr, a, c) => new UpdateVarietyUseCase(es, vr, a, c),
       inject: [CROP_EVENT_STORE, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
+    { provide: RemoveVarietyUseCase, useFactory: (es, vr, a, c) => new RemoveVarietyUseCase(es, vr, a, c), inject: [CROP_EVENT_STORE, VARIETY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK] },
     {
       provide: ListVarietiesUseCase,
       useFactory: (vr) => new ListVarietiesUseCase(vr),
@@ -156,6 +162,7 @@ import { MediaController } from './presentation/media/media.controller';
       useFactory: (es, z, s, a, c) => new SetCropZoneSuitabilityUseCase(es, z, s, a, c),
       inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
+    { provide: RemoveCropZoneSuitabilityUseCase, useFactory: (es, s, a, c) => new RemoveCropZoneSuitabilityUseCase(es, s, a, c), inject: [CROP_EVENT_STORE, CROP_ZONE_SUITABILITY_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK] },
     {
       provide: ListCropZonesUseCase,
       useFactory: (s, z) => new ListCropZonesUseCase(s, z),
@@ -177,6 +184,7 @@ import { MediaController } from './presentation/media/media.controller';
       useFactory: (es, zr, wr, a, c) => new UpdateCroppingWindowUseCase(es, zr, wr, a, c),
       inject: [CROP_EVENT_STORE, ZONE_REPOSITORY, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
+    { provide: RemoveCroppingWindowUseCase, useFactory: (es, wr, a, c) => new RemoveCroppingWindowUseCase(es, wr, a, c), inject: [CROP_EVENT_STORE, CROPPING_WINDOW_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK] },
     {
       provide: ListCroppingWindowsUseCase,
       useFactory: (w) => new ListCroppingWindowsUseCase(w),
@@ -209,6 +217,7 @@ import { MediaController } from './presentation/media/media.controller';
       useFactory: (es, p, ctrl, a, c) => new SetCropPestControlUseCase(es, p, ctrl, a, c),
       inject: [CROP_EVENT_STORE, PEST_REPOSITORY, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
+    { provide: RemoveCropPestControlUseCase, useFactory: (es, ctrl, a, c) => new RemoveCropPestControlUseCase(es, ctrl, a, c), inject: [CROP_EVENT_STORE, CROP_PEST_CONTROL_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK] },
     {
       provide: ListCropPestsUseCase,
       useFactory: (ctrl, p) => new ListCropPestsUseCase(ctrl, p),
@@ -275,6 +284,7 @@ import { MediaController } from './presentation/media/media.controller';
       useFactory: (es, pr, a, c) => new UpdatePricePointUseCase(es, pr, a, c),
       inject: [CROP_EVENT_STORE, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK],
     },
+    { provide: RemovePricePointUseCase, useFactory: (es, pr, a, c) => new RemovePricePointUseCase(es, pr, a, c), inject: [CROP_EVENT_STORE, PRICE_POINT_REPOSITORY, AUDIT_LOG_REPOSITORY, CLOCK] },
     {
       provide: ListCropPricesUseCase,
       useFactory: (pr) => new ListCropPricesUseCase(pr),
