@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, WEED_CATEGORY_LABELS } from '@/lib/labels';
+import { PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, WEED_CATEGORY_LABELS, DISEASE_CATEGORY_LABELS } from '@/lib/labels';
 import { updatePest, deletePest } from '@/lib/actions';
 import { ImageGalleryUploader } from '@/components/ImageGalleryUploader';
 import type { ImageRef } from '@/lib/api';
@@ -18,12 +18,12 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
   const [name, setName] = useState(pest.name);
   const [kind, setKind] = useState(pest.kind ?? 'ANIMAL');
   const [type, setType] = useState(pest.type);
-  const categoryLabels = kind === 'WEED' ? WEED_CATEGORY_LABELS : PEST_TYPE_LABELS;
+  const categoryLabels = kind === 'WEED' ? WEED_CATEGORY_LABELS : kind === 'DISEASE' ? DISEASE_CATEGORY_LABELS : PEST_TYPE_LABELS;
 
   function onKindChange(k: string) {
     setKind(k);
-    const first = Object.keys(k === 'WEED' ? WEED_CATEGORY_LABELS : PEST_TYPE_LABELS)[0];
-    setType(first);
+    const map = k === 'WEED' ? WEED_CATEGORY_LABELS : k === 'DISEASE' ? DISEASE_CATEGORY_LABELS : PEST_TYPE_LABELS;
+    setType(Object.keys(map)[0]);
   }
   const [scientificName, setScientificName] = useState(pest.scientificName ?? '');
   const [family, setFamily] = useState(pest.family ?? '');
@@ -54,6 +54,7 @@ export function PestRowActions({ pest }: { pest: { id: string; name: string; typ
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ANIMAL">Ravageur</SelectItem>
+                  <SelectItem value="DISEASE">Maladie</SelectItem>
                   <SelectItem value="WEED">Adventice</SelectItem>
                 </SelectContent>
               </Select>

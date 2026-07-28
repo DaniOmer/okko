@@ -1,7 +1,7 @@
 'use client';
 
 import type { Pest } from '../../../lib/api';
-import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS, NUISANCE_TYPE_LABELS, REPRODUCTION_MODE_LABELS, DISSEMINATION_LABELS } from '@/lib/labels';
+import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS, DISEASE_CATEGORY_LABELS, NUISANCE_TYPE_LABELS, REPRODUCTION_MODE_LABELS, DISSEMINATION_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
 import { Images, Dna, Bug, MapPin, ShieldCheck, BookOpen, Sprout } from 'lucide-react';
 
@@ -14,7 +14,8 @@ export function PestFicheView({ pest }: { pest: Pest }) {
 
   const b = pest;
   const isWeed = pest.kind === 'WEED';
-  const categoryLabel = isWeed ? labelOf(WEED_CATEGORY_LABELS, pest.type) : labelOf(PEST_TYPE_LABELS, pest.type);
+  const isDisease = pest.kind === 'DISEASE';
+  const categoryLabel = isWeed ? labelOf(WEED_CATEGORY_LABELS, pest.type) : isDisease ? labelOf(DISEASE_CATEGORY_LABELS, pest.type) : labelOf(PEST_TYPE_LABELS, pest.type);
   const hasWeedTraits = !!((b.reproductionMode?.length) || b.disseminationCapacity || b.emergenceDepth || b.seedBankLongevity);
   const monthOrder = Object.keys(MONTH_LABELS);
   const range = (r?: { min: number; max: number; unit?: string }) => (r ? `${r.min}–${r.max}${r.unit ? ' ' + r.unit : ''}` : null);
@@ -38,7 +39,7 @@ export function PestFicheView({ pest }: { pest: Pest }) {
               {labelOf(PEST_KIND_LABELS, pest.kind ?? 'ANIMAL')}
             </span>
             <span className="inline-block rounded-full bg-[#f4e6e6] px-3 py-1 text-[13px] font-semibold text-[#8a2c2c]">
-              {isWeed ? '🌿' : '🐛'} {categoryLabel}
+              {isWeed ? '🌿' : isDisease ? '🦠' : '🐛'} {categoryLabel}
             </span>
             {pest.family && (
               <span className="inline-block rounded-full bg-[#eee] px-3 py-1 text-[13px] text-[#475569]">
