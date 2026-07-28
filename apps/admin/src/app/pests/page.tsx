@@ -3,7 +3,7 @@ import { listPests } from '../../lib/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
-import { labelOf, PEST_TYPE_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS } from '@/lib/labels';
+import { labelOf, PEST_TYPE_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS, DISEASE_CATEGORY_LABELS } from '@/lib/labels';
 import { PestRowActions } from './PestRowActions';
 
 export default async function PestsPage({ searchParams }: { searchParams: { kind?: string } }) {
@@ -21,6 +21,7 @@ export default async function PestsPage({ searchParams }: { searchParams: { kind
       <div className="mb-4 flex gap-3 text-sm">
         <Link href="/pests" className={!kindFilter ? 'font-semibold text-primary' : 'text-muted-foreground hover:underline'}>Tous</Link>
         <Link href="/pests?kind=ANIMAL" className={kindFilter === 'ANIMAL' ? 'font-semibold text-primary' : 'text-muted-foreground hover:underline'}>Ravageurs</Link>
+        <Link href="/pests?kind=DISEASE" className={kindFilter === 'DISEASE' ? 'font-semibold text-primary' : 'text-muted-foreground hover:underline'}>Maladies</Link>
         <Link href="/pests?kind=WEED" className={kindFilter === 'WEED' ? 'font-semibold text-primary' : 'text-muted-foreground hover:underline'}>Adventices</Link>
       </div>
       {pests.length === 0 ? (
@@ -52,7 +53,7 @@ export default async function PestsPage({ searchParams }: { searchParams: { kind
                   <Link href={`/pests/${p.id}`} className="text-primary hover:underline">{p.name}</Link>
                 </TableCell>
                 <TableCell><Badge variant="secondary">{labelOf(PEST_KIND_LABELS, p.kind ?? 'ANIMAL')}</Badge></TableCell>
-                <TableCell>{labelOf((p.kind ?? 'ANIMAL') === 'WEED' ? WEED_CATEGORY_LABELS : PEST_TYPE_LABELS, p.type)}</TableCell>
+                <TableCell>{labelOf((p.kind ?? 'ANIMAL') === 'WEED' ? WEED_CATEGORY_LABELS : p.kind === 'DISEASE' ? DISEASE_CATEGORY_LABELS : PEST_TYPE_LABELS, p.type)}</TableCell>
                 <TableCell>{p.scientificName ?? '—'}</TableCell>
                 <TableCell className="text-right"><PestRowActions pest={p} /></TableCell>
               </TableRow>
