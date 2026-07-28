@@ -75,8 +75,21 @@ model AgroEcologicalZone {
   id             String   @id
   name           Json
   country        String
-  koppen         String?
-  altitude       Json?
+  koppen           String?
+  code             String?
+  region           String?
+  description      Json?
+  climateType      String?
+  meanTemperature  Float?
+  meanHumidity     Float?
+  rainySeasonStart String?
+  rainySeasonEnd   String?
+  drySeasonStart   String?
+  drySeasonEnd     String?
+  soilTypes        Json?
+  fertility        String?
+  drainage         String?
+  altitude         Json?
   annualRainfall Json?
   notes          String?
   metadata       Json

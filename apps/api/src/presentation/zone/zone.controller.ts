@@ -31,6 +31,10 @@ export class ZoneController {
     name: Record<string, string>; country: string; koppen?: string;
     altitude?: ReturnType<RangeValue['toJSON']>; annualRainfall?: ReturnType<RangeValue['toJSON']>; notes?: string;
     images?: { key: string; caption?: string }[];
+    code?: string; region?: string; description?: Record<string, string>;
+    climateType?: string; meanTemperature?: number; meanHumidity?: number;
+    rainySeasonStart?: string; rainySeasonEnd?: string; drySeasonStart?: string; drySeasonEnd?: string;
+    soilTypes?: string[]; fertility?: string; drainage?: string;
   }) {
     const snap = await this.createZone.execute({ actor: user.email, ...body });
     return this.toResponse(snap);
@@ -51,7 +55,12 @@ export class ZoneController {
   @Patch(':id')
   async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
     name: Record<string, string>; country: string; koppen?: string;
+    altitude?: ReturnType<RangeValue['toJSON']>; annualRainfall?: ReturnType<RangeValue['toJSON']>;
     images?: { key: string; caption?: string }[];
+    code?: string; region?: string; description?: Record<string, string>;
+    climateType?: string; meanTemperature?: number; meanHumidity?: number;
+    rainySeasonStart?: string; rainySeasonEnd?: string; drySeasonStart?: string; drySeasonEnd?: string;
+    soilTypes?: string[]; fertility?: string; drainage?: string;
   }) {
     try {
       const snap = await this.updateZone.execute({ id, actor: user.email, ...body });

@@ -17,11 +17,11 @@ describe('AgroEcologicalZone.update', () => {
     expect(s.koppen).toBe('BWh');
   });
 
-  it('préserve les champs avancés non éditables', () => {
+  it('préserve notes/metadata mais remplace les champs descriptifs non fournis', () => {
     const z = base().update({ name: TranslatableText.create({ fr: 'X' }), country: 'BF' });
     const s = z.toSnapshot();
     expect(s.notes).toBe('note conservée');
-    expect(s.annualRainfall?.optimal).toBe(600);
+    expect(s.annualRainfall).toBeUndefined(); // annualRainfall omis => effacé (remplacement total)
     expect(s.koppen).toBeUndefined(); // koppen omis => effacé
   });
 });
