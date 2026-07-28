@@ -62,6 +62,13 @@ export class PrismaPestRepository implements PestRepository {
       approvedProducts: (p.approvedProducts ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       knownResistances: (p.knownResistances ?? undefined) as Prisma.InputJsonValue | undefined,
       sources: (p.sources ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      firstSymptoms: (p.firstSymptoms ?? undefined) as Prisma.InputJsonValue | undefined,
+      advancedSymptoms: (p.advancedSymptoms ?? undefined) as Prisma.InputJsonValue | undefined,
+      confusionRisk: (p.confusionRisk ?? undefined) as Prisma.InputJsonValue | undefined,
+      pathogen: (p.pathogen ?? undefined) as Prisma.InputJsonValue | undefined,
+      propagationModes: (p.propagationModes ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
+      potentialLosses: (p.potentialLosses ?? undefined) as Prisma.InputJsonValue | undefined,
+      evolutionSpeed: p.evolutionSpeed ?? null,
     };
   }
 
@@ -101,6 +108,13 @@ export class PrismaPestRepository implements PestRepository {
       sources: (row.sources ?? undefined) as PestSnapshot['sources'],
       kind: row.kind as PestSnapshot['kind'],
       createdAt: row.createdAt.toISOString(),
+      firstSymptoms: (row.firstSymptoms ?? undefined) as Record<string, string> | undefined,
+      advancedSymptoms: (row.advancedSymptoms ?? undefined) as Record<string, string> | undefined,
+      confusionRisk: (row.confusionRisk ?? undefined) as Record<string, string> | undefined,
+      pathogen: (row.pathogen ?? undefined) as Record<string, string> | undefined,
+      propagationModes: (row.propagationModes ?? undefined) as string[] | undefined,
+      potentialLosses: (row.potentialLosses ?? undefined) as Record<string, string> | undefined,
+      evolutionSpeed: row.evolutionSpeed ?? undefined,
     };
   }
 }

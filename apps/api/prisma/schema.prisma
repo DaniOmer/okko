@@ -169,6 +169,13 @@ model Pest {
   parasitoids       Json?
   approvedProducts  Json?
   knownResistances  Json?
+  firstSymptoms     Json?
+  advancedSymptoms  Json?
+  confusionRisk     Json?
+  pathogen          Json?
+  propagationModes  Json?
+  potentialLosses   Json?
+  evolutionSpeed    String?
   sources        Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
