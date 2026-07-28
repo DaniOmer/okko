@@ -25,9 +25,9 @@ export function ZonePestPresenceEditor({ zoneId, links, allPests }: {
   const linkedIds = new Set(links.map((l) => l.pestId));
   const options = allPests.filter((p) => !linkedIds.has(p.id));
 
-  async function run(fn: () => Promise<unknown>) {
+  async function run(fn: () => Promise<unknown>, onSuccess?: () => void) {
     setBusy(true); setError(null);
-    try { await fn(); router.refresh(); }
+    try { await fn(); onSuccess?.(); router.refresh(); }
     catch (e) { setError(e instanceof Error ? e.message : 'Erreur'); }
     finally { setBusy(false); }
   }
@@ -53,7 +53,7 @@ export function ZonePestPresenceEditor({ zoneId, links, allPests }: {
                   <span className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">Détacher ?</span>
                     <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setConfirmId(null)}>Annuler</Button>
-                    <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => run(() => removeZonePest(zoneId, l.pestId)).then(() => setConfirmId(null))}>Détacher</Button>
+                    <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => run(() => removeZonePest(zoneId, l.pestId), () => setConfirmId(null))}>Détacher</Button>
                   </span>
                 ) : (
                   <button type="button" className="text-xs text-destructive" onClick={() => setConfirmId(l.pestId)}>Détacher</button>
@@ -85,7 +85,7 @@ export function ZonePestPresenceEditor({ zoneId, links, allPests }: {
             </SelectContent>
           </Select>
         </div>
-        <Button type="button" size="sm" disabled={busy || !pestId} onClick={() => run(() => setZonePest(zoneId, pestId, frequency)).then(() => setPestId(''))}>Rattacher</Button>
+        <Button type="button" size="sm" disabled={busy || !pestId} onClick={() => run(() => setZonePest(zoneId, pestId, frequency), () => setPestId(''))}>Rattacher</Button>
       </div>
     </section>
   );
