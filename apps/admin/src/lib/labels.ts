@@ -54,6 +54,11 @@ export const NUTRITION_BASIS_LABELS: Record<string, string> = {
 
 export const PEST_KIND_LABELS: Record<string, string> = { ANIMAL: 'Ravageur', DISEASE: 'Maladie', WEED: 'Adventice' };
 
+export const DISEASE_CATEGORY_LABELS: Record<string, string> = {
+  FUNGUS: 'Champignon', BACTERIA: 'Bactérie', VIRUS: 'Virus', PHYTOPLASMA: 'Phytoplasme',
+  OOMYCETE: 'Oomycète', DEFICIENCY: 'Carence', OTHER: 'Autre',
+};
+
 export const WEED_CATEGORY_LABELS: Record<string, string> = {
   ANNUAL_GRASS: 'Graminée annuelle', PERENNIAL_GRASS: 'Graminée vivace',
   ANNUAL_BROADLEAF: 'Dicotylédone annuelle', PERENNIAL_BROADLEAF: 'Dicotylédone vivace',
@@ -121,7 +126,7 @@ export const RESISTANCE_LEVEL_LABELS: Record<string, string> = { LOW: 'Faible', 
 export const SUITABILITY_RATING_LABELS: Record<string, string> = { SUITABLE: 'Apte', MARGINAL: 'Marginale', UNSUITABLE: 'Inapte' };
 
 export const ATTACKED_ORGAN_LABELS: Record<string, string> = {
-  ROOTS: 'Racines', STEMS: 'Tiges', LEAVES: 'Feuilles', FLOWERS: 'Fleurs', FRUITS: 'Fruits', SEEDS: 'Graines',
+  ROOTS: 'Racines', COLLAR: 'Collet', STEMS: 'Tiges', LEAVES: 'Feuilles', FLOWERS: 'Fleurs', FRUITS: 'Fruits', SEEDS: 'Graines',
 };
 
 export const DAMAGE_TYPE_LABELS: Record<string, string> = {
