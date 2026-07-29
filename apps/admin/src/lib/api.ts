@@ -8,7 +8,7 @@ export interface ImageRef { key: string; url: string; caption?: string; category
 
 export interface MinMaxRangeJSON { min: number; max: number; unit?: string; }
 export interface DevelopmentStage { name: Record<string, string>; durationDays?: MinMaxRangeJSON; }
-export interface FavorableConditions { temperature?: MinMaxRangeJSON; humidity?: MinMaxRangeJSON; rainfall?: MinMaxRangeJSON; notes?: Record<string, string>; }
+export interface FavorableConditions { temperature?: MinMaxRangeJSON; humidity?: MinMaxRangeJSON; rainfall?: MinMaxRangeJSON; wind?: MinMaxRangeJSON; notes?: Record<string, string>; }
 export interface PestBiology {
   lifeCycle?: Record<string, string>;
   cycleDurationDays?: MinMaxRangeJSON;
@@ -47,6 +47,16 @@ export interface PestWeed {
   disseminationCapacity?: string;
   emergenceDepth?: MinMaxRangeJSON;
   seedBankLongevity?: MinMaxRangeJSON;
+}
+
+export interface PestDisease {
+  firstSymptoms?: Record<string, string>;
+  advancedSymptoms?: Record<string, string>;
+  confusionRisk?: Record<string, string>;
+  pathogen?: Record<string, string>;
+  propagationModes?: string[];
+  potentialLosses?: Record<string, string>;
+  evolutionSpeed?: string;
 }
 
 export interface Source { title: string; url?: string; }
@@ -184,7 +194,7 @@ export async function getCropDiff(id: string, from: number, to: number): Promise
   return res.json();
 }
 
-export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement, PestSources, PestWeed {
+export interface Pest extends PestBiology, PestDamage, PestDistribution, PestManagement, PestSources, PestWeed, PestDisease {
   id: string; name: string; type: string; kind?: string; scientificName?: string;
   family?: string; description?: Record<string, string>; images: ImageRef[]; createdAt?: string; updatedAt?: string;
 }

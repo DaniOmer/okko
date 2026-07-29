@@ -144,6 +144,10 @@ export const NUISANCE_TYPE_LABELS: Record<string, string> = {
 export const REPRODUCTION_MODE_LABELS: Record<string, string> = {
   SEEDS: 'Graines', RHIZOMES: 'Rhizomes', STOLONS: 'Stolons', TUBERS: 'Tubercules',
 };
+export const PROPAGATION_MODE_LABELS: Record<string, string> = {
+  WIND: 'Vent', WATER: 'Eau', SOIL: 'Sol', SEEDS: 'Semences', TOOLS: 'Outils', INSECT_VECTORS: 'Insectes vecteurs', CONTACT: 'Contact',
+};
+export const EVOLUTION_SPEED_LABELS: Record<string, string> = { SLOW: 'Lente', MODERATE: 'Modérée', FAST: 'Rapide' };
 export const DISSEMINATION_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 
 export const FREQUENCY_LABELS: Record<string, string> = { OCCASIONAL: 'Occasionnel', FREQUENT: 'Fréquent', ENDEMIC: 'Endémique' };
