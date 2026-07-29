@@ -11,6 +11,7 @@ import type { Pest } from '@/lib/api';
 
 export function PestDamageEditor({ pest }: { pest: Pest }) {
   const isWeed = pest.kind === 'WEED';
+  const isDisease = pest.kind === 'DISEASE';
   const [symptoms, setSymptoms] = useState(pest.symptoms?.fr ?? '');
   const [organs, setOrgans] = useState<string[]>(pest.attackedOrgans ?? []);
   const [types, setTypes] = useState<string[]>(pest.damageTypes ?? []);
@@ -18,15 +19,15 @@ export function PestDamageEditor({ pest }: { pest: Pest }) {
   const [harmfulness, setHarmfulness] = useState(pest.harmfulnessLevel ?? '');
 
   return (
-    <EditorShell label={isWeed ? 'Modifier la nuisibilité' : 'Modifier les dégâts'}>
+    <EditorShell label={isWeed ? 'Modifier la nuisibilité' : isDisease ? 'Modifier les symptômes' : 'Modifier les dégâts'}>
       {({ submit, close, busy }) => (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
           {isWeed ? (
             <div className="space-y-1"><Label>Types de nuisibilité</Label><ChipMultiSelect options={NUISANCE_TYPE_LABELS} value={nuisance} onChange={setNuisance} /></div>
           ) : (
             <>
-              <div className="space-y-1"><Label>Organes attaqués</Label><ChipMultiSelect options={ATTACKED_ORGAN_LABELS} value={organs} onChange={setOrgans} /></div>
-              <div className="space-y-1"><Label>Types de dégâts</Label><ChipMultiSelect options={DAMAGE_TYPE_LABELS} value={types} onChange={setTypes} /></div>
+              <div className="space-y-1"><Label>{isDisease ? 'Organes atteints' : 'Organes attaqués'}</Label><ChipMultiSelect options={ATTACKED_ORGAN_LABELS} value={organs} onChange={setOrgans} /></div>
+              {!isDisease && <div className="space-y-1"><Label>Types de dégâts</Label><ChipMultiSelect options={DAMAGE_TYPE_LABELS} value={types} onChange={setTypes} /></div>}
             </>
           )}
           <div className="space-y-1">
@@ -48,7 +49,7 @@ export function PestDamageEditor({ pest }: { pest: Pest }) {
               await setPestDamage(pest.id, {
                 symptoms: symptoms ? { fr: symptoms } : undefined,
                 attackedOrgans: isWeed ? undefined : organs,
-                damageTypes: isWeed ? undefined : types,
+                damageTypes: (isWeed || isDisease) ? undefined : types,
                 nuisanceTypes: isWeed ? nuisance : undefined,
                 harmfulnessLevel: harmfulness || undefined,
               });

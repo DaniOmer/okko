@@ -1,7 +1,7 @@
 'use client';
 
 import type { Pest } from '../../../lib/api';
-import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS, DISEASE_CATEGORY_LABELS, NUISANCE_TYPE_LABELS, REPRODUCTION_MODE_LABELS, DISSEMINATION_LABELS } from '@/lib/labels';
+import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS, DISEASE_CATEGORY_LABELS, NUISANCE_TYPE_LABELS, REPRODUCTION_MODE_LABELS, DISSEMINATION_LABELS, PROPAGATION_MODE_LABELS, EVOLUTION_SPEED_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
 import { Images, Dna, Bug, MapPin, ShieldCheck, BookOpen, Sprout } from 'lucide-react';
 
@@ -19,9 +19,13 @@ export function PestFicheView({ pest }: { pest: Pest }) {
   const hasWeedTraits = !!((b.reproductionMode?.length) || b.disseminationCapacity || b.emergenceDepth || b.seedBankLongevity);
   const monthOrder = Object.keys(MONTH_LABELS);
   const range = (r?: { min: number; max: number; unit?: string }) => (r ? `${r.min}–${r.max}${r.unit ? ' ' + r.unit : ''}` : null);
+  const hasDiseaseDev = !!(b.pathogen?.fr || (b.propagationModes?.length));
+  const hasImpacts = !!(b.harmfulnessLevel || b.potentialLosses?.fr || b.evolutionSpeed);
   const hasBiology = !!(b.lifeCycle?.fr || b.cycleDurationDays || (b.developmentStages?.length) || b.generationsPerYear || (b.activityPeriods?.length) ||
-    b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr || (isWeed && hasWeedTraits));
-  const hasDamage = !!((b.attackedOrgans?.length) || (b.damageTypes?.length) || b.harmfulnessLevel || b.symptoms?.fr || (b.nuisanceTypes?.length));
+    b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr || (isWeed && hasWeedTraits) ||
+    (isDisease && (hasDiseaseDev || b.activityPeriods?.length || b.favorableConditions?.wind)));
+  const hasDamage = !!((b.attackedOrgans?.length) || (b.damageTypes?.length) || b.harmfulnessLevel || b.symptoms?.fr || (b.nuisanceTypes?.length) ||
+    (isDisease && (b.firstSymptoms?.fr || b.advancedSymptoms?.fr || b.confusionRisk?.fr)));
   const hasDistribution = !!((b.geographicAreas?.length) || b.favorableClimate?.fr || b.knownPresence?.fr);
   const hasManagement = !!(b.prevention?.fr || b.biologicalControl?.fr || (b.predators?.length) || (b.parasitoids?.length) || (b.approvedProducts?.length) || b.knownResistances?.fr);
   const hasSources = (b.sources?.length ?? 0) > 0;
@@ -74,13 +78,13 @@ export function PestFicheView({ pest }: { pest: Pest }) {
           <section className="scroll-mt-16 border-t py-6">
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eef3f7] text-[#2c5a8a]"><Dna className="h-4 w-4" /></span>
-              Biologie
+              {isDisease ? 'Développement' : 'Biologie'}
             </h2>
             <div className="space-y-2 text-sm">
-              {b.lifeCycle?.fr && <p><span className="text-muted-foreground">Cycle de vie : </span>{b.lifeCycle.fr}</p>}
-              {range(b.cycleDurationDays) && <p><span className="text-muted-foreground">Durée du cycle : </span>{range(b.cycleDurationDays)}</p>}
-              {!isWeed && range(b.generationsPerYear) && <p><span className="text-muted-foreground">Générations/an : </span>{range(b.generationsPerYear)}</p>}
-              {(b.developmentStages?.length ?? 0) > 0 && (
+              {!isDisease && b.lifeCycle?.fr && <p><span className="text-muted-foreground">Cycle de vie : </span>{b.lifeCycle.fr}</p>}
+              {!isDisease && range(b.cycleDurationDays) && <p><span className="text-muted-foreground">Durée du cycle : </span>{range(b.cycleDurationDays)}</p>}
+              {!isWeed && !isDisease && range(b.generationsPerYear) && <p><span className="text-muted-foreground">Générations/an : </span>{range(b.generationsPerYear)}</p>}
+              {!isDisease && (b.developmentStages?.length ?? 0) > 0 && (
                 <div>
                   <span className="text-muted-foreground">Stades : </span>
                   {b.developmentStages!.map((s, i) => (
@@ -90,19 +94,27 @@ export function PestFicheView({ pest }: { pest: Pest }) {
               )}
               {(b.activityPeriods?.length ?? 0) > 0 && (
                 <div className="flex flex-wrap items-center gap-1">
-                  <span className="text-muted-foreground">Activité : </span>
+                  <span className="text-muted-foreground">{isDisease ? 'Périodes à risque' : 'Activité'} : </span>
                   {monthOrder.filter((m) => b.activityPeriods!.includes(m)).map((m) => (
                     <span key={m} className="rounded-full bg-[#eef3f7] px-2 py-0.5 text-xs text-[#2c5a8a]">{MONTH_LABELS[m].slice(0, 4)}</span>
                   ))}
                 </div>
               )}
-              {(range(b.favorableConditions?.temperature) || range(b.favorableConditions?.humidity) || range(b.favorableConditions?.rainfall) || b.favorableConditions?.notes?.fr) && (
+              {(range(b.favorableConditions?.temperature) || range(b.favorableConditions?.humidity) || range(b.favorableConditions?.rainfall) || range(b.favorableConditions?.wind) || b.favorableConditions?.notes?.fr) && (
                 <div>
                   <span className="text-muted-foreground">Conditions favorables : </span>
                   {[range(b.favorableConditions?.temperature) && `T° ${range(b.favorableConditions?.temperature)}`,
                     range(b.favorableConditions?.humidity) && `Humidité ${range(b.favorableConditions?.humidity)}`,
-                    range(b.favorableConditions?.rainfall) && `Pluie ${range(b.favorableConditions?.rainfall)}`].filter(Boolean).join(' · ')}
+                    range(b.favorableConditions?.rainfall) && `Pluie ${range(b.favorableConditions?.rainfall)}`,
+                    range(b.favorableConditions?.wind) && `Vent ${range(b.favorableConditions?.wind)}`].filter(Boolean).join(' · ')}
                   {b.favorableConditions?.notes?.fr && <span className="text-muted-foreground"> — {b.favorableConditions.notes.fr}</span>}
+                </div>
+              )}
+              {isDisease && b.pathogen?.fr && <p><span className="text-muted-foreground">Agent pathogène : </span>{b.pathogen.fr}</p>}
+              {isDisease && (b.propagationModes?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="text-muted-foreground">Propagation : </span>
+                  {b.propagationModes!.map((m) => <span key={m} className="rounded-full bg-[#eef3f7] px-2 py-0.5 text-xs text-[#2c5a8a]">{labelOf(PROPAGATION_MODE_LABELS, m)}</span>)}
                 </div>
               )}
               {isWeed && (b.reproductionMode?.length ?? 0) > 0 && (
@@ -122,8 +134,8 @@ export function PestFicheView({ pest }: { pest: Pest }) {
           <section className="scroll-mt-16 border-t py-6">
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f6efe6] text-[#8a5a2c]">{isWeed ? <Sprout className="h-4 w-4" /> : <Bug className="h-4 w-4" />}</span>
-              {isWeed ? 'Nuisibilité' : 'Dégâts'}
-              {b.harmfulnessLevel && (
+              {isWeed ? 'Nuisibilité' : isDisease ? 'Symptômes' : 'Dégâts'}
+              {!isDisease && b.harmfulnessLevel && (
                 <span className="ml-1 rounded-full bg-[#f6efe6] px-2 py-0.5 text-xs font-medium text-[#8a5a2c]">
                   {labelOf(HARMFULNESS_LABELS, b.harmfulnessLevel)}
                 </span>
@@ -136,7 +148,7 @@ export function PestFicheView({ pest }: { pest: Pest }) {
                   {b.attackedOrgans!.map((o) => <span key={o} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{labelOf(ATTACKED_ORGAN_LABELS, o)}</span>)}
                 </div>
               )}
-              {!isWeed && (b.damageTypes?.length ?? 0) > 0 && (
+              {!isWeed && !isDisease && (b.damageTypes?.length ?? 0) > 0 && (
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="text-muted-foreground">Types de dégâts : </span>
                   {b.damageTypes!.map((t) => <span key={t} className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-xs">{labelOf(DAMAGE_TYPE_LABELS, t)}</span>)}
@@ -149,6 +161,23 @@ export function PestFicheView({ pest }: { pest: Pest }) {
                 </div>
               )}
               {b.symptoms?.fr && <p><span className="text-muted-foreground">{isWeed ? 'Effets observés' : 'Symptômes'} : </span>{b.symptoms.fr}</p>}
+              {isDisease && b.firstSymptoms?.fr && <p><span className="text-muted-foreground">Premiers symptômes : </span>{b.firstSymptoms.fr}</p>}
+              {isDisease && b.advancedSymptoms?.fr && <p><span className="text-muted-foreground">Symptômes avancés : </span>{b.advancedSymptoms.fr}</p>}
+              {isDisease && b.confusionRisk?.fr && <p><span className="text-muted-foreground">Risque de confusion : </span>{b.confusionRisk.fr}</p>}
+            </div>
+          </section>
+        )}
+
+        {isDisease && hasImpacts && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#f6efe6] text-[#8a5a2c]"><Bug className="h-4 w-4" /></span>
+              Impacts
+            </h2>
+            <div className="space-y-2 text-sm">
+              {b.harmfulnessLevel && <p><span className="text-muted-foreground">Gravité : </span>{labelOf(HARMFULNESS_LABELS, b.harmfulnessLevel)}</p>}
+              {b.potentialLosses?.fr && <p><span className="text-muted-foreground">Pertes potentielles : </span>{b.potentialLosses.fr}</p>}
+              {b.evolutionSpeed && <p><span className="text-muted-foreground">Vitesse d&apos;évolution : </span>{labelOf(EVOLUTION_SPEED_LABELS, b.evolutionSpeed)}</p>}
             </div>
           </section>
         )}

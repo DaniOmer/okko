@@ -219,3 +219,8 @@ export async function setPestWeed(id: string, weed: import('./api').PestWeed): P
   const res = await authFetch(`/pests/${id}/weed`, jsonInit('PATCH', weed));
   return res.json();
 }
+
+export async function setPestDisease(id: string, disease: import('./api').PestDisease): Promise<Pest> {
+  const res = await authFetch(`/pests/${id}/disease`, jsonInit('PATCH', disease));
+  return res.json();
+}

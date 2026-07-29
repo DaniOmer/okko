@@ -108,6 +108,19 @@ describe('toPestDocument', () => {
     expect(doc.serializedText).toContain('Dissémination');
   });
 
+  it('expose les champs maladie', () => {
+    const doc = toPestDocument({
+      id: 'p1', name: { fr: 'Mildiou' }, type: PestType.OOMYCETE, kind: PestKind.DISEASE,
+      images: [], metadata: {},
+      pathogen: { fr: 'Phytophthora infestans' }, propagationModes: ['WIND'],
+      firstSymptoms: { fr: 'taches' }, evolutionSpeed: 'FAST', potentialLosses: { fr: '30%' },
+    } as never);
+    expect(doc.pathogen).toEqual({ fr: 'Phytophthora infestans' });
+    expect(doc.propagationModes).toEqual(['WIND']);
+    expect(doc.evolutionSpeed).toBe('FAST');
+    expect(doc.serializedText).toContain('Agent pathogène');
+  });
+
   it('exposes damage fields and serializes attackedOrgans, damageTypes, harmfulnessLevel', () => {
     const snapWithDamage = {
       id: 'p3',

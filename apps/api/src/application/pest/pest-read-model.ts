@@ -41,6 +41,13 @@ export interface PestDocument {
   parasitoids?: string[];
   approvedProducts?: PestSnapshot['approvedProducts'];
   knownResistances?: Record<string, string>;
+  firstSymptoms?: Record<string, string>;
+  advancedSymptoms?: Record<string, string>;
+  confusionRisk?: Record<string, string>;
+  pathogen?: Record<string, string>;
+  propagationModes?: string[];
+  potentialLosses?: Record<string, string>;
+  evolutionSpeed?: string;
 }
 
 export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
@@ -71,6 +78,13 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.lifeCycle) lines.push(`Cycle de vie : ${p.lifeCycle[locale] ?? p.lifeCycle['fr']}`);
   if (p.cycleDurationDays) lines.push(`Durée du cycle : ${p.cycleDurationDays.min}–${p.cycleDurationDays.max} j`);
   if (p.generationsPerYear) lines.push(`Générations/an : ${p.generationsPerYear.min}–${p.generationsPerYear.max}`);
+  if (p.pathogen) lines.push(`Agent pathogène : ${p.pathogen[locale] ?? p.pathogen['fr']}`);
+  if (p.propagationModes?.length) lines.push(`Propagation : ${p.propagationModes.join(', ')}`);
+  if (p.firstSymptoms) lines.push(`Premiers symptômes : ${p.firstSymptoms[locale] ?? p.firstSymptoms['fr']}`);
+  if (p.advancedSymptoms) lines.push(`Symptômes avancés : ${p.advancedSymptoms[locale] ?? p.advancedSymptoms['fr']}`);
+  if (p.confusionRisk) lines.push(`Risque de confusion : ${p.confusionRisk[locale] ?? p.confusionRisk['fr']}`);
+  if (p.potentialLosses) lines.push(`Pertes potentielles : ${p.potentialLosses[locale] ?? p.potentialLosses['fr']}`);
+  if (p.evolutionSpeed) lines.push(`Vitesse d'évolution : ${p.evolutionSpeed}`);
   return {
     id: p.id, name, type: p.type, kind: p.kind, scientificName: p.scientificName,
     family: p.family, description: p.description, updatedAt: p.updatedAt,
@@ -88,5 +102,7 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
     prevention: p.prevention, biologicalControl: p.biologicalControl,
     predators: p.predators, parasitoids: p.parasitoids,
     approvedProducts: p.approvedProducts, knownResistances: p.knownResistances,
+    firstSymptoms: p.firstSymptoms, advancedSymptoms: p.advancedSymptoms, confusionRisk: p.confusionRisk,
+    pathogen: p.pathogen, propagationModes: p.propagationModes, potentialLosses: p.potentialLosses, evolutionSpeed: p.evolutionSpeed,
   };
 }

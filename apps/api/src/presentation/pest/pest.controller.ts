@@ -12,6 +12,7 @@ import { SetPestDistributionUseCase } from '../../application/pest/set-pest-dist
 import { SetPestManagementUseCase } from '../../application/pest/set-pest-management.use-case';
 import { SetPestSourcesUseCase } from '../../application/pest/set-pest-sources.use-case';
 import { SetPestWeedUseCase } from '../../application/pest/set-pest-weed.use-case';
+import { SetPestDiseaseUseCase } from '../../application/pest/set-pest-disease.use-case';
 import { MinMaxRangeJSON } from '../../domain/shared/min-max-range';
 import { PEST_REPOSITORY, PestRepository } from '../../application/pest/pest.repository';
 import { toPestDocument } from '../../application/pest/pest-read-model';
@@ -36,6 +37,7 @@ export class PestController {
     private readonly setPestManagement: SetPestManagementUseCase,
     private readonly setPestSources: SetPestSourcesUseCase,
     private readonly setPestWeed: SetPestWeedUseCase,
+    private readonly setPestDisease: SetPestDiseaseUseCase,
     @Inject(PEST_REPOSITORY) private readonly pests: PestRepository,
     @Inject(STORAGE_PORT) private readonly storage: StoragePort,
   ) {}
@@ -147,6 +149,20 @@ export class PestController {
   }) {
     try {
       const snap = await this.setPestWeed.execute({ id, actor: user.email, ...body });
+      return this.toResponse(snap);
+    } catch (e) {
+      if (e instanceof PestNotFoundError) throw new NotFoundException(id);
+      throw e;
+    }
+  }
+
+  @Patch(':id/disease')
+  async disease(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: {
+    firstSymptoms?: Record<string, string>; advancedSymptoms?: Record<string, string>; confusionRisk?: Record<string, string>;
+    pathogen?: Record<string, string>; propagationModes?: string[]; potentialLosses?: Record<string, string>; evolutionSpeed?: string;
+  }) {
+    try {
+      const snap = await this.setPestDisease.execute({ id, actor: user.email, ...body });
       return this.toResponse(snap);
     } catch (e) {
       if (e instanceof PestNotFoundError) throw new NotFoundException(id);
