@@ -19,6 +19,7 @@ export function PestBiologyEditor({ pest }: { pest: Pest }) {
   const [temperature, setTemperature] = useState<MinMax | undefined>(pest.favorableConditions?.temperature);
   const [humidity, setHumidity] = useState<MinMax | undefined>(pest.favorableConditions?.humidity);
   const [rainfall, setRainfall] = useState<MinMax | undefined>(pest.favorableConditions?.rainfall);
+  const [wind, setWind] = useState<MinMax | undefined>(pest.favorableConditions?.wind);
   const [condNotes, setCondNotes] = useState(pest.favorableConditions?.notes?.fr ?? '');
 
   return (
@@ -38,6 +39,7 @@ export function PestBiologyEditor({ pest }: { pest: Pest }) {
             <MinMaxRangeInput label="Température" unit="°C" value={temperature} onChange={setTemperature} />
             <MinMaxRangeInput label="Humidité" unit="%" value={humidity} onChange={setHumidity} />
             <MinMaxRangeInput label="Pluie" unit="mm" value={rainfall} onChange={setRainfall} />
+            <MinMaxRangeInput label="Vent" unit="km/h" value={wind} onChange={setWind} />
             <div className="space-y-1">
               <Label>Note</Label>
               <textarea className="min-h-12 w-full rounded-md border px-3 py-2 text-sm" value={condNotes} onChange={(e) => setCondNotes(e.target.value)} />
@@ -52,8 +54,8 @@ export function PestBiologyEditor({ pest }: { pest: Pest }) {
                 developmentStages: stages.filter((s) => (s.name.fr ?? '').trim() !== ''),
                 generationsPerYear: isWeed ? undefined : generations,
                 activityPeriods: months,
-                favorableConditions: (temperature || humidity || rainfall || condNotes)
-                  ? { temperature, humidity, rainfall, notes: condNotes ? { fr: condNotes } : undefined }
+                favorableConditions: (temperature || humidity || rainfall || wind || condNotes)
+                  ? { temperature, humidity, rainfall, wind, notes: condNotes ? { fr: condNotes } : undefined }
                   : undefined,
               });
             })}>Enregistrer</Button>
