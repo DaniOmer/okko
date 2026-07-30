@@ -25,3 +25,27 @@ describe('EdaphicRequirements', () => {
     expect(e.toJSON().ph).toBeUndefined();
   });
 });
+
+describe('EdaphicRequirements — profondeur / fertilité / salinité (ECOCROP)', () => {
+  it('round-trip conserve soilDepth, fertilityRequirement, salinityTolerance', () => {
+    const e = EdaphicRequirements.create({
+      soilDepth: RangeValue.create({ min: 60, optimal: 100, max: 150, unit: 'cm' }),
+      fertilityRequirement: 'MEDIUM',
+      salinityTolerance: 'SENSITIVE',
+    });
+    const json = e.toJSON();
+    expect(json.soilDepth).toEqual({ min: 60, optimal: 100, max: 150, unit: 'cm' });
+    expect(json.fertilityRequirement).toBe('MEDIUM');
+    expect(json.salinityTolerance).toBe('SENSITIVE');
+    const back = EdaphicRequirements.fromJSON(json);
+    expect(back.soilDepth?.optimal).toBe(100);
+    expect(back.fertilityRequirement).toBe('MEDIUM');
+    expect(back.salinityTolerance).toBe('SENSITIVE');
+  });
+  it('champs absents → undefined', () => {
+    const json = EdaphicRequirements.create({}).toJSON();
+    expect(json.soilDepth).toBeUndefined();
+    expect(json.fertilityRequirement).toBeUndefined();
+    expect(json.salinityTolerance).toBeUndefined();
+  });
+});
