@@ -163,9 +163,7 @@ export const PHOTOPERIOD_RESPONSE_LABELS: Record<string, string> = {
 export const SALINITY_TOLERANCE_LABELS: Record<string, string> = {
   SENSITIVE: 'Sensible', MODERATELY_TOLERANT: 'Moyennement tolérante', TOLERANT: 'Tolérante',
 };
-export const DRAINAGE_LABELS: Record<string, string> = {
-  POOR: 'Mauvais (hydromorphe)', MODERATE: 'Modéré', WELL: 'Bon (drainant)', EXCESSIVE: 'Excessif',
-};
+export const DRAINAGE_LABELS: Record<string, string> = { POOR: 'Faible', MODERATE: 'Modéré', GOOD: 'Bon' };
 
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {
