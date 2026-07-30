@@ -157,7 +157,15 @@ export const CLIMATE_TYPE_LABELS: Record<string, string> = {
   MEDITERRANEAN: 'Méditerranéen', TEMPERATE: 'Tempéré', HIGHLAND: 'Montagnard',
 };
 export const FERTILITY_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
-export const DRAINAGE_LABELS: Record<string, string> = { POOR: 'Faible', MODERATE: 'Modéré', GOOD: 'Bon' };
+export const PHOTOPERIOD_RESPONSE_LABELS: Record<string, string> = {
+  DAY_NEUTRAL: 'Indifférente (jour-neutre)', SHORT_DAY: 'Jour court', LONG_DAY: 'Jour long',
+};
+export const SALINITY_TOLERANCE_LABELS: Record<string, string> = {
+  SENSITIVE: 'Sensible', MODERATELY_TOLERANT: 'Moyennement tolérante', TOLERANT: 'Tolérante',
+};
+export const DRAINAGE_LABELS: Record<string, string> = {
+  POOR: 'Mauvais (hydromorphe)', MODERATE: 'Modéré', WELL: 'Bon (drainant)', EXCESSIVE: 'Excessif',
+};
 
 // Résout un code en FR ; repli défensif sur le code si non mappé (jamais de blanc).
 export function labelOf(map: Record<string, string>, code: string): string {

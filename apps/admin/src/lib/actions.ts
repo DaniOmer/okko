@@ -61,8 +61,15 @@ export async function setRequirements(cropId: string, body: {
                rainfall?: { min: number; optimal: number; max: number; unit: string };
                altitude?: { min: number; optimal: number; max: number; unit: string };
                waterNeed?: string;
-               droughtSensitivity?: string };
-  edaphic?: { ph?: { min: number; optimal: number; max: number; unit: string }; texture?: string; drainage?: string };
+               droughtSensitivity?: string;
+               photoperiodResponse?: string;
+               criticalDayLength?: { min: number; optimal: number; max: number; unit: string } };
+  edaphic?: { ph?: { min: number; optimal: number; max: number; unit: string };
+              texture?: string;
+              drainage?: string;
+              soilDepth?: { min: number; optimal: number; max: number; unit: string };
+              fertilityRequirement?: string;
+              salinityTolerance?: string };
 }): Promise<unknown> {
   const res = await authFetch(`/crops/${cropId}/requirements`, jsonInit('PATCH', body));
   return res.json().catch(() => undefined);
