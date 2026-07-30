@@ -3,7 +3,7 @@
 import type { Pest } from '../../../lib/api';
 import { labelOf, PEST_TYPE_LABELS, PEST_PHOTO_CATEGORY_LABELS, MONTH_LABELS, ATTACKED_ORGAN_LABELS, DAMAGE_TYPE_LABELS, HARMFULNESS_LABELS, PEST_KIND_LABELS, WEED_CATEGORY_LABELS, DISEASE_CATEGORY_LABELS, NUISANCE_TYPE_LABELS, REPRODUCTION_MODE_LABELS, DISSEMINATION_LABELS, PROPAGATION_MODE_LABELS, EVOLUTION_SPEED_LABELS } from '@/lib/labels';
 import { PhotoCarousel } from '@/components/fiche/PhotoCarousel';
-import { Images, Dna, Bug, MapPin, ShieldCheck, BookOpen, Sprout } from 'lucide-react';
+import { Images, Dna, Bug, MapPin, ShieldCheck, BookOpen, Sprout, Leaf } from 'lucide-react';
 
 export function PestFicheView({ pest }: { pest: Pest }) {
   const photos = (pest.images ?? []).map((img) => ({
@@ -21,6 +21,7 @@ export function PestFicheView({ pest }: { pest: Pest }) {
   const range = (r?: { min: number; max: number; unit?: string }) => (r ? `${r.min}–${r.max}${r.unit ? ' ' + r.unit : ''}` : null);
   const hasDiseaseDev = !!(b.pathogen?.fr || (b.propagationModes?.length));
   const hasImpacts = !!(b.harmfulnessLevel || b.potentialLosses?.fr || b.evolutionSpeed);
+  const hasPrevention = !!(b.cropRotation?.fr || b.resistantVarieties?.fr || b.prophylaxis?.fr || b.irrigationControl?.fr || b.disinfection?.fr || b.culturalControl?.fr || b.chemicalControl?.fr || b.curativeTreatment?.fr);
   const hasBiology = !!(b.lifeCycle?.fr || b.cycleDurationDays || (b.developmentStages?.length) || b.generationsPerYear || (b.activityPeriods?.length) ||
     b.favorableConditions?.temperature || b.favorableConditions?.humidity || b.favorableConditions?.rainfall || b.favorableConditions?.notes?.fr || (isWeed && hasWeedTraits) ||
     (isDisease && (hasDiseaseDev || b.activityPeriods?.length || b.favorableConditions?.wind)));
@@ -178,6 +179,25 @@ export function PestFicheView({ pest }: { pest: Pest }) {
               {b.harmfulnessLevel && <p><span className="text-muted-foreground">Gravité : </span>{labelOf(HARMFULNESS_LABELS, b.harmfulnessLevel)}</p>}
               {b.potentialLosses?.fr && <p><span className="text-muted-foreground">Pertes potentielles : </span>{b.potentialLosses.fr}</p>}
               {b.evolutionSpeed && <p><span className="text-muted-foreground">Vitesse d&apos;évolution : </span>{labelOf(EVOLUTION_SPEED_LABELS, b.evolutionSpeed)}</p>}
+            </div>
+          </section>
+        )}
+
+        {isDisease && hasPrevention && (
+          <section className="scroll-mt-16 border-t py-6">
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-[7px] bg-[#eaf3ea] text-[#245c27]"><Leaf className="h-4 w-4" /></span>
+              Prévention
+            </h2>
+            <div className="space-y-2 text-sm">
+              {b.cropRotation?.fr && <p><span className="text-muted-foreground">Rotation des cultures : </span>{b.cropRotation.fr}</p>}
+              {b.resistantVarieties?.fr && <p><span className="text-muted-foreground">Variétés résistantes : </span>{b.resistantVarieties.fr}</p>}
+              {b.prophylaxis?.fr && <p><span className="text-muted-foreground">Prophylaxie : </span>{b.prophylaxis.fr}</p>}
+              {b.irrigationControl?.fr && <p><span className="text-muted-foreground">Irrigation : </span>{b.irrigationControl.fr}</p>}
+              {b.disinfection?.fr && <p><span className="text-muted-foreground">Désinfection : </span>{b.disinfection.fr}</p>}
+              {b.culturalControl?.fr && <p><span className="text-muted-foreground">Lutte culturale : </span>{b.culturalControl.fr}</p>}
+              {b.chemicalControl?.fr && <p><span className="text-muted-foreground">Lutte chimique : </span>{b.chemicalControl.fr}</p>}
+              {b.curativeTreatment?.fr && <p><span className="text-muted-foreground">Lutte curative : </span>{b.curativeTreatment.fr}</p>}
             </div>
           </section>
         )}
