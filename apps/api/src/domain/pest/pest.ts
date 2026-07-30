@@ -76,6 +76,14 @@ export interface PestSnapshot {
   propagationModes?: string[];
   potentialLosses?: Record<string, string>;
   evolutionSpeed?: string;
+  cropRotation?: Record<string, string>;
+  resistantVarieties?: Record<string, string>;
+  prophylaxis?: Record<string, string>;
+  irrigationControl?: Record<string, string>;
+  disinfection?: Record<string, string>;
+  culturalControl?: Record<string, string>;
+  chemicalControl?: Record<string, string>;
+  curativeTreatment?: Record<string, string>;
   reproductionMode?: string[];
   disseminationCapacity?: string;
   emergenceDepth?: MinMaxRangeJSON;
@@ -278,6 +286,8 @@ export class Pest {
     const disease: DiseaseSnapshot = {
       firstSymptoms: d.firstSymptoms, advancedSymptoms: d.advancedSymptoms, confusionRisk: d.confusionRisk,
       pathogen: d.pathogen, propagationModes: d.propagationModes, potentialLosses: d.potentialLosses, evolutionSpeed: d.evolutionSpeed,
+      cropRotation: d.cropRotation, resistantVarieties: d.resistantVarieties, prophylaxis: d.prophylaxis, irrigationControl: d.irrigationControl,
+      disinfection: d.disinfection, culturalControl: d.culturalControl, chemicalControl: d.chemicalControl, curativeTreatment: d.curativeTreatment,
     };
     return new Pest(
       this._id, this._name, this._type, this._scientificName, this._family, this._description,
@@ -307,7 +317,7 @@ export class Pest {
       s.sources ?? [],
       s.kind ?? PestKind.ANIMAL,
       { reproductionMode: s.reproductionMode, disseminationCapacity: s.disseminationCapacity, emergenceDepth: s.emergenceDepth, seedBankLongevity: s.seedBankLongevity },
-      { firstSymptoms: s.firstSymptoms, advancedSymptoms: s.advancedSymptoms, confusionRisk: s.confusionRisk, pathogen: s.pathogen, propagationModes: s.propagationModes, potentialLosses: s.potentialLosses, evolutionSpeed: s.evolutionSpeed },
+      { firstSymptoms: s.firstSymptoms, advancedSymptoms: s.advancedSymptoms, confusionRisk: s.confusionRisk, pathogen: s.pathogen, propagationModes: s.propagationModes, potentialLosses: s.potentialLosses, evolutionSpeed: s.evolutionSpeed, cropRotation: s.cropRotation, resistantVarieties: s.resistantVarieties, prophylaxis: s.prophylaxis, irrigationControl: s.irrigationControl, disinfection: s.disinfection, culturalControl: s.culturalControl, chemicalControl: s.chemicalControl, curativeTreatment: s.curativeTreatment },
     );
   }
 }

@@ -176,6 +176,14 @@ model Pest {
   propagationModes  Json?
   potentialLosses   Json?
   evolutionSpeed    String?
+  cropRotation       Json?
+  resistantVarieties Json?
+  prophylaxis        Json?
+  irrigationControl  Json?
+  disinfection       Json?
+  culturalControl    Json?
+  chemicalControl    Json?
+  curativeTreatment  Json?
   sources        Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt

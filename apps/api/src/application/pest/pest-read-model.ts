@@ -48,6 +48,14 @@ export interface PestDocument {
   propagationModes?: string[];
   potentialLosses?: Record<string, string>;
   evolutionSpeed?: string;
+  cropRotation?: Record<string, string>;
+  resistantVarieties?: Record<string, string>;
+  prophylaxis?: Record<string, string>;
+  irrigationControl?: Record<string, string>;
+  disinfection?: Record<string, string>;
+  culturalControl?: Record<string, string>;
+  chemicalControl?: Record<string, string>;
+  curativeTreatment?: Record<string, string>;
 }
 
 export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
@@ -85,6 +93,14 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
   if (p.confusionRisk) lines.push(`Risque de confusion : ${p.confusionRisk[locale] ?? p.confusionRisk['fr']}`);
   if (p.potentialLosses) lines.push(`Pertes potentielles : ${p.potentialLosses[locale] ?? p.potentialLosses['fr']}`);
   if (p.evolutionSpeed) lines.push(`Vitesse d'évolution : ${p.evolutionSpeed}`);
+  if (p.cropRotation) lines.push(`Rotation des cultures : ${p.cropRotation[locale] ?? p.cropRotation['fr']}`);
+  if (p.resistantVarieties) lines.push(`Variétés résistantes : ${p.resistantVarieties[locale] ?? p.resistantVarieties['fr']}`);
+  if (p.prophylaxis) lines.push(`Prophylaxie : ${p.prophylaxis[locale] ?? p.prophylaxis['fr']}`);
+  if (p.irrigationControl) lines.push(`Irrigation : ${p.irrigationControl[locale] ?? p.irrigationControl['fr']}`);
+  if (p.disinfection) lines.push(`Désinfection : ${p.disinfection[locale] ?? p.disinfection['fr']}`);
+  if (p.culturalControl) lines.push(`Lutte culturale : ${p.culturalControl[locale] ?? p.culturalControl['fr']}`);
+  if (p.chemicalControl) lines.push(`Lutte chimique : ${p.chemicalControl[locale] ?? p.chemicalControl['fr']}`);
+  if (p.curativeTreatment) lines.push(`Lutte curative : ${p.curativeTreatment[locale] ?? p.curativeTreatment['fr']}`);
   return {
     id: p.id, name, type: p.type, kind: p.kind, scientificName: p.scientificName,
     family: p.family, description: p.description, updatedAt: p.updatedAt,
@@ -104,5 +120,7 @@ export function toPestDocument(p: PestSnapshot, locale = 'fr'): PestDocument {
     approvedProducts: p.approvedProducts, knownResistances: p.knownResistances,
     firstSymptoms: p.firstSymptoms, advancedSymptoms: p.advancedSymptoms, confusionRisk: p.confusionRisk,
     pathogen: p.pathogen, propagationModes: p.propagationModes, potentialLosses: p.potentialLosses, evolutionSpeed: p.evolutionSpeed,
+    cropRotation: p.cropRotation, resistantVarieties: p.resistantVarieties, prophylaxis: p.prophylaxis, irrigationControl: p.irrigationControl,
+    disinfection: p.disinfection, culturalControl: p.culturalControl, chemicalControl: p.chemicalControl, curativeTreatment: p.curativeTreatment,
   };
 }

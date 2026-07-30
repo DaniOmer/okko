@@ -69,6 +69,14 @@ export class PrismaPestRepository implements PestRepository {
       propagationModes: (p.propagationModes ?? undefined) as unknown as Prisma.InputJsonValue | undefined,
       potentialLosses: (p.potentialLosses ?? undefined) as Prisma.InputJsonValue | undefined,
       evolutionSpeed: p.evolutionSpeed ?? null,
+      cropRotation: (p.cropRotation ?? undefined) as Prisma.InputJsonValue | undefined,
+      resistantVarieties: (p.resistantVarieties ?? undefined) as Prisma.InputJsonValue | undefined,
+      prophylaxis: (p.prophylaxis ?? undefined) as Prisma.InputJsonValue | undefined,
+      irrigationControl: (p.irrigationControl ?? undefined) as Prisma.InputJsonValue | undefined,
+      disinfection: (p.disinfection ?? undefined) as Prisma.InputJsonValue | undefined,
+      culturalControl: (p.culturalControl ?? undefined) as Prisma.InputJsonValue | undefined,
+      chemicalControl: (p.chemicalControl ?? undefined) as Prisma.InputJsonValue | undefined,
+      curativeTreatment: (p.curativeTreatment ?? undefined) as Prisma.InputJsonValue | undefined,
     };
   }
 
@@ -115,6 +123,14 @@ export class PrismaPestRepository implements PestRepository {
       propagationModes: (row.propagationModes ?? undefined) as string[] | undefined,
       potentialLosses: (row.potentialLosses ?? undefined) as Record<string, string> | undefined,
       evolutionSpeed: row.evolutionSpeed ?? undefined,
+      cropRotation: (row.cropRotation ?? undefined) as Record<string, string> | undefined,
+      resistantVarieties: (row.resistantVarieties ?? undefined) as Record<string, string> | undefined,
+      prophylaxis: (row.prophylaxis ?? undefined) as Record<string, string> | undefined,
+      irrigationControl: (row.irrigationControl ?? undefined) as Record<string, string> | undefined,
+      disinfection: (row.disinfection ?? undefined) as Record<string, string> | undefined,
+      culturalControl: (row.culturalControl ?? undefined) as Record<string, string> | undefined,
+      chemicalControl: (row.chemicalControl ?? undefined) as Record<string, string> | undefined,
+      curativeTreatment: (row.curativeTreatment ?? undefined) as Record<string, string> | undefined,
     };
   }
 }

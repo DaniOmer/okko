@@ -6,4 +6,12 @@ export interface DiseaseSnapshot {
   propagationModes?: string[];
   potentialLosses?: Record<string, string>;
   evolutionSpeed?: string;
+  cropRotation?: Record<string, string>;
+  resistantVarieties?: Record<string, string>;
+  prophylaxis?: Record<string, string>;
+  irrigationControl?: Record<string, string>;
+  disinfection?: Record<string, string>;
+  culturalControl?: Record<string, string>;
+  chemicalControl?: Record<string, string>;
+  curativeTreatment?: Record<string, string>;
 }

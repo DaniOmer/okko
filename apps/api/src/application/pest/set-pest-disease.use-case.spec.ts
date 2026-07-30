@@ -23,14 +23,19 @@ describe('SetPestDiseaseUseCase', () => {
       pathogen: { fr: 'Phytophthora infestans' },
       propagationModes: ['wind', 'water'],
       evolutionSpeed: 'fast',
+      resistantVarieties: { fr: 'Cultivars tolérants au mildiou' },
+      chemicalControl: { fr: 'Fongicides cupriques préventifs' },
     });
     expect(out.pathogen).toEqual({ fr: 'Phytophthora infestans' });
     expect(out.propagationModes).toEqual(['wind', 'water']);
     expect(out.evolutionSpeed).toBe('fast');
+    expect(out.resistantVarieties).toEqual({ fr: 'Cultivars tolérants au mildiou' });
+    expect(out.chemicalControl).toEqual({ fr: 'Fongicides cupriques préventifs' });
     // identité préservée
     expect(out.id).toBe('p1');
     const reloaded = await repo.findById('p1');
     expect(reloaded?.pathogen).toEqual({ fr: 'Phytophthora infestans' });
+    expect(reloaded?.resistantVarieties).toEqual({ fr: 'Cultivars tolérants au mildiou' });
   });
 
   it('remplacement complet : un 2e setDisease efface les champs non fournis', async () => {
