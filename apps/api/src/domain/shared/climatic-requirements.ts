@@ -7,6 +7,8 @@ interface ClimaticProps {
   altitude?: RangeValue;
   waterNeed?: string;
   droughtSensitivity?: string;
+  photoperiodResponse?: string;
+  criticalDayLength?: RangeValue;
   provenance?: Provenance;
   notes?: string;
 }
@@ -17,6 +19,8 @@ export interface ClimaticRequirementsJSON {
   altitude?: ReturnType<RangeValue['toJSON']>;
   waterNeed?: string;
   droughtSensitivity?: string;
+  photoperiodResponse?: string;
+  criticalDayLength?: ReturnType<RangeValue['toJSON']>;
   provenance?: ReturnType<Provenance['toJSON']>;
   notes?: string;
 }
@@ -33,6 +37,8 @@ export class ClimaticRequirements {
   get altitude(): RangeValue | undefined { return this.props.altitude; }
   get waterNeed(): string | undefined { return this.props.waterNeed; }
   get droughtSensitivity(): string | undefined { return this.props.droughtSensitivity; }
+  get photoperiodResponse(): string | undefined { return this.props.photoperiodResponse; }
+  get criticalDayLength(): RangeValue | undefined { return this.props.criticalDayLength; }
   get provenance(): Provenance | undefined { return this.props.provenance; }
   get notes(): string | undefined { return this.props.notes; }
 
@@ -43,6 +49,8 @@ export class ClimaticRequirements {
       altitude: this.props.altitude?.toJSON(),
       waterNeed: this.props.waterNeed,
       droughtSensitivity: this.props.droughtSensitivity,
+      photoperiodResponse: this.props.photoperiodResponse,
+      criticalDayLength: this.props.criticalDayLength?.toJSON(),
       provenance: this.props.provenance?.toJSON(),
       notes: this.props.notes,
     };
@@ -55,6 +63,8 @@ export class ClimaticRequirements {
       altitude: json.altitude ? RangeValue.create(json.altitude) : undefined,
       waterNeed: json.waterNeed,
       droughtSensitivity: json.droughtSensitivity,
+      photoperiodResponse: json.photoperiodResponse,
+      criticalDayLength: json.criticalDayLength ? RangeValue.create(json.criticalDayLength) : undefined,
       provenance: json.provenance ? Provenance.fromJSON(json.provenance) : undefined,
       notes: json.notes,
     });

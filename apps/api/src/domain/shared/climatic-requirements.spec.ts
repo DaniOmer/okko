@@ -48,3 +48,23 @@ describe('ClimaticRequirements', () => {
     expect(c.toJSON().rainfall).toBeUndefined();
   });
 });
+
+describe('ClimaticRequirements — photopériode (ECOCROP)', () => {
+  it('round-trip conserve photoperiodResponse + criticalDayLength', () => {
+    const c = ClimaticRequirements.create({
+      photoperiodResponse: 'SHORT_DAY',
+      criticalDayLength: RangeValue.create({ min: 11, optimal: 12, max: 13, unit: 'h' }),
+    });
+    const json = c.toJSON();
+    expect(json.photoperiodResponse).toBe('SHORT_DAY');
+    expect(json.criticalDayLength).toEqual({ min: 11, optimal: 12, max: 13, unit: 'h' });
+    const back = ClimaticRequirements.fromJSON(json);
+    expect(back.photoperiodResponse).toBe('SHORT_DAY');
+    expect(back.criticalDayLength?.optimal).toBe(12);
+  });
+  it('champs photopériode absents → undefined', () => {
+    const json = ClimaticRequirements.create({}).toJSON();
+    expect(json.photoperiodResponse).toBeUndefined();
+    expect(json.criticalDayLength).toBeUndefined();
+  });
+});
