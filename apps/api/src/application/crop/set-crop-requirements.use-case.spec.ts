@@ -66,4 +66,29 @@ describe('SetCropRequirementsUseCase', () => {
     expect(lastCall.changes).toHaveProperty('from');
     expect(lastCall.changes).toHaveProperty('to');
   });
+
+  it('persiste les champs ECOCROP (photopériode, profondeur, fertilité, salinité, drainage)', async () => {
+    const events = new InMemoryCropEventStore();
+    const repo = new InMemoryCropRepository();
+    const audit = { record: jest.fn() };
+    await seed(events, repo, audit);
+    const uc = new SetCropRequirementsUseCase(events, repo, audit, clock);
+    const out = await uc.execute({
+      id: 'c1', actor: 'a',
+      climatic: { photoperiodResponse: 'SHORT_DAY', criticalDayLength: { min: 11, optimal: 12, max: 13, unit: 'h' } },
+      edaphic: {
+        soilDepth: { min: 60, optimal: 100, max: 150, unit: 'cm' },
+        fertilityRequirement: 'MEDIUM', salinityTolerance: 'SENSITIVE', drainage: 'WELL',
+      },
+    });
+    expect(out.climatic?.photoperiodResponse).toBe('SHORT_DAY');
+    expect(out.climatic?.criticalDayLength?.optimal).toBe(12);
+    expect(out.edaphic?.soilDepth?.optimal).toBe(100);
+    expect(out.edaphic?.fertilityRequirement).toBe('MEDIUM');
+    expect(out.edaphic?.salinityTolerance).toBe('SENSITIVE');
+    expect(out.edaphic?.drainage).toBe('WELL');
+    const reloaded = await repo.findById('c1');
+    expect(reloaded?.edaphic?.salinityTolerance).toBe('SENSITIVE');
+    expect(reloaded?.climatic?.photoperiodResponse).toBe('SHORT_DAY');
+  });
 });
