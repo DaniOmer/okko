@@ -78,7 +78,7 @@ describe('SetCropRequirementsUseCase', () => {
       climatic: { photoperiodResponse: 'SHORT_DAY', criticalDayLength: { min: 11, optimal: 12, max: 13, unit: 'h' } },
       edaphic: {
         soilDepth: { min: 60, optimal: 100, max: 150, unit: 'cm' },
-        fertilityRequirement: 'MEDIUM', salinityTolerance: 'SENSITIVE', drainage: 'WELL',
+        fertilityRequirement: 'MEDIUM', salinityTolerance: 'SENSITIVE', drainage: 'GOOD',
       },
     });
     expect(out.climatic?.photoperiodResponse).toBe('SHORT_DAY');
@@ -86,7 +86,7 @@ describe('SetCropRequirementsUseCase', () => {
     expect(out.edaphic?.soilDepth?.optimal).toBe(100);
     expect(out.edaphic?.fertilityRequirement).toBe('MEDIUM');
     expect(out.edaphic?.salinityTolerance).toBe('SENSITIVE');
-    expect(out.edaphic?.drainage).toBe('WELL');
+    expect(out.edaphic?.drainage).toBe('GOOD');
     const reloaded = await repo.findById('c1');
     expect(reloaded?.edaphic?.salinityTolerance).toBe('SENSITIVE');
     expect(reloaded?.climatic?.photoperiodResponse).toBe('SHORT_DAY');

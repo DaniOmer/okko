@@ -58,11 +58,12 @@ Ajout de 3 champs optionnels + évolution du drainage existant :
 | `soilDepth` | `RangeValue` | min·optimal·max, unité `cm` |
 | `fertilityRequirement` | `string` (enum) | `LOW` \| `MEDIUM` \| `HIGH` |
 | `salinityTolerance` | `string` (enum) | `SENSITIVE` \| `MODERATELY_TOLERANT` \| `TOLERANT` |
-| `drainage` (existant) | `string` (enum) | `POOR` \| `MODERATE` \| `WELL` \| `EXCESSIVE` |
+| `drainage` (existant) | `string` (enum) | `POOR` \| `MODERATE` \| `GOOD` |
 
 **Note drainage** : le champ existe déjà comme texte libre mais aucune donnée n'a jamais pu
-être saisie (pas d'input dans l'éditeur). On le traite donc désormais comme un enum ; pas de
-donnée à migrer, aucun risque.
+être saisie (pas d'input dans l'éditeur). On le traite désormais comme un enum, en réutilisant
+le `DRAINAGE_LABELS` partagé avec la Zone (`POOR | MODERATE | GOOD` = Faible/Modéré/Bon) ;
+pas de donnée à migrer, aucun risque.
 
 Pour chaque value object : mettre à jour l'interface de props, l'interface `...JSON`, les
 getters, `toJSON()` et `fromJSON()`.
@@ -78,9 +79,7 @@ export const PHOTOPERIOD_RESPONSE_LABELS: Record<string, string> = {
 export const SALINITY_TOLERANCE_LABELS: Record<string, string> = {
   SENSITIVE: 'Sensible', MODERATELY_TOLERANT: 'Moyennement tolérante', TOLERANT: 'Tolérante',
 };
-export const DRAINAGE_LABELS: Record<string, string> = {
-  POOR: 'Mauvais (hydromorphe)', MODERATE: 'Modéré', WELL: 'Bon (drainant)', EXCESSIVE: 'Excessif',
-};
+// Réutilise DRAINAGE_LABELS existant (Zone) : POOR | MODERATE | GOOD = Faible/Modéré/Bon
 ```
 
 **Réutilise** `FERTILITY_LABELS` existant (`LOW: 'Faible'`, `MEDIUM: 'Moyenne'`, `HIGH: 'Élevée'`)
