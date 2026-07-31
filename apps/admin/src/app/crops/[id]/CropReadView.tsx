@@ -4,6 +4,7 @@ import {
   SUITABILITY_LABELS, SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS,
   PRODUCT_FORM_LABELS, SALE_UNIT_LABELS, OUTLET_LABELS,
   INPUT_TYPE_LABELS, WATER_NEED_LABELS, DROUGHT_SENSITIVITY_LABELS,
+  PHOTOPERIOD_RESPONSE_LABELS, FERTILITY_LABELS, DRAINAGE_LABELS, SALINITY_TOLERANCE_LABELS,
   RESISTANCE_LEVEL_LABELS, OPERATION_TYPE_LABELS,
 } from '@/lib/labels';
 import { formatDayMonth } from '../../../lib/format';
@@ -174,7 +175,7 @@ export function CropReadView({
 
         {/* ── 1. Exigences climatiques ─────────────────────────────── */}
         <DenseCard iconKey="climatic" title="Exigences climatiques">
-          {!crop.climatic?.temperature && !crop.climatic?.rainfall && !crop.climatic?.altitude && !crop.climatic?.waterNeed && !crop.climatic?.droughtSensitivity
+          {!crop.climatic?.temperature && !crop.climatic?.rainfall && !crop.climatic?.altitude && !crop.climatic?.waterNeed && !crop.climatic?.droughtSensitivity && !crop.climatic?.photoperiodResponse && !crop.climatic?.criticalDayLength
             ? EMPTY
             : (
               <div className="space-y-0.5">
@@ -205,7 +206,16 @@ export function CropReadView({
                     {crop.climatic.altitude.unit}
                   </div>
                 )}
-                {(crop.climatic?.waterNeed || crop.climatic?.droughtSensitivity) && (
+                {crop.climatic?.criticalDayLength && (
+                  <div className="text-[12.5px] leading-snug">
+                    Jour critique :{' '}
+                    {crop.climatic.criticalDayLength.min}–
+                    <strong className="text-[#245c27]">{crop.climatic.criticalDayLength.optimal}</strong>–
+                    {crop.climatic.criticalDayLength.max}{' '}
+                    {crop.climatic.criticalDayLength.unit}
+                  </div>
+                )}
+                {(crop.climatic?.waterNeed || crop.climatic?.droughtSensitivity || crop.climatic?.photoperiodResponse) && (
                   <div className="mt-1 flex flex-wrap gap-1">
                     {crop.climatic?.waterNeed && (
                       <ToneBadge tone="neutral">
@@ -217,6 +227,11 @@ export function CropReadView({
                         Sécheresse : {labelOf(DROUGHT_SENSITIVITY_LABELS, crop.climatic.droughtSensitivity)}
                       </ToneBadge>
                     )}
+                    {crop.climatic?.photoperiodResponse && (
+                      <ToneBadge tone="neutral">
+                        Photopériode : {labelOf(PHOTOPERIOD_RESPONSE_LABELS, crop.climatic.photoperiodResponse)}
+                      </ToneBadge>
+                    )}
                   </div>
                 )}
               </div>
@@ -225,7 +240,7 @@ export function CropReadView({
 
         {/* ── 2. Exigences édaphiques ──────────────────────────────── */}
         <DenseCard iconKey="edaphic" title="Exigences édaphiques">
-          {!crop.edaphic?.ph && !crop.edaphic?.texture
+          {!crop.edaphic?.ph && !crop.edaphic?.texture && !crop.edaphic?.soilDepth && !crop.edaphic?.drainage && !crop.edaphic?.fertilityRequirement && !crop.edaphic?.salinityTolerance
             ? EMPTY
             : (
               <div className="space-y-0.5">
@@ -240,6 +255,28 @@ export function CropReadView({
                 {crop.edaphic?.texture && (
                   <div className="text-[12.5px] leading-snug">
                     Texture : {crop.edaphic.texture}
+                  </div>
+                )}
+                {crop.edaphic?.soilDepth && (
+                  <div className="text-[12.5px] leading-snug">
+                    Profondeur :{' '}
+                    {crop.edaphic.soilDepth.min}–
+                    <strong className="text-[#245c27]">{crop.edaphic.soilDepth.optimal}</strong>–
+                    {crop.edaphic.soilDepth.max}{' '}
+                    {crop.edaphic.soilDepth.unit}
+                  </div>
+                )}
+                {(crop.edaphic?.drainage || crop.edaphic?.fertilityRequirement || crop.edaphic?.salinityTolerance) && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {crop.edaphic?.drainage && (
+                      <ToneBadge tone="neutral">Drainage : {labelOf(DRAINAGE_LABELS, crop.edaphic.drainage)}</ToneBadge>
+                    )}
+                    {crop.edaphic?.fertilityRequirement && (
+                      <ToneBadge tone="neutral">Fertilité : {labelOf(FERTILITY_LABELS, crop.edaphic.fertilityRequirement)}</ToneBadge>
+                    )}
+                    {crop.edaphic?.salinityTolerance && (
+                      <ToneBadge tone="neutral">Salinité : {labelOf(SALINITY_TOLERANCE_LABELS, crop.edaphic.salinityTolerance)}</ToneBadge>
+                    )}
                   </div>
                 )}
               </div>

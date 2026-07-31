@@ -7,6 +7,7 @@ import {
   SUSCEPTIBILITY_LABELS, PEST_TYPE_LABELS, CONTROL_CATEGORY_LABELS,
   PRODUCT_FORM_LABELS, SALE_UNIT_LABELS, OUTLET_LABELS,
   INPUT_TYPE_LABELS, WATER_NEED_LABELS, DROUGHT_SENSITIVITY_LABELS,
+  PHOTOPERIOD_RESPONSE_LABELS, FERTILITY_LABELS, DRAINAGE_LABELS, SALINITY_TOLERANCE_LABELS,
   RESISTANCE_LEVEL_LABELS, OPERATION_TYPE_LABELS,
 } from '@/lib/labels';
 import { formatDayMonth } from '../../../lib/format';
@@ -120,7 +121,10 @@ export function FicheClientView({
     exigences: !!(
       crop.climatic?.temperature || crop.climatic?.rainfall || crop.climatic?.altitude ||
       crop.climatic?.waterNeed || crop.climatic?.droughtSensitivity ||
-      crop.edaphic?.ph || crop.edaphic?.texture
+      crop.climatic?.photoperiodResponse || crop.climatic?.criticalDayLength ||
+      crop.edaphic?.ph || crop.edaphic?.texture ||
+      crop.edaphic?.soilDepth || crop.edaphic?.drainage ||
+      crop.edaphic?.fertilityRequirement || crop.edaphic?.salinityTolerance
     ),
     varietes: crop.varieties.length > 0,
     zones: crop.zones.length > 0,
@@ -209,8 +213,12 @@ export function FicheClientView({
               crop.climatic?.rainfall ||
               crop.climatic?.altitude ||
               crop.climatic?.waterNeed ||
-              crop.climatic?.droughtSensitivity;
-            const hasEdaph = crop.edaphic?.ph || crop.edaphic?.texture;
+              crop.climatic?.droughtSensitivity ||
+              crop.climatic?.photoperiodResponse ||
+              crop.climatic?.criticalDayLength;
+            const hasEdaph = crop.edaphic?.ph || crop.edaphic?.texture ||
+              crop.edaphic?.soilDepth || crop.edaphic?.drainage ||
+              crop.edaphic?.fertilityRequirement || crop.edaphic?.salinityTolerance;
             if (!hasClim && !hasEdaph) return EMPTY;
             return (
               <div className="space-y-1">
@@ -250,7 +258,25 @@ export function FicheClientView({
                     unit={crop.edaphic.ph.unit}
                   />
                 )}
-                {(crop.climatic?.waterNeed || crop.climatic?.droughtSensitivity || crop.edaphic?.texture) && (
+                {crop.climatic?.criticalDayLength && (
+                  <StatRange
+                    label="Jour critique"
+                    min={crop.climatic.criticalDayLength.min}
+                    optimal={crop.climatic.criticalDayLength.optimal}
+                    max={crop.climatic.criticalDayLength.max}
+                    unit={crop.climatic.criticalDayLength.unit}
+                  />
+                )}
+                {crop.edaphic?.soilDepth && (
+                  <StatRange
+                    label="Profondeur de sol"
+                    min={crop.edaphic.soilDepth.min}
+                    optimal={crop.edaphic.soilDepth.optimal}
+                    max={crop.edaphic.soilDepth.max}
+                    unit={crop.edaphic.soilDepth.unit}
+                  />
+                )}
+                {(crop.climatic?.waterNeed || crop.climatic?.droughtSensitivity || crop.edaphic?.texture || crop.climatic?.photoperiodResponse || crop.edaphic?.drainage || crop.edaphic?.fertilityRequirement || crop.edaphic?.salinityTolerance) && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {crop.climatic?.waterNeed && (
                       <ToneBadge tone="neutral">
@@ -264,6 +290,18 @@ export function FicheClientView({
                     )}
                     {crop.edaphic?.texture && (
                       <ToneBadge tone="neutral">Texture : {crop.edaphic.texture}</ToneBadge>
+                    )}
+                    {crop.climatic?.photoperiodResponse && (
+                      <ToneBadge tone="neutral">Photopériode : {labelOf(PHOTOPERIOD_RESPONSE_LABELS, crop.climatic.photoperiodResponse)}</ToneBadge>
+                    )}
+                    {crop.edaphic?.drainage && (
+                      <ToneBadge tone="neutral">Drainage : {labelOf(DRAINAGE_LABELS, crop.edaphic.drainage)}</ToneBadge>
+                    )}
+                    {crop.edaphic?.fertilityRequirement && (
+                      <ToneBadge tone="neutral">Fertilité : {labelOf(FERTILITY_LABELS, crop.edaphic.fertilityRequirement)}</ToneBadge>
+                    )}
+                    {crop.edaphic?.salinityTolerance && (
+                      <ToneBadge tone="neutral">Salinité : {labelOf(SALINITY_TOLERANCE_LABELS, crop.edaphic.salinityTolerance)}</ToneBadge>
                     )}
                   </div>
                 )}
