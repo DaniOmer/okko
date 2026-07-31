@@ -18,7 +18,7 @@
   - `photoperiodResponse` : `DAY_NEUTRAL` | `SHORT_DAY` | `LONG_DAY`
   - `fertilityRequirement` : `LOW` | `MEDIUM` | `HIGH` (réutilise `FERTILITY_LABELS`)
   - `salinityTolerance` : `SENSITIVE` | `MODERATELY_TOLERANT` | `TOLERANT`
-  - `drainage` : `POOR` | `MODERATE` | `WELL` | `EXCESSIVE`
+  - `drainage` : `POOR` | `MODERATE` | `GOOD` (réutilise la map `DRAINAGE_LABELS` **existante** des Zones — `Faible`/`Modéré`/`Bon` — ne PAS la redéfinir ni la modifier)
   - Unités : `criticalDayLength` → `'h'`, `soilDepth` → `'cm'`.
 - Gate de fin de tâche back : `cd apps/api && npx tsc --noEmit` vert + tests Jest concernés verts.
 - Gate de fin de tâche front : `cd apps/admin && npx tsc --noEmit` vert.
@@ -238,7 +238,7 @@ Ajouter ce `it` dans le `describe('SetCropRequirementsUseCase', …)` de
       climatic: { photoperiodResponse: 'SHORT_DAY', criticalDayLength: { min: 11, optimal: 12, max: 13, unit: 'h' } },
       edaphic: {
         soilDepth: { min: 60, optimal: 100, max: 150, unit: 'cm' },
-        fertilityRequirement: 'MEDIUM', salinityTolerance: 'SENSITIVE', drainage: 'WELL',
+        fertilityRequirement: 'MEDIUM', salinityTolerance: 'SENSITIVE', drainage: 'GOOD',
       },
     });
     expect(out.climatic?.photoperiodResponse).toBe('SHORT_DAY');
@@ -246,7 +246,7 @@ Ajouter ce `it` dans le `describe('SetCropRequirementsUseCase', …)` de
     expect(out.edaphic?.soilDepth?.optimal).toBe(100);
     expect(out.edaphic?.fertilityRequirement).toBe('MEDIUM');
     expect(out.edaphic?.salinityTolerance).toBe('SENSITIVE');
-    expect(out.edaphic?.drainage).toBe('WELL');
+    expect(out.edaphic?.drainage).toBe('GOOD');
     const reloaded = await repo.findById('c1');
     expect(reloaded?.edaphic?.salinityTolerance).toBe('SENSITIVE');
     expect(reloaded?.climatic?.photoperiodResponse).toBe('SHORT_DAY');
@@ -280,7 +280,7 @@ git commit -m "test(crop): persistance bout-en-bout des exigences ECOCROP"
 - Modify: `apps/admin/src/lib/actions.ts` (body de `setRequirements`, ~lignes 59-66)
 
 **Interfaces:**
-- Produces (labels) : `PHOTOPERIOD_RESPONSE_LABELS`, `SALINITY_TOLERANCE_LABELS`, `DRAINAGE_LABELS` (`FERTILITY_LABELS` existe déjà).
+- Produces (labels) : `PHOTOPERIOD_RESPONSE_LABELS`, `SALINITY_TOLERANCE_LABELS` (`FERTILITY_LABELS` et `DRAINAGE_LABELS` existent déjà — réutilisés).
 - Produces (types) : `Crop.climatic` gagne `photoperiodResponse?`, `criticalDayLength?` ; `Crop.edaphic` gagne `drainage?`, `soilDepth?`, `fertilityRequirement?`, `salinityTolerance?`. Body `setRequirements` : mêmes ajouts.
 
 - [ ] **Step 1: Ajouter les 3 maps de libellés**
@@ -296,10 +296,11 @@ export const PHOTOPERIOD_RESPONSE_LABELS: Record<string, string> = {
 export const SALINITY_TOLERANCE_LABELS: Record<string, string> = {
   SENSITIVE: 'Sensible', MODERATELY_TOLERANT: 'Moyennement tolérante', TOLERANT: 'Tolérante',
 };
-export const DRAINAGE_LABELS: Record<string, string> = {
-  POOR: 'Mauvais (hydromorphe)', MODERATE: 'Modéré', WELL: 'Bon (drainant)', EXCESSIVE: 'Excessif',
-};
 ```
+
+**Ne PAS toucher `DRAINAGE_LABELS`** : il existe déjà (`{ POOR: 'Faible', MODERATE: 'Modéré', GOOD: 'Bon' }`,
+consommé par les Zones dans `ZoneFields.tsx` / `ZoneFicheView.tsx`). La culture le **réutilise tel quel**
+(codes `POOR`/`MODERATE`/`GOOD`), comme elle réutilise `FERTILITY_LABELS`.
 
 - [ ] **Step 2: Étendre le type `Crop` (api.ts)**
 
