@@ -249,15 +249,6 @@ export function FicheClientView({
                     unit={crop.climatic.altitude.unit}
                   />
                 )}
-                {crop.edaphic?.ph && (
-                  <StatRange
-                    label="pH du sol"
-                    min={crop.edaphic.ph.min}
-                    optimal={crop.edaphic.ph.optimal}
-                    max={crop.edaphic.ph.max}
-                    unit={crop.edaphic.ph.unit}
-                  />
-                )}
                 {crop.climatic?.criticalDayLength && (
                   <StatRange
                     label="Jour critique"
@@ -265,6 +256,15 @@ export function FicheClientView({
                     optimal={crop.climatic.criticalDayLength.optimal}
                     max={crop.climatic.criticalDayLength.max}
                     unit={crop.climatic.criticalDayLength.unit}
+                  />
+                )}
+                {crop.edaphic?.ph && (
+                  <StatRange
+                    label="pH du sol"
+                    min={crop.edaphic.ph.min}
+                    optimal={crop.edaphic.ph.optimal}
+                    max={crop.edaphic.ph.max}
+                    unit={crop.edaphic.ph.unit}
                   />
                 )}
                 {crop.edaphic?.soilDepth && (

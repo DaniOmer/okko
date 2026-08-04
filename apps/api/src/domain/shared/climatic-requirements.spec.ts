@@ -60,7 +60,7 @@ describe('ClimaticRequirements — photopériode (ECOCROP)', () => {
     expect(json.criticalDayLength).toEqual({ min: 11, optimal: 12, max: 13, unit: 'h' });
     const back = ClimaticRequirements.fromJSON(json);
     expect(back.photoperiodResponse).toBe('SHORT_DAY');
-    expect(back.criticalDayLength?.optimal).toBe(12);
+    expect(back.criticalDayLength?.toJSON()).toEqual({ min: 11, optimal: 12, max: 13, unit: 'h' });
   });
   it('champs photopériode absents → undefined', () => {
     const json = ClimaticRequirements.create({}).toJSON();

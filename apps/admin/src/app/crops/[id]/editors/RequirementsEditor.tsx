@@ -58,6 +58,7 @@ export function RequirementsEditor({ cropId, initial }: { cropId: string; initia
           }}
           className="space-y-3 text-sm"
         >
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Climat</div>
           <div className="space-y-1">
             <Label>Température — min · optimal · max (°C)</Label>
             <div className="flex gap-1 items-center">
@@ -117,6 +118,7 @@ export function RequirementsEditor({ cropId, initial }: { cropId: string; initia
               <Input className="w-16" placeholder="max" value={cdlMax} onChange={(e)=>setCdlMax(e.target.value)} />
             </div>
           </div>
+          <div className="border-t pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Sol</div>
           <div className="space-y-1">
             <Label>pH du sol — min · optimal · max</Label>
             <div className="flex gap-1 items-center">
