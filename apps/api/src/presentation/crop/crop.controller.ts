@@ -407,7 +407,6 @@ export class CropController {
   }
 
   @Roles('superadmin', 'admin', 'editor', 'ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
-  @Public()
   @Get(':id/published')
   async published(@Param('id') id: string) {
     try {
