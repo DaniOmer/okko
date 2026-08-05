@@ -24,9 +24,9 @@ export class RegisterUseCase {
     const email = input.email.trim().toLowerCase();
     if (await this.users.findByEmail(email)) throw new EmailAlreadyUsedError(email);
     const now = new Date(this.clock.nowIso());
-    const org = { id: this.ids.next(), name: input.organizationName, createdAt: now };
+    const org = { id: this.ids.next(), name: input.organizationName, kind: 'CUSTOMER' as const, createdAt: now };
     await this.orgs.save(org);
-    const user: User = { id: this.ids.next(), email, firstName: input.firstName, lastName: input.lastName, role: 'admin', organizationId: org.id, createdAt: now, emailVerifiedAt: null };
+    const user: User = { id: this.ids.next(), email, firstName: input.firstName, lastName: input.lastName, role: 'ORG_ADMIN', organizationId: org.id, createdAt: now, emailVerifiedAt: null };
     await this.users.save(user);
     await this.identities.save({ id: this.ids.next(), userId: user.id, provider: 'password', identifier: email, secret: await this.hasher.hash(input.password), createdAt: now });
     const token = this.ids.next();

@@ -21,7 +21,7 @@ describe('invitations', () => {
 
   it('create: crée une invitation pending dans l\'org et notifie', async () => {
     const s = setup();
-    await s.orgs.save({ id: 'o1', name: 'Coop', createdAt: orgDate });
+    await s.orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: orgDate });
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
     const { invitation, emailSent } = await create.execute({ organizationId: 'o1', email: 'X@Y.z', invitedByUserId: 'admin1' });
     expect(invitation.status).toBe('pending');
@@ -33,7 +33,7 @@ describe('invitations', () => {
 
   it('accept: crée un editor dans la bonne org ; token à usage unique', async () => {
     const s = setup();
-    await s.orgs.save({ id: 'o1', name: 'Coop', createdAt: orgDate });
+    await s.orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: orgDate });
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
     const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1' });
     const accept = new AcceptInvitationUseCase(s.invitations, s.users, s.identities, hasher, tokens, clock, s.ids);
@@ -45,7 +45,7 @@ describe('invitations', () => {
 
   it('revoke: refuse une invitation d\'une autre org (ForbiddenOrgError)', async () => {
     const s = setup();
-    await s.orgs.save({ id: 'o1', name: 'Coop', createdAt: orgDate });
+    await s.orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: orgDate });
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
     const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1' });
     const revoke = new RevokeInvitationUseCase(s.invitations);

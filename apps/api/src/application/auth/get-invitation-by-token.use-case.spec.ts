@@ -13,7 +13,7 @@ function inv(partial: Partial<Invitation>): Invitation {
 async function make(partial: Partial<Invitation>) {
   const invitations = new InMemoryInvitationRepository();
   const orgs = new InMemoryOrganizationRepository();
-  await orgs.save({ id: 'o1', name: 'Coop', createdAt: now });
+  await orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: now });
   await invitations.save(inv(partial));
   return new GetInvitationByTokenUseCase(invitations, orgs, clock);
 }

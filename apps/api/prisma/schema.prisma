@@ -231,6 +231,7 @@ model PublishedCrop {
 model Organization {
   id          String       @id
   name        String
+  kind        String       @default("CUSTOMER")
   createdAt   DateTime     @default(now())
   users       User[]
   invitations Invitation[]

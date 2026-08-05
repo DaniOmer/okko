@@ -18,14 +18,16 @@ function makeRegister() {
 describe('RegisterUseCase', () => {
   beforeEach(() => { n = 0; });
 
-  it('crée org + user admin NON confirmé, sans token, et envoie une confirmation', async () => {
-    const { users, notifier, uc } = makeRegister();
+  it('crée org CUSTOMER + user ORG_ADMIN NON confirmé, sans token, et envoie une confirmation', async () => {
+    const { users, orgs, notifier, uc } = makeRegister();
     const res = await uc.execute({ email: 'A@B.c', password: 'pw', firstName: 'A', lastName: 'A', organizationName: 'Coop' });
     expect(res).toEqual({ email: 'a@b.c' });
     expect((res as Record<string, unknown>).token).toBeUndefined();
     const user = await users.findByEmail('a@b.c');
-    expect(user?.role).toBe('admin');
+    expect(user?.role).toBe('ORG_ADMIN');
     expect(user?.emailVerifiedAt).toBeNull();
+    const org = await orgs.findById(user!.organizationId!);
+    expect(org?.kind).toBe('CUSTOMER');
     expect(notifier.sent).toHaveLength(1);
     const sent = notifier.sent[0];
     expect(sent.kind).toBe('email_confirmation');

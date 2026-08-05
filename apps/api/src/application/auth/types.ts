@@ -1,7 +1,7 @@
 export type Role = 'superadmin' | 'admin' | 'editor' | 'ORG_ADMIN' | 'AGRONOMIST' | 'FIELD_AGENT' | 'VIEWER';
 export type OrgKind = 'PLATFORM' | 'CUSTOMER';
 export interface User { id: string; email: string; firstName: string; lastName: string; role: Role; organizationId: string | null; createdAt: Date; emailVerifiedAt: Date | null; }
-export interface Organization { id: string; name: string; createdAt: Date; }
+export interface Organization { id: string; name: string; kind: OrgKind; createdAt: Date; }
 export interface AuthIdentity { id: string; userId: string; provider: string; identifier: string; secret: string; createdAt: Date; }
 export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
 export interface Invitation {
