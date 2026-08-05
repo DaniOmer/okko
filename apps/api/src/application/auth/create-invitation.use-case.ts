@@ -2,12 +2,13 @@ import { InvitationRepository, OrganizationRepository, UserRepository } from './
 import { NotificationPort } from '../notification/notification-port';
 import { Clock } from '../shared/clock';
 import { IdGenerator } from '../shared/id-generator';
-import { EmailAlreadyUsedError } from './errors';
-import { Invitation } from './types';
+import { EmailAlreadyUsedError, InvalidRoleForOrgError } from './errors';
+import { Invitation, Role } from './types';
+import { rolesFor } from './roles';
 
 export const INVITATION_TTL_DAYS = 7;
 
-export interface CreateInvitationInput { organizationId: string; email: string; invitedByUserId: string; }
+export interface CreateInvitationInput { organizationId: string; email: string; invitedByUserId: string; role: Role; }
 
 export class CreateInvitationUseCase {
   constructor(
@@ -23,14 +24,16 @@ export class CreateInvitationUseCase {
     const email = input.email.trim().toLowerCase();
     const existing = await this.users.findByEmail(email);
     if (existing) throw new EmailAlreadyUsedError(email);
+    const org = await this.orgs.findById(input.organizationId);
+    if (!org) throw new InvalidRoleForOrgError(input.role);
+    if (!rolesFor(org.kind).includes(input.role)) throw new InvalidRoleForOrgError(input.role);
     const now = new Date(this.clock.nowIso());
     const expiresAt = new Date(now.getTime() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
     const invitation: Invitation = {
-      id: this.ids.next(), organizationId: input.organizationId, email, role: 'editor',
+      id: this.ids.next(), organizationId: input.organizationId, email, role: input.role,
       token: this.ids.next(), status: 'pending', expiresAt, invitedByUserId: input.invitedByUserId, createdAt: now, acceptedAt: null,
     };
     await this.invitations.save(invitation);
-    const org = await this.orgs.findById(input.organizationId);
     const inviteUrl = `${process.env.INVITE_BASE_URL ?? 'http://localhost:3000'}/invite/${invitation.token}`;
     let emailSent = true;
     try {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards, HttpCode, ConflictException, UnauthorizedException, NotFoundException, GoneException, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, HttpCode, BadRequestException, ConflictException, UnauthorizedException, NotFoundException, GoneException, ForbiddenException } from '@nestjs/common';
 import { RegisterUseCase } from '../../application/auth/register.use-case';
 import { LoginUseCase } from '../../application/auth/login.use-case';
 import { GetMeUseCase } from '../../application/auth/get-me.use-case';
@@ -9,7 +9,8 @@ import { AcceptInvitationUseCase } from '../../application/auth/accept-invitatio
 import { GetInvitationByTokenUseCase } from '../../application/auth/get-invitation-by-token.use-case';
 import { ConfirmEmailUseCase } from '../../application/auth/confirm-email.use-case';
 import { ResendConfirmationUseCase } from '../../application/auth/resend-confirmation.use-case';
-import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError, EmailNotConfirmedError, ConfirmationInvalidError } from '../../application/auth/errors';
+import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError, EmailNotConfirmedError, ConfirmationInvalidError, InvalidRoleForOrgError } from '../../application/auth/errors';
+import { Role } from '../../application/auth/types';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from './roles.guard';
 import { Public, Roles, CurrentUser, AuthUser } from './decorators';
@@ -61,20 +62,24 @@ export class AuthController {
   @Get('me')
   async me(@CurrentUser() user: AuthUser) { return this.meUC.execute({ userId: user.sub }); }
 
-  @Roles('admin') @Post('invitations')
-  async invite(@CurrentUser() user: AuthUser, @Body() body: { email: string }) {
+  @Roles('admin', 'ORG_ADMIN') @Post('invitations')
+  async invite(@CurrentUser() user: AuthUser, @Body() body: { email: string; role: Role }) {
     if (!user.organizationId) throw new ForbiddenException();
-    try { return await this.createInvitationUC.execute({ organizationId: user.organizationId, email: body.email, invitedByUserId: user.sub }); }
-    catch (e) { if (e instanceof EmailAlreadyUsedError) throw new ConflictException('déjà membre'); throw e; }
+    try { return await this.createInvitationUC.execute({ organizationId: user.organizationId, email: body.email, invitedByUserId: user.sub, role: body.role }); }
+    catch (e) {
+      if (e instanceof EmailAlreadyUsedError) throw new ConflictException('déjà membre');
+      if (e instanceof InvalidRoleForOrgError) throw new BadRequestException('rôle invalide pour cette organisation');
+      throw e;
+    }
   }
 
-  @Roles('admin') @Get('invitations')
+  @Roles('admin', 'ORG_ADMIN') @Get('invitations')
   async listInvitations(@CurrentUser() user: AuthUser) {
     if (!user.organizationId) throw new ForbiddenException();
     return this.listInvitationsUC.execute({ organizationId: user.organizationId });
   }
 
-  @Roles('admin') @Post('invitations/:id/revoke')
+  @Roles('admin', 'ORG_ADMIN') @Post('invitations/:id/revoke')
   async revoke(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     if (!user.organizationId) throw new ForbiddenException();
     try { await this.revokeInvitationUC.execute({ id, organizationId: user.organizationId }); return { ok: true }; }

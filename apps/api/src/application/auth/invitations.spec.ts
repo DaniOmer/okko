@@ -23,7 +23,7 @@ describe('invitations', () => {
     const s = setup();
     await s.orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: orgDate });
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
-    const { invitation, emailSent } = await create.execute({ organizationId: 'o1', email: 'X@Y.z', invitedByUserId: 'admin1' });
+    const { invitation, emailSent } = await create.execute({ organizationId: 'o1', email: 'X@Y.z', invitedByUserId: 'admin1', role: 'ORG_ADMIN' });
     expect(invitation.status).toBe('pending');
     expect(invitation.email).toBe('x@y.z');
     expect(emailSent).toBe(true);
@@ -35,10 +35,10 @@ describe('invitations', () => {
     const s = setup();
     await s.orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: orgDate });
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
-    const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1' });
+    const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1', role: 'ORG_ADMIN' });
     const accept = new AcceptInvitationUseCase(s.invitations, s.users, s.identities, hasher, tokens, clock, s.ids);
     const { user } = await accept.execute({ token: invitation.token, firstName: 'E', lastName: 'E', password: 'pw' });
-    expect(user.role).toBe('editor');
+    expect(user.role).toBe('ORG_ADMIN');
     expect(user.organizationId).toBe('o1');
     await expect(accept.execute({ token: invitation.token, firstName: 'E', lastName: 'E', password: 'pw' })).rejects.toBeInstanceOf(InvitationInvalidError);
   });
@@ -47,7 +47,7 @@ describe('invitations', () => {
     const s = setup();
     await s.orgs.save({ id: 'o1', name: 'Coop', kind: 'CUSTOMER', createdAt: orgDate });
     const create = new CreateInvitationUseCase(s.invitations, s.orgs, s.users, s.notifier, clock, s.ids);
-    const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1' });
+    const { invitation } = await create.execute({ organizationId: 'o1', email: 'e@x.z', invitedByUserId: 'admin1', role: 'ORG_ADMIN' });
     const revoke = new RevokeInvitationUseCase(s.invitations);
     await expect(revoke.execute({ id: invitation.id, organizationId: 'AUTRE' })).rejects.toBeInstanceOf(ForbiddenOrgError);
   });

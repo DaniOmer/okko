@@ -5,3 +5,6 @@ export class InvitationInvalidError extends Error {}  // expirée / consommée /
 export class ForbiddenOrgError extends Error {}       // action inter-organisation
 export class EmailNotConfirmedError extends Error {}   // login d'un compte non confirmé
 export class ConfirmationInvalidError extends Error {}  // token de confirmation introuvable/expiré
+export class InvalidRoleForOrgError extends Error {
+  constructor(public readonly role: string) { super(`Role ${role} not allowed for this organization`); this.name = 'InvalidRoleForOrgError'; }
+}
