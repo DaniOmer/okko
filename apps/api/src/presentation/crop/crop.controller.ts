@@ -129,6 +129,14 @@ export class CropController {
     return Promise.all(snaps.map((s) => this.composeCropDocument(s.id, s)));
   }
 
+  @Get('published')
+  @Roles('superadmin', 'admin', 'editor', 'ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
+  async listPublished() {
+    const snaps = await this.crops.list();
+    const docs = await Promise.all(snaps.map((s) => this.composeCropDocument(s.id, s)));
+    return docs.filter((d) => d.hasPublishedVersion);
+  }
+
   @Get(':id')
   async get(@Param('id') id: string) {
     const snap = await this.crops.findById(id);
@@ -398,6 +406,7 @@ export class CropController {
     }
   }
 
+  @Roles('superadmin', 'admin', 'editor', 'ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
   @Public()
   @Get(':id/published')
   async published(@Param('id') id: string) {
