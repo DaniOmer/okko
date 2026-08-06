@@ -1,4 +1,5 @@
 import { apiListInvitations, type Invitation } from '@/lib/api';
+import { getSession } from '@/lib/session';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { InviteForm } from './InviteForm';
@@ -8,19 +9,32 @@ const STATUS_LABELS: Record<Invitation['status'], string> = {
   pending: 'En attente', accepted: 'Acceptée', expired: 'Expirée', revoked: 'Révoquée',
 };
 
+const ROLE_LABELS: Record<string, string> = {
+  editor: 'Éditeur', ORG_ADMIN: 'Admin', AGRONOMIST: 'Agronome', FIELD_AGENT: 'Agent de terrain', VIEWER: 'Observateur',
+};
+const ROLE_OPTIONS_BY_INVITER: Record<string, string[]> = {
+  admin: ['editor'],
+  ORG_ADMIN: ['ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER'],
+};
+
 export default async function MembresPage() {
+  const session = getSession();
   const invitations = await apiListInvitations();
+  const canInvite = session ? session.role in ROLE_OPTIONS_BY_INVITER : false;
+  const roleOptions = session ? (ROLE_OPTIONS_BY_INVITER[session.role] ?? []).map((v) => ({ value: v, label: ROLE_LABELS[v] })) : [];
   return (
     <main className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Membres</h1>
-        <p className="text-sm text-muted-foreground">Invitez des collaborateurs (éditeurs) et gérez leurs invitations.</p>
+        <p className="text-sm text-muted-foreground">Invitez des collaborateurs et gérez leurs invitations.</p>
       </div>
 
-      <div className="rounded-lg border bg-card p-4">
-        <h2 className="mb-3 text-sm font-semibold">Inviter un collaborateur</h2>
-        <InviteForm />
-      </div>
+      {canInvite && (
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold">Inviter un collaborateur</h2>
+          <InviteForm roleOptions={roleOptions} />
+        </div>
+      )}
 
       <Table>
         <TableHeader>

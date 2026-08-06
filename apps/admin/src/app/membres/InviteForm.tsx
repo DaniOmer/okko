@@ -10,7 +10,7 @@ function SubmitButton() {
   return <Button type="submit" disabled={pending}>{pending ? 'Envoi…' : 'Inviter'}</Button>;
 }
 
-export function InviteForm() {
+export function InviteForm({ roleOptions }: { roleOptions: { value: string; label: string }[] }) {
   const [state, action] = useFormState<InviteState, FormData>(inviteAction, {});
   const formRef = useRef<HTMLFormElement>(null);
   useEffect(() => { if (state.ok) formRef.current?.reset(); }, [state.ok]);
@@ -25,6 +25,9 @@ export function InviteForm() {
           </p>
         )}
       </div>
+      <select name="role" required aria-label="Rôle" defaultValue={roleOptions[0]?.value} className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+        {roleOptions.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+      </select>
       <SubmitButton />
     </form>
   );

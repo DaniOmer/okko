@@ -250,7 +250,7 @@ export interface AuthResult {
   user: { id: string; email: string; firstName: string; lastName: string; role: Role; organizationId: string | null; createdAt: string };
 }
 export interface Invitation {
-  id: string; organizationId: string; email: string; role: 'editor'; token: string;
+  id: string; organizationId: string; email: string; role: string; token: string;
   status: 'pending' | 'accepted' | 'expired' | 'revoked';
   expiresAt: string; invitedByUserId: string; createdAt: string; acceptedAt: string | null;
 }
@@ -285,8 +285,8 @@ export async function apiListInvitations(): Promise<Invitation[]> {
   const res = await authFetch('/auth/invitations', { cache: 'no-store' });
   return res.json();
 }
-export async function apiCreateInvitation(email: string): Promise<{ invitation: Invitation; emailSent: boolean }> {
-  const res = await authFetch('/auth/invitations', jsonInit('POST', { email }));
+export async function apiCreateInvitation(email: string, role: string): Promise<{ invitation: Invitation; emailSent: boolean }> {
+  const res = await authFetch('/auth/invitations', jsonInit('POST', { email, role }));
   return res.json();
 }
 export async function apiRevokeInvitation(id: string): Promise<void> {
