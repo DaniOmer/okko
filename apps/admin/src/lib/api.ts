@@ -88,6 +88,11 @@ export async function listCrops(): Promise<CropDocument[]> {
   return res.json();
 }
 
+export async function listPublishedCrops(): Promise<CropDocument[]> {
+  const res = await authFetch('/crops/published', { cache: 'no-store' });
+  return res.json();
+}
+
 export interface Variety {
   id: string; cropId: string; name: Record<string, string>;
   maturityDays?: number; traits: string[];
