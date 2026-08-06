@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decodeToken, type Role } from '@/lib/jwt';
+import { decodeToken, type Role, TENANT_ROLES } from '@/lib/jwt';
 
-const SUPERADMIN_ZONES = ['/crops', '/zones', '/pests', '/history'];
-const ADMIN_ZONES = ['/membres'];
+const ZONES: { prefixes: string[]; allow: Role[] }[] = [
+  { prefixes: ['/crops', '/zones', '/pests', '/history'], allow: ['superadmin'] },
+  { prefixes: ['/fiches'], allow: TENANT_ROLES },
+  { prefixes: ['/membres'], allow: ['admin', ...TENANT_ROLES] },
+];
 
 function isPublic(pathname: string): boolean {
   return pathname === '/login' || pathname === '/register' || pathname.startsWith('/invite/') || pathname.startsWith('/confirm/');
@@ -22,8 +25,9 @@ export function middleware(req: NextRequest): NextResponse {
   if (!session) return NextResponse.redirect(new URL('/login', req.url));
 
   const role: Role = session.role;
-  if (inZone(pathname, SUPERADMIN_ZONES) && role !== 'superadmin') return NextResponse.redirect(new URL('/', req.url));
-  if (inZone(pathname, ADMIN_ZONES) && role !== 'admin') return NextResponse.redirect(new URL('/', req.url));
+  for (const z of ZONES) {
+    if (inZone(pathname, z.prefixes) && !z.allow.includes(role)) return NextResponse.redirect(new URL('/', req.url));
+  }
   return NextResponse.next();
 }
 

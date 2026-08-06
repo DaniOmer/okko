@@ -1,4 +1,5 @@
-export type Role = 'superadmin' | 'admin' | 'editor';
+export type Role = 'superadmin' | 'admin' | 'editor' | 'ORG_ADMIN' | 'AGRONOMIST' | 'FIELD_AGENT' | 'VIEWER';
+export const TENANT_ROLES: Role[] = ['ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER'];
 
 export interface SessionUser {
   sub: string;
@@ -7,7 +8,7 @@ export interface SessionUser {
   organizationId: string | null;
 }
 
-const ROLES: Role[] = ['superadmin', 'admin', 'editor'];
+const ROLES: Role[] = ['superadmin', 'admin', 'editor', 'ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER'];
 
 function base64UrlDecode(input: string): string {
   const b64 = input.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(input.length / 4) * 4, '=');
