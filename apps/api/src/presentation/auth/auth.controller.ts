@@ -9,7 +9,7 @@ import { AcceptInvitationUseCase } from '../../application/auth/accept-invitatio
 import { GetInvitationByTokenUseCase } from '../../application/auth/get-invitation-by-token.use-case';
 import { ConfirmEmailUseCase } from '../../application/auth/confirm-email.use-case';
 import { ResendConfirmationUseCase } from '../../application/auth/resend-confirmation.use-case';
-import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError, EmailNotConfirmedError, ConfirmationInvalidError, InvalidRoleForOrgError } from '../../application/auth/errors';
+import { EmailAlreadyUsedError, InvalidCredentialsError, InvitationNotFoundError, InvitationInvalidError, ForbiddenOrgError, EmailNotConfirmedError, ConfirmationInvalidError, InvalidRoleForOrgError, OrganizationNotFoundError } from '../../application/auth/errors';
 import { Role } from '../../application/auth/types';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from './roles.guard';
@@ -68,6 +68,7 @@ export class AuthController {
     try { return await this.createInvitationUC.execute({ organizationId: user.organizationId, email: body.email, invitedByUserId: user.sub, role: body.role }); }
     catch (e) {
       if (e instanceof EmailAlreadyUsedError) throw new ConflictException('déjà membre');
+      if (e instanceof OrganizationNotFoundError) throw new NotFoundException('organisation introuvable');
       if (e instanceof InvalidRoleForOrgError) throw new BadRequestException('rôle invalide pour cette organisation');
       throw e;
     }

@@ -2,7 +2,7 @@ import { InvitationRepository, OrganizationRepository, UserRepository } from './
 import { NotificationPort } from '../notification/notification-port';
 import { Clock } from '../shared/clock';
 import { IdGenerator } from '../shared/id-generator';
-import { EmailAlreadyUsedError, InvalidRoleForOrgError } from './errors';
+import { EmailAlreadyUsedError, InvalidRoleForOrgError, OrganizationNotFoundError } from './errors';
 import { Invitation, Role } from './types';
 import { rolesFor } from './roles';
 
@@ -25,7 +25,7 @@ export class CreateInvitationUseCase {
     const existing = await this.users.findByEmail(email);
     if (existing) throw new EmailAlreadyUsedError(email);
     const org = await this.orgs.findById(input.organizationId);
-    if (!org) throw new InvalidRoleForOrgError(input.role);
+    if (!org) throw new OrganizationNotFoundError(input.organizationId);
     if (!rolesFor(org.kind).includes(input.role)) throw new InvalidRoleForOrgError(input.role);
     const now = new Date(this.clock.nowIso());
     const expiresAt = new Date(now.getTime() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
@@ -37,7 +37,7 @@ export class CreateInvitationUseCase {
     const inviteUrl = `${process.env.INVITE_BASE_URL ?? 'http://localhost:3000'}/invite/${invitation.token}`;
     let emailSent = true;
     try {
-      await this.notifier.send({ kind: 'invitation', to: email, organizationName: org?.name ?? 'Okko', inviteUrl, expiresAt });
+      await this.notifier.send({ kind: 'invitation', to: email, organizationName: org.name, inviteUrl, expiresAt });
     } catch { emailSent = false; }
     return { invitation, emailSent };
   }

@@ -35,8 +35,8 @@ export function Sidebar({ session }: { session: SessionUser }) {
   return (
     <nav className="flex h-full flex-col gap-1 p-3">
       <div className="mb-4 px-2 text-lg font-extrabold text-primary">🌱 Okko</div>
-      {groups.map((g) => (
-        <div key={g.title} className="mb-2">
+      {groups.map((g, i) => (
+        <div key={`${g.title}-${i}`} className="mb-2">
           <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{g.title}</p>
           {g.items.map((it) => {
             const active = pathname === it.href || pathname.startsWith(it.href + '/');

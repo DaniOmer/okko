@@ -8,3 +8,6 @@ export class ConfirmationInvalidError extends Error {}  // token de confirmation
 export class InvalidRoleForOrgError extends Error {
   constructor(public readonly role: string) { super(`Role ${role} not allowed for this organization`); this.name = 'InvalidRoleForOrgError'; }
 }
+export class OrganizationNotFoundError extends Error {
+  constructor(public readonly organizationId: string) { super(`Organization ${organizationId} not found`); this.name = 'OrganizationNotFoundError'; }
+}
