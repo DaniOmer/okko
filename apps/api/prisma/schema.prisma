@@ -277,3 +277,14 @@ model Invitation {
   createdAt       DateTime     @default(now())
   acceptedAt      DateTime?
 }
+
+model Beneficiary {
+  id             String   @id
+  organizationId String
+  name           String
+  phone          String?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+}
