@@ -119,6 +119,39 @@ export async function listZones(): Promise<Zone[]> {
   return res.json();
 }
 
+export interface Beneficiary {
+  id: string;
+  organizationId: string;
+  name: string;
+  phone?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface Parcel {
+  id: string;
+  organizationId: string;
+  name: string;
+  beneficiaryId?: string;
+  zoneId?: string;
+  gpsLat?: number;
+  gpsLng?: number;
+  locality?: string;
+  areaHectares?: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export async function listBeneficiaries(): Promise<Beneficiary[]> {
+  const res = await authFetch('/beneficiaries', { cache: 'no-store' });
+  return res.json();
+}
+
+export async function listParcels(): Promise<Parcel[]> {
+  const res = await authFetch('/parcels', { cache: 'no-store' });
+  return res.json();
+}
+
 export interface ZoneCropView { cropId: string; cropName: Record<string, string>; rating: string; justification?: string; }
 export interface ZonePestView { pestId: string; pestName: Record<string, string>; kind: string; frequency: string; }
 
