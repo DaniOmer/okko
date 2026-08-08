@@ -49,6 +49,7 @@ export class ZoneController {
     return this.toResponse(snap);
   }
 
+  @Roles('superadmin', 'admin', 'editor', 'ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
   @Get()
   async list() {
     return (await this.listZones.execute()).map((z) => this.toResponse(z));
