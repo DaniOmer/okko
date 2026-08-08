@@ -288,3 +288,19 @@ model Beneficiary {
 
   @@index([organizationId])
 }
+
+model Parcel {
+  id             String   @id
+  organizationId String
+  name           String
+  beneficiaryId  String?
+  zoneId         String?
+  gpsLat         Float?
+  gpsLng         Float?
+  locality       String?
+  areaHectares   Float?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+}
