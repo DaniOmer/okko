@@ -3,7 +3,7 @@ import { decodeToken, type Role, TENANT_ROLES } from '@/lib/jwt';
 
 const ZONES: { prefixes: string[]; allow: Role[] }[] = [
   { prefixes: ['/crops', '/zones', '/pests', '/history'], allow: ['superadmin'] },
-  { prefixes: ['/fiches'], allow: TENANT_ROLES },
+  { prefixes: ['/fiches', '/beneficiaires', '/parcelles'], allow: TENANT_ROLES },
   { prefixes: ['/membres'], allow: ['admin', ...TENANT_ROLES] },
 ];
 

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sprout, Map, Bug, History, Users, FileText } from 'lucide-react';
+import { Sprout, Map, Bug, History, Users, FileText, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Role, SessionUser } from '@/lib/jwt';
 import { TENANT_ROLES } from '@/lib/jwt';
@@ -25,7 +25,8 @@ const GROUPS: Group[] = [
     { href: '/fiches', label: 'Fiches culture', icon: FileText },
   ] },
   { title: 'Suivi', roles: TENANT_ROLES, items: [
-    { href: '/bientot', label: 'Suivi (bientôt)', icon: Sprout },
+    { href: '/beneficiaires', label: 'Bénéficiaires', icon: Users },
+    { href: '/parcelles', label: 'Parcelles', icon: MapPin },
   ] },
 ];
 
