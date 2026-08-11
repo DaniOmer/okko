@@ -150,6 +150,10 @@ export const PROPAGATION_MODE_LABELS: Record<string, string> = {
 export const EVOLUTION_SPEED_LABELS: Record<string, string> = { SLOW: 'Lente', MODERATE: 'Modérée', FAST: 'Rapide' };
 export const DISSEMINATION_LABELS: Record<string, string> = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Élevée' };
 
+export const RECO_STATUS_LABELS: Record<string, string> = {
+  DONE: 'Fait', OVERDUE: 'En retard', DUE_SOON: 'Bientôt', UPCOMING: 'À venir', UNDATED: 'Non daté',
+};
+
 export const FREQUENCY_LABELS: Record<string, string> = { OCCASIONAL: 'Occasionnel', FREQUENT: 'Fréquent', ENDEMIC: 'Endémique' };
 
 export const CLIMATE_TYPE_LABELS: Record<string, string> = {
