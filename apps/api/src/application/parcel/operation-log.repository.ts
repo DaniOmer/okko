@@ -7,4 +7,5 @@ export interface OperationLogRepository {
   findById(id: string): Promise<OperationLogSnapshot | null>;
   listByCampaign(organizationId: string, campaignId: string): Promise<OperationLogSnapshot[]>;
   delete(id: string): Promise<void>;
+  deleteByCampaign(organizationId: string, campaignId: string): Promise<void>;
 }

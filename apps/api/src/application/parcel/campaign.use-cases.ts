@@ -1,5 +1,6 @@
 import { CampaignRepository } from './campaign.repository';
 import { ParcelRepository } from './parcel.repository';
+import { OperationLogRepository } from './operation-log.repository';
 import { CampaignSnapshot } from '../../domain/parcel/campaign';
 import { CampaignNotFoundError, ParcelNotFoundError } from './errors';
 import { Clock } from '../shared/clock';
@@ -55,10 +56,11 @@ export class UpdateCampaignUseCase {
 }
 
 export class DeleteCampaignUseCase {
-  constructor(private readonly repo: CampaignRepository) {}
+  constructor(private readonly repo: CampaignRepository, private readonly operations: OperationLogRepository) {}
   async execute(input: { id: string; organizationId: string }): Promise<void> {
     const existing = await this.repo.findById(input.id);
     if (!existing || existing.organizationId !== input.organizationId) throw new CampaignNotFoundError(input.id);
+    await this.operations.deleteByCampaign(input.organizationId, input.id);
     await this.repo.delete(input.id);
   }
 }

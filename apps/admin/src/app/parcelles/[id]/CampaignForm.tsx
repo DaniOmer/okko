@@ -20,7 +20,7 @@ export function CampaignFields({ value, onChange, crops, varieties }: {
     <div className="space-y-3">
       <div className="space-y-1">
         <Label>Culture *</Label>
-        <Select value={value.cropId} onValueChange={(v) => set('cropId', v)}>
+        <Select value={value.cropId} onValueChange={(v) => onChange({ ...value, cropId: v, varietyId: '' })}>
           <SelectTrigger><SelectValue placeholder="— choisir —" /></SelectTrigger>
           <SelectContent>{crops.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
         </Select>

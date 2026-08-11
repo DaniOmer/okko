@@ -2,6 +2,8 @@ import { CreateCampaignUseCase, ListCampaignsByParcelUseCase, UpdateCampaignUseC
 import { CampaignNotFoundError, ParcelNotFoundError } from './errors';
 import { InMemoryCampaignRepository } from './in-memory-campaign.repository';
 import { InMemoryParcelRepository } from './in-memory-parcel.repository';
+import { InMemoryOperationLogRepository } from './in-memory-operation-log.repository';
+import { OperationType } from '../../domain/window/operation-type';
 
 const clock = { nowIso: () => '2026-08-11T00:00:00.000Z' };
 
@@ -9,12 +11,13 @@ function make() {
   let n = 0; const ids = { next: () => `id${++n}` };
   const repo = new InMemoryCampaignRepository();
   const parcels = new InMemoryParcelRepository();
+  const operations = new InMemoryOperationLogRepository();
   return {
-    repo, parcels,
+    repo, parcels, operations,
     create: new CreateCampaignUseCase(repo, parcels, clock, ids),
     list: new ListCampaignsByParcelUseCase(repo),
     update: new UpdateCampaignUseCase(repo),
-    del: new DeleteCampaignUseCase(repo),
+    del: new DeleteCampaignUseCase(repo, operations),
   };
 }
 async function seedParcel(parcels: InMemoryParcelRepository, organizationId: string, id = 'p1') {
@@ -53,5 +56,14 @@ describe('Campaign use-cases — isolation + validation parcelle', () => {
     const c = await create.execute({ organizationId: 'o1', parcelId: 'p1', cropId: 'c', season: 'S' });
     await expect(update.execute({ id: c.id, organizationId: 'o2', season: 'X' })).rejects.toBeInstanceOf(CampaignNotFoundError);
     await expect(del.execute({ id: c.id, organizationId: 'o2' })).rejects.toBeInstanceOf(CampaignNotFoundError);
+  });
+
+  it('delete cascade supprime les OperationLogs de la campagne', async () => {
+    const { create, del, parcels, operations } = make();
+    await seedParcel(parcels, 'o1');
+    const c = await create.execute({ organizationId: 'o1', parcelId: 'p1', cropId: 'c', season: 'S' });
+    await operations.save({ id: 'op1', organizationId: 'o1', campaignId: c.id, type: OperationType.FERTILIZATION, date: '2026-05-01', inputs: [], recordedByUserId: 'u1', createdAt: clock.nowIso() });
+    await del.execute({ id: c.id, organizationId: 'o1' });
+    expect(await operations.listByCampaign('o1', c.id)).toHaveLength(0);
   });
 });

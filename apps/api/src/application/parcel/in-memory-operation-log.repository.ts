@@ -9,4 +9,7 @@ export class InMemoryOperationLogRepository implements OperationLogRepository {
     return [...this.store.values()].filter((o) => o.organizationId === organizationId && o.campaignId === campaignId);
   }
   async delete(id: string): Promise<void> { this.store.delete(id); }
+  async deleteByCampaign(organizationId: string, campaignId: string): Promise<void> {
+    for (const [id, o] of this.store) if (o.organizationId === organizationId && o.campaignId === campaignId) this.store.delete(id);
+  }
 }

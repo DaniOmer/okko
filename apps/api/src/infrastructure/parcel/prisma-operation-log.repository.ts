@@ -26,4 +26,7 @@ export class PrismaOperationLogRepository implements OperationLogRepository {
     return rows.map((r) => this.toSnap(r));
   }
   async delete(id: string): Promise<void> { await this.prisma.operationLog.delete({ where: { id } }); }
+  async deleteByCampaign(organizationId: string, campaignId: string): Promise<void> {
+    await this.prisma.operationLog.deleteMany({ where: { organizationId, campaignId } });
+  }
 }
