@@ -20,6 +20,9 @@ import { OPERATION_LOG_REPOSITORY } from './application/parcel/operation-log.rep
 import { PrismaOperationLogRepository } from './infrastructure/parcel/prisma-operation-log.repository';
 import { CreateOperationLogUseCase, ListOperationsByCampaignUseCase, UpdateOperationLogUseCase, DeleteOperationLogUseCase } from './application/parcel/operation-log.use-cases';
 import { OperationLogController } from './presentation/parcel/operation-log.controller';
+import { GetCampaignRecommendationsUseCase } from './application/parcel/get-campaign-recommendations.use-case';
+import { CROPPING_WINDOW_REPOSITORY } from './application/window/cropping-window.repository';
+import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-cropping-window.repository';
 
 @Module({
   imports: [AuthModule],
@@ -48,6 +51,8 @@ import { OperationLogController } from './presentation/parcel/operation-log.cont
     { provide: ListOperationsByCampaignUseCase, useFactory: (r) => new ListOperationsByCampaignUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
     { provide: UpdateOperationLogUseCase, useFactory: (r) => new UpdateOperationLogUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
     { provide: DeleteOperationLogUseCase, useFactory: (r) => new DeleteOperationLogUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
+    { provide: CROPPING_WINDOW_REPOSITORY, useClass: PrismaCroppingWindowRepository },
+    { provide: GetCampaignRecommendationsUseCase, useFactory: (c, o, w, clk) => new GetCampaignRecommendationsUseCase(c, o, w, clk), inject: [CAMPAIGN_REPOSITORY, OPERATION_LOG_REPOSITORY, CROPPING_WINDOW_REPOSITORY, CLOCK] },
   ],
 })
 export class SuiviModule {}
