@@ -1,6 +1,6 @@
 'use server';
 import { authFetch, jsonInit } from './http';
-import type { Beneficiary, Parcel } from './api';
+import type { Beneficiary, Parcel, Campaign, OperationLog, OperationInput } from './api';
 
 export type BeneficiaryPayload = {
   name: string;
@@ -45,4 +45,30 @@ export async function updateParcel(id: string, input: ParcelPayload): Promise<Pa
 
 export async function deleteParcel(id: string): Promise<void> {
   await authFetch(`/parcels/${id}`, { method: 'DELETE' });
+}
+
+export type CampaignPayload = { parcelId?: string; cropId?: string; varietyId?: string; season?: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string };
+export type OperationPayload = { campaignId?: string; type?: string; date?: string; inputs?: OperationInput[]; laborCost?: number; notes?: string };
+
+export async function createCampaign(input: CampaignPayload): Promise<Campaign> {
+  const res = await authFetch('/campaigns', jsonInit('POST', input));
+  return res.json();
+}
+export async function updateCampaign(id: string, input: CampaignPayload): Promise<Campaign> {
+  const res = await authFetch(`/campaigns/${id}`, jsonInit('PATCH', input));
+  return res.json();
+}
+export async function deleteCampaign(id: string): Promise<void> {
+  await authFetch(`/campaigns/${id}`, { method: 'DELETE' });
+}
+export async function createOperation(input: OperationPayload): Promise<OperationLog> {
+  const res = await authFetch('/operations', jsonInit('POST', input));
+  return res.json();
+}
+export async function updateOperation(id: string, input: OperationPayload): Promise<OperationLog> {
+  const res = await authFetch(`/operations/${id}`, jsonInit('PATCH', input));
+  return res.json();
+}
+export async function deleteOperation(id: string): Promise<void> {
+  await authFetch(`/operations/${id}`, { method: 'DELETE' });
 }

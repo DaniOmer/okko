@@ -152,6 +152,19 @@ export async function listParcels(): Promise<Parcel[]> {
   return res.json();
 }
 
+export interface OperationInput { product: string; quantity?: number; unit?: string; cost?: number; }
+export interface Campaign { id: string; organizationId: string; parcelId: string; cropId: string; varietyId?: string; season: string; startDate?: string; status: 'ACTIVE' | 'CLOSED'; notes?: string; createdAt: string; }
+export interface OperationLog { id: string; organizationId: string; campaignId: string; type: string; date: string; inputs: OperationInput[]; laborCost?: number; notes?: string; recordedByUserId: string; createdAt: string; }
+
+export async function listCampaigns(parcelId: string): Promise<Campaign[]> {
+  const res = await authFetch(`/campaigns?parcelId=${encodeURIComponent(parcelId)}`, { cache: 'no-store' });
+  return res.json();
+}
+export async function listOperations(campaignId: string): Promise<OperationLog[]> {
+  const res = await authFetch(`/operations?campaignId=${encodeURIComponent(campaignId)}`, { cache: 'no-store' });
+  return res.json();
+}
+
 export interface ZoneCropView { cropId: string; cropName: Record<string, string>; rating: string; justification?: string; }
 export interface ZonePestView { pestId: string; pestName: Record<string, string>; kind: string; frequency: string; }
 
