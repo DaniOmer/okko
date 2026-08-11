@@ -43,7 +43,7 @@ export default async function JournalPage({ params }: { params: { id: string; ci
             ) : (
               <ul className="space-y-1 text-sm">
                 {reco.items.map((it, i) => (
-                  <li key={i} className="flex items-center justify-between gap-2">
+                  <li key={`${it.type}-${it.timingDays}`} className="flex items-center justify-between gap-2">
                     <span>{labelOf(OPERATION_TYPE_LABELS, it.type)}{it.dueDate ? ` · ${new Date(it.dueDate).toLocaleDateString('fr-FR')}` : ''}</span>
                     <span className="rounded-full bg-[#eef3f7] px-2 py-0.5 text-xs text-[#2c5a8a]">{labelOf(RECO_STATUS_LABELS, it.status)}</span>
                   </li>

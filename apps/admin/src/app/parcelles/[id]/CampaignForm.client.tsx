@@ -4,8 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { createCampaign, updateCampaign } from '@/lib/suivi-actions';
-import { fetchCropVarieties } from './varieties-action';
-import { fetchCropWindows } from './varieties-action';
+import { fetchCropVarieties, fetchCropWindows } from './varieties-action';
 import { CampaignFields, emptyCampaign, campaignToPayload, type CampaignFormValue } from './CampaignForm';
 import type { CropDocument, Variety, CroppingWindow, Campaign } from '@/lib/api';
 

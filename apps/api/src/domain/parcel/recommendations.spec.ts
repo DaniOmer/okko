@@ -36,4 +36,12 @@ describe('computeRecommendations', () => {
     const r = computeRecommendations({ referenceOperations: [], journalOperations: [], anchorDate: '2026-06-15', today: '2026-06-20', sowingStart: 'MAY', sowingEnd: 'JUL' });
     expect(r.sowingAdvisory?.withinWindow).toBe(true);
   });
+  it('avertissement fenêtre de semis : wrap-around OCT→FEB, ancrage en novembre = dans la période', () => {
+    const r = computeRecommendations({ referenceOperations: [], journalOperations: [], anchorDate: '2026-11-15', today: '2026-11-20', sowingStart: 'OCT', sowingEnd: 'FEB' });
+    expect(r.sowingAdvisory?.withinWindow).toBe(true);
+  });
+  it('avertissement fenêtre de semis : wrap-around OCT→FEB, ancrage en juin = hors période', () => {
+    const r = computeRecommendations({ referenceOperations: [], journalOperations: [], anchorDate: '2026-06-15', today: '2026-06-20', sowingStart: 'OCT', sowingEnd: 'FEB' });
+    expect(r.sowingAdvisory?.withinWindow).toBe(false);
+  });
 });
