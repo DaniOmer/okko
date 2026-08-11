@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { listParcels, listBeneficiaries, listZones } from '@/lib/api';
 import { getSession } from '@/lib/session';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
@@ -31,7 +32,7 @@ export default async function ParcellesPage() {
           <TableBody>
             {parcels.map((p) => (
               <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.name}</TableCell>
+                <TableCell className="font-medium"><Link href={`/parcelles/${p.id}`} className="hover:underline">{p.name}</Link></TableCell>
                 <TableCell>{p.beneficiaryId ? (beneName[p.beneficiaryId] ?? '—') : '—'}</TableCell>
                 <TableCell>{p.zoneId ? (zoneName[p.zoneId] ?? '—') : '—'}</TableCell>
                 <TableCell>{p.areaHectares ?? '—'}</TableCell>
