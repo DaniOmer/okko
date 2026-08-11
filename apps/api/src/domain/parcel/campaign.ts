@@ -1,0 +1,12 @@
+export interface CampaignSnapshot {
+  id: string;
+  organizationId: string;
+  parcelId: string;
+  cropId: string;
+  varietyId?: string;
+  season: string;
+  startDate?: string;
+  status: 'ACTIVE' | 'CLOSED';
+  notes?: string;
+  createdAt: string;
+}
