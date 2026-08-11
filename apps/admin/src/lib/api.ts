@@ -154,7 +154,7 @@ export async function listParcels(): Promise<Parcel[]> {
 
 export interface OperationInput { product: string; quantity?: number; unit?: string; cost?: number; }
 export interface Campaign { id: string; organizationId: string; parcelId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string; season: string; startDate?: string; status: 'ACTIVE' | 'CLOSED'; notes?: string; createdAt: string; }
-export interface OperationLog { id: string; organizationId: string; campaignId: string; type: string; date: string; inputs: OperationInput[]; laborCost?: number; notes?: string; recordedByUserId: string; createdAt: string; }
+export interface OperationLog { id: string; organizationId: string; campaignId: string; type: string; date: string; inputs: OperationInput[]; laborCost?: number; notes?: string; photos: ImageRef[]; gpsLat?: number; gpsLng?: number; recordedByUserId: string; createdAt: string; }
 
 export type RecommendationStatus = 'DONE' | 'OVERDUE' | 'DUE_SOON' | 'UPCOMING' | 'UNDATED';
 export interface RecommendationItem { type: string; label: string; timingDays: number; dueDate?: string; status: RecommendationStatus; }

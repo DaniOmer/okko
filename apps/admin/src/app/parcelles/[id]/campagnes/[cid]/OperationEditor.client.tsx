@@ -7,12 +7,12 @@ import { createOperation, updateOperation } from '@/lib/suivi-actions';
 import { OperationFields, emptyOperation, operationToPayload, type OperationFormValue } from './OperationForm';
 import type { OperationLog } from '@/lib/api';
 
-export function OperationEditor({ campaignId, initial, trigger }: { campaignId: string; initial?: OperationLog; trigger: React.ReactNode }) {
+export function OperationEditor({ campaignId, initial, trigger, parcelGps }: { campaignId: string; initial?: OperationLog; trigger: React.ReactNode; parcelGps?: { lat?: number; lng?: number } }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<OperationFormValue>(initial
-    ? { type: initial.type, date: initial.date, inputs: initial.inputs, laborCost: initial.laborCost != null ? String(initial.laborCost) : '', notes: initial.notes ?? '' }
-    : emptyOperation());
+    ? { type: initial.type, date: initial.date, inputs: initial.inputs, laborCost: initial.laborCost != null ? String(initial.laborCost) : '', notes: initial.notes ?? '', photos: initial.photos ?? [], lat: initial.gpsLat != null ? String(initial.gpsLat) : '', lng: initial.gpsLng != null ? String(initial.gpsLng) : '' }
+    : { ...emptyOperation(), lat: parcelGps?.lat != null ? String(parcelGps.lat) : '', lng: parcelGps?.lng != null ? String(parcelGps.lng) : '' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   async function submit() {
