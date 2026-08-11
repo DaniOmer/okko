@@ -7,3 +7,6 @@ export class ParcelNotFoundError extends Error {
 export class CampaignNotFoundError extends Error {
   constructor(public readonly id: string) { super(`Campaign ${id} not found`); this.name = 'CampaignNotFoundError'; }
 }
+export class OperationLogNotFoundError extends Error {
+  constructor(public readonly id: string) { super(`OperationLog ${id} not found`); this.name = 'OperationLogNotFoundError'; }
+}
