@@ -320,3 +320,19 @@ model Campaign {
   @@index([organizationId])
   @@index([parcelId])
 }
+
+model OperationLog {
+  id               String   @id
+  organizationId   String
+  campaignId       String
+  type             String
+  date             String
+  inputs           Json
+  laborCost        Float?
+  notes            String?
+  recordedByUserId String
+  createdAt        DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([campaignId])
+}

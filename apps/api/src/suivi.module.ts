@@ -16,10 +16,14 @@ import { CAMPAIGN_REPOSITORY } from './application/parcel/campaign.repository';
 import { PrismaCampaignRepository } from './infrastructure/parcel/prisma-campaign.repository';
 import { CreateCampaignUseCase, ListCampaignsByParcelUseCase, UpdateCampaignUseCase, DeleteCampaignUseCase } from './application/parcel/campaign.use-cases';
 import { CampaignController } from './presentation/parcel/campaign.controller';
+import { OPERATION_LOG_REPOSITORY } from './application/parcel/operation-log.repository';
+import { PrismaOperationLogRepository } from './infrastructure/parcel/prisma-operation-log.repository';
+import { CreateOperationLogUseCase, ListOperationsByCampaignUseCase, UpdateOperationLogUseCase, DeleteOperationLogUseCase } from './application/parcel/operation-log.use-cases';
+import { OperationLogController } from './presentation/parcel/operation-log.controller';
 
 @Module({
   imports: [AuthModule],
-  controllers: [BeneficiaryController, ParcelController, CampaignController],
+  controllers: [BeneficiaryController, ParcelController, CampaignController, OperationLogController],
   providers: [
     PrismaService,
     { provide: CLOCK, useClass: SystemClock },
@@ -39,6 +43,11 @@ import { CampaignController } from './presentation/parcel/campaign.controller';
     { provide: ListCampaignsByParcelUseCase, useFactory: (r) => new ListCampaignsByParcelUseCase(r), inject: [CAMPAIGN_REPOSITORY] },
     { provide: UpdateCampaignUseCase, useFactory: (r) => new UpdateCampaignUseCase(r), inject: [CAMPAIGN_REPOSITORY] },
     { provide: DeleteCampaignUseCase, useFactory: (r) => new DeleteCampaignUseCase(r), inject: [CAMPAIGN_REPOSITORY] },
+    { provide: OPERATION_LOG_REPOSITORY, useClass: PrismaOperationLogRepository },
+    { provide: CreateOperationLogUseCase, useFactory: (r, c, clk, ids) => new CreateOperationLogUseCase(r, c, clk, ids), inject: [OPERATION_LOG_REPOSITORY, CAMPAIGN_REPOSITORY, CLOCK, UuidIdGenerator] },
+    { provide: ListOperationsByCampaignUseCase, useFactory: (r) => new ListOperationsByCampaignUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
+    { provide: UpdateOperationLogUseCase, useFactory: (r) => new UpdateOperationLogUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
+    { provide: DeleteOperationLogUseCase, useFactory: (r) => new DeleteOperationLogUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
   ],
 })
 export class SuiviModule {}
