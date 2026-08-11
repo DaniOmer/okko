@@ -5,25 +5,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Button } from '@/components/ui/button';
 import { createCampaign, updateCampaign } from '@/lib/suivi-actions';
 import { fetchCropVarieties } from './varieties-action';
+import { fetchCropWindows } from './varieties-action';
 import { CampaignFields, emptyCampaign, campaignToPayload, type CampaignFormValue } from './CampaignForm';
-import type { CropDocument, Variety, Campaign } from '@/lib/api';
+import type { CropDocument, Variety, CroppingWindow, Campaign } from '@/lib/api';
 
 export function CampaignEditor({ parcelId, crops, initial, trigger }: {
-  parcelId: string; crops: CropDocument[]; initial?: Campaign;
-  trigger: React.ReactNode;
+  parcelId: string; crops: CropDocument[]; initial?: Campaign; trigger: React.ReactNode;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<CampaignFormValue>(initial
-    ? { cropId: initial.cropId, varietyId: initial.varietyId ?? '', season: initial.season, startDate: initial.startDate ?? '', status: initial.status, notes: initial.notes ?? '' }
+    ? { cropId: initial.cropId ?? '', customCropName: initial.customCropName ?? '', windowId: initial.windowId ?? '', varietyId: initial.varietyId ?? '', season: initial.season, startDate: initial.startDate ?? '', status: initial.status, notes: initial.notes ?? '' }
     : emptyCampaign());
   const [varieties, setVarieties] = useState<Variety[]>([]);
+  const [windows, setWindows] = useState<CroppingWindow[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!form.cropId) { setVarieties([]); return; }
+    if (!form.cropId) { setVarieties([]); setWindows([]); return; }
     fetchCropVarieties(form.cropId).then(setVarieties).catch(() => setVarieties([]));
+    fetchCropWindows(form.cropId).then(setWindows).catch(() => setWindows([]));
   }, [form.cropId]);
 
   async function submit() {
@@ -41,7 +43,7 @@ export function CampaignEditor({ parcelId, crops, initial, trigger }: {
       <DialogContent>
         <DialogHeader><DialogTitle>{initial ? 'Modifier la campagne' : 'Nouvelle campagne'}</DialogTitle></DialogHeader>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <CampaignFields value={form} onChange={setForm} crops={crops} varieties={varieties} />
+        <CampaignFields value={form} onChange={setForm} crops={crops} varieties={varieties} windows={windows} />
         <DialogFooter>
           <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Annuler</Button>
           <Button size="sm" disabled={busy} onClick={submit}>{initial ? 'Enregistrer' : 'Créer'}</Button>

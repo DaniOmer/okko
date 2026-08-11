@@ -36,7 +36,7 @@ export default async function ParcelleDetailPage({ params }: { params: { id: str
           <TableBody>
             {campaigns.map((c) => (
               <TableRow key={c.id}>
-                <TableCell className="font-medium">{cropName[c.cropId] ?? c.cropId}</TableCell>
+                <TableCell className="font-medium">{c.cropId ? (cropName[c.cropId] ?? c.cropId) : (c.customCropName ?? '—')}</TableCell>
                 <TableCell>{c.season}</TableCell>
                 <TableCell>{STATUS_LABELS[c.status] ?? c.status}</TableCell>
                 <TableCell><Link href={`/parcelles/${parcel.id}/campagnes/${c.id}`} className="text-primary hover:underline">Ouvrir</Link></TableCell>

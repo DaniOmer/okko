@@ -153,7 +153,7 @@ export async function listParcels(): Promise<Parcel[]> {
 }
 
 export interface OperationInput { product: string; quantity?: number; unit?: string; cost?: number; }
-export interface Campaign { id: string; organizationId: string; parcelId: string; cropId: string; varietyId?: string; season: string; startDate?: string; status: 'ACTIVE' | 'CLOSED'; notes?: string; createdAt: string; }
+export interface Campaign { id: string; organizationId: string; parcelId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string; season: string; startDate?: string; status: 'ACTIVE' | 'CLOSED'; notes?: string; createdAt: string; }
 export interface OperationLog { id: string; organizationId: string; campaignId: string; type: string; date: string; inputs: OperationInput[]; laborCost?: number; notes?: string; recordedByUserId: string; createdAt: string; }
 
 export async function listCampaigns(parcelId: string): Promise<Campaign[]> {
