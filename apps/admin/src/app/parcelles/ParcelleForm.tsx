@@ -27,16 +27,16 @@ export function ParcelleFields({ value, onChange, beneficiaries, zones }: {
       <div className="space-y-1"><Label>Nom de la parcelle *</Label><Input value={value.name} onChange={(e) => set('name', e.target.value)} required /></div>
       <div className="space-y-1">
         <Label>Bénéficiaire</Label>
-        <Select value={value.beneficiaryId} onValueChange={(v) => set('beneficiaryId', v)}>
+        <Select value={value.beneficiaryId} onValueChange={(v) => set('beneficiaryId', v === '__none__' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="— aucun —" /></SelectTrigger>
-          <SelectContent>{beneficiaries.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent>
+          <SelectContent><SelectItem value="__none__">— aucun —</SelectItem>{beneficiaries.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent>
         </Select>
       </div>
       <div className="space-y-1">
         <Label>Zone</Label>
-        <Select value={value.zoneId} onValueChange={(v) => set('zoneId', v)}>
+        <Select value={value.zoneId} onValueChange={(v) => set('zoneId', v === '__none__' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="— aucune —" /></SelectTrigger>
-          <SelectContent>{zones.map((z) => <SelectItem key={z.id} value={z.id}>{z.name}</SelectItem>)}</SelectContent>
+          <SelectContent><SelectItem value="__none__">— aucune —</SelectItem>{zones.map((z) => <SelectItem key={z.id} value={z.id}>{z.name}</SelectItem>)}</SelectContent>
         </Select>
       </div>
       <div className="space-y-1"><Label>Surface (ha)</Label><Input type="number" className="w-40" value={value.areaHectares} onChange={(e) => set('areaHectares', e.target.value)} /></div>

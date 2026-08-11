@@ -6,12 +6,13 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { OPERATION_TYPE_LABELS } from '@/lib/labels';
 import type { OperationInput } from '@/lib/api';
 
-export interface OperationFormValue { type: string; date: string; inputs: OperationInput[]; laborCost: string; notes: string; }
+type InputRow = OperationInput & { _k?: string };
+export interface OperationFormValue { type: string; date: string; inputs: InputRow[]; laborCost: string; notes: string; }
 export const emptyOperation = (): OperationFormValue => ({ type: 'PLANTING', date: '', inputs: [], laborCost: '', notes: '' });
 const num = (s: string) => (s.trim() === '' ? undefined : Number(s));
 export const operationToPayload = (v: OperationFormValue) => ({
   type: v.type, date: v.date,
-  inputs: v.inputs.filter((i) => i.product.trim() !== ''),
+  inputs: v.inputs.filter((i) => i.product.trim() !== '').map((i) => ({ product: i.product, quantity: i.quantity, unit: i.unit, cost: i.cost })),
   laborCost: num(v.laborCost),
   notes: v.notes || undefined,
 });
@@ -33,7 +34,7 @@ export function OperationFields({ value, onChange }: { value: OperationFormValue
         <Label>Intrants</Label>
         <div className="space-y-2">
           {value.inputs.map((inp, i) => (
-            <div key={i} className="flex gap-1 items-center">
+            <div key={inp._k ?? i} className="flex gap-1 items-center">
               <Input className="flex-1" placeholder="produit" value={inp.product} onChange={(e) => setInput(i, { product: e.target.value })} />
               <Input className="w-20" type="number" placeholder="qté" value={inp.quantity ?? ''} onChange={(e) => setInput(i, { quantity: e.target.value === '' ? undefined : Number(e.target.value) })} />
               <Input className="w-16" placeholder="unité" value={inp.unit ?? ''} onChange={(e) => setInput(i, { unit: e.target.value || undefined })} />
@@ -41,7 +42,7 @@ export function OperationFields({ value, onChange }: { value: OperationFormValue
               <Button type="button" variant="ghost" size="sm" onClick={() => set('inputs', value.inputs.filter((_, j) => j !== i))}>✕</Button>
             </div>
           ))}
-          <Button type="button" variant="outline" size="sm" onClick={() => set('inputs', [...value.inputs, { product: '' }])}>+ Ajouter un intrant</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => set('inputs', [...value.inputs, { product: '', _k: crypto.randomUUID() }])}>+ Ajouter un intrant</Button>
         </div>
       </div>
       <div className="space-y-1"><Label>Coût main d&apos;œuvre</Label><Input className="w-32" type="number" value={value.laborCost} onChange={(e) => set('laborCost', e.target.value)} /></div>

@@ -27,9 +27,9 @@ export function CampaignFields({ value, onChange, crops, varieties }: {
       </div>
       <div className="space-y-1">
         <Label>Variété</Label>
-        <Select value={value.varietyId} onValueChange={(v) => set('varietyId', v)}>
+        <Select value={value.varietyId} onValueChange={(v) => set('varietyId', v === '__none__' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="— aucune —" /></SelectTrigger>
-          <SelectContent>{varieties.map((vr) => <SelectItem key={vr.id} value={vr.id}>{vr.name.fr ?? vr.id}</SelectItem>)}</SelectContent>
+          <SelectContent><SelectItem value="__none__">— aucune —</SelectItem>{varieties.map((vr) => <SelectItem key={vr.id} value={vr.id}>{vr.name.fr ?? vr.id}</SelectItem>)}</SelectContent>
         </Select>
       </div>
       <div className="space-y-1"><Label>Saison *</Label><Input value={value.season} onChange={(e) => set('season', e.target.value)} placeholder="ex. Saison des pluies 2026" required /></div>
