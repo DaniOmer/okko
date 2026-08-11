@@ -304,3 +304,19 @@ model Parcel {
 
   @@index([organizationId])
 }
+
+model Campaign {
+  id             String   @id
+  organizationId String
+  parcelId       String
+  cropId         String
+  varietyId      String?
+  season         String
+  startDate      String?
+  status         String   @default("ACTIVE")
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([parcelId])
+}
