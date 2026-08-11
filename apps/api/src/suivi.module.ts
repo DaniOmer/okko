@@ -28,7 +28,7 @@ import { ParcelController } from './presentation/parcel/parcel.controller';
     { provide: PARCEL_REPOSITORY, useClass: PrismaParcelRepository },
     { provide: CreateParcelUseCase, useFactory: (r, b, c, ids) => new CreateParcelUseCase(r, b, c, ids), inject: [PARCEL_REPOSITORY, BENEFICIARY_REPOSITORY, CLOCK, UuidIdGenerator] },
     { provide: ListParcelsUseCase, useFactory: (r) => new ListParcelsUseCase(r), inject: [PARCEL_REPOSITORY] },
-    { provide: UpdateParcelUseCase, useFactory: (r) => new UpdateParcelUseCase(r), inject: [PARCEL_REPOSITORY] },
+    { provide: UpdateParcelUseCase, useFactory: (r, b) => new UpdateParcelUseCase(r, b), inject: [PARCEL_REPOSITORY, BENEFICIARY_REPOSITORY] },
     { provide: DeleteParcelUseCase, useFactory: (r) => new DeleteParcelUseCase(r), inject: [PARCEL_REPOSITORY] },
   ],
 })

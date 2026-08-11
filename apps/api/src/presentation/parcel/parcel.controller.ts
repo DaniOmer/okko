@@ -31,7 +31,7 @@ export class ParcelController {
   @Patch(':id') @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT')
   async update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() body: Partial<ParcelBody>) {
     try { return await this.updateUC.execute({ id, organizationId: this.org(user), ...body }); }
-    catch (e) { if (e instanceof ParcelNotFoundError) throw new NotFoundException(); throw e; }
+    catch (e) { if (e instanceof BeneficiaryNotFoundError) throw new BadRequestException('bénéficiaire invalide'); if (e instanceof ParcelNotFoundError) throw new NotFoundException(); throw e; }
   }
 
   @Delete(':id') @HttpCode(204) @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT')

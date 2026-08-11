@@ -13,7 +13,7 @@ function make() {
     repo, bene,
     create: new CreateParcelUseCase(repo, bene, clock, ids),
     list: new ListParcelsUseCase(repo),
-    update: new UpdateParcelUseCase(repo),
+    update: new UpdateParcelUseCase(repo, bene),
     del: new DeleteParcelUseCase(repo),
   };
 }
@@ -60,5 +60,22 @@ describe('Parcel use-cases - isolation par organisation', () => {
     await bene.save({ id: 'b1', organizationId: 'o1', name: 'Awa', createdAt: clock.nowIso() });
     const p = await create.execute({ organizationId: 'o1', name: 'P', beneficiaryId: 'b1' });
     expect(p.beneficiaryId).toBe('b1');
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  it('update avec beneficiaryId dune autre org BeneficiaryNotFoundError', async () => {
+    const { create, update, bene } = make();
+    const p = await create.execute({ organizationId: 'o1', name: 'Champ' });
+    await bene.save({ id: 'b-other', organizationId: 'o2', name: 'Autre', createdAt: clock.nowIso() });
+    await expect(update.execute({ id: p.id, organizationId: 'o1', beneficiaryId: 'b-other' })).rejects.toBeInstanceOf(BeneficiaryNotFoundError);
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  it('update avec beneficiaryId de la meme org OK', async () => {
+    const { create, update, bene } = make();
+    const p = await create.execute({ organizationId: 'o1', name: 'Champ' });
+    await bene.save({ id: 'b1', organizationId: 'o1', name: 'Awa', createdAt: clock.nowIso() });
+    const updated = await update.execute({ id: p.id, organizationId: 'o1', beneficiaryId: 'b1' });
+    expect(updated.beneficiaryId).toBe('b1');
   });
 });

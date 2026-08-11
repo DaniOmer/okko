@@ -36,10 +36,14 @@ export class ListParcelsUseCase {
 const keep = <T>(v: T | undefined, cur: T): T => (v !== undefined ? v : cur);
 
 export class UpdateParcelUseCase {
-  constructor(private readonly repo: ParcelRepository) {}
+  constructor(private readonly repo: ParcelRepository, private readonly beneficiaries: BeneficiaryRepository) {}
   async execute(input: UpdateParcelInput): Promise<ParcelSnapshot> {
     const existing = await this.repo.findById(input.id);
     if (!existing || existing.organizationId !== input.organizationId) throw new ParcelNotFoundError(input.id);
+    if (input.beneficiaryId !== undefined && input.beneficiaryId !== null) {
+      const b = await this.beneficiaries.findById(input.beneficiaryId);
+      if (!b || b.organizationId !== input.organizationId) throw new BeneficiaryNotFoundError(input.beneficiaryId);
+    }
     const snap: ParcelSnapshot = {
       ...existing,
       name: input.name ?? existing.name,
