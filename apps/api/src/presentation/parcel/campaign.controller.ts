@@ -3,9 +3,9 @@ import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles, CurrentUser, AuthUser } from '../auth/decorators';
 import { CreateCampaignUseCase, ListCampaignsByParcelUseCase, UpdateCampaignUseCase, DeleteCampaignUseCase } from '../../application/parcel/campaign.use-cases';
-import { CampaignNotFoundError, ParcelNotFoundError } from '../../application/parcel/errors';
+import { CampaignNotFoundError, ParcelNotFoundError, MissingCropError } from '../../application/parcel/errors';
 
-type CampaignBody = { parcelId: string; cropId: string; varietyId?: string; season: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string };
+type CampaignBody = { parcelId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string; season: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string };
 
 @Controller('campaigns')
 @UseGuards(AuthGuard, RolesGuard)
@@ -28,7 +28,7 @@ export class CampaignController {
   @Post() @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT')
   async create(@CurrentUser() user: AuthUser, @Body() body: CampaignBody) {
     try { return await this.createUC.execute({ organizationId: this.org(user), ...body }); }
-    catch (e) { if (e instanceof ParcelNotFoundError) throw new BadRequestException('parcelle invalide'); throw e; }
+    catch (e) { if (e instanceof ParcelNotFoundError) throw new BadRequestException('parcelle invalide'); if (e instanceof MissingCropError) throw new BadRequestException('culture requise (cropId ou customCropName)'); throw e; }
   }
 
   @Patch(':id') @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT')

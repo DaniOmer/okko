@@ -10,3 +10,6 @@ export class CampaignNotFoundError extends Error {
 export class OperationLogNotFoundError extends Error {
   constructor(public readonly id: string) { super(`OperationLog ${id} not found`); this.name = 'OperationLogNotFoundError'; }
 }
+export class MissingCropError extends Error {
+  constructor() { super('A campaign requires either cropId or customCropName'); this.name = 'MissingCropError'; }
+}

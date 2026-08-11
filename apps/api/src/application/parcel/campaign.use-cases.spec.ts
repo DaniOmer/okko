@@ -1,5 +1,5 @@
 import { CreateCampaignUseCase, ListCampaignsByParcelUseCase, UpdateCampaignUseCase, DeleteCampaignUseCase } from './campaign.use-cases';
-import { CampaignNotFoundError, ParcelNotFoundError } from './errors';
+import { CampaignNotFoundError, ParcelNotFoundError, MissingCropError } from './errors';
 import { InMemoryCampaignRepository } from './in-memory-campaign.repository';
 import { InMemoryParcelRepository } from './in-memory-parcel.repository';
 import { InMemoryOperationLogRepository } from './in-memory-operation-log.repository';
@@ -56,6 +56,19 @@ describe('Campaign use-cases — isolation + validation parcelle', () => {
     const c = await create.execute({ organizationId: 'o1', parcelId: 'p1', cropId: 'c', season: 'S' });
     await expect(update.execute({ id: c.id, organizationId: 'o2', season: 'X' })).rejects.toBeInstanceOf(CampaignNotFoundError);
     await expect(del.execute({ id: c.id, organizationId: 'o2' })).rejects.toBeInstanceOf(CampaignNotFoundError);
+  });
+
+  it('create sans cropId ni customCropName → MissingCropError', async () => {
+    const { create, parcels } = make();
+    await seedParcel(parcels, 'o1');
+    await expect(create.execute({ organizationId: 'o1', parcelId: 'p1', season: 'S' } as never)).rejects.toBeInstanceOf(MissingCropError);
+  });
+  it('create avec customCropName seul (culture Autre) → OK, cropId absent', async () => {
+    const { create, parcels } = make();
+    await seedParcel(parcels, 'o1');
+    const c = await create.execute({ organizationId: 'o1', parcelId: 'p1', customCropName: 'Fonio', season: 'S' });
+    expect(c.cropId).toBeUndefined();
+    expect(c.customCropName).toBe('Fonio');
   });
 
   it('delete cascade supprime les OperationLogs de la campagne', async () => {

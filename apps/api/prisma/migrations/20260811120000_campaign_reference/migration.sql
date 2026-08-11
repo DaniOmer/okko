@@ -1,0 +1,2 @@
+ALTER TABLE "Campaign" ADD COLUMN "customCropName" TEXT, ADD COLUMN "windowId" TEXT;
+ALTER TABLE "Campaign" ALTER COLUMN "cropId" DROP NOT NULL;

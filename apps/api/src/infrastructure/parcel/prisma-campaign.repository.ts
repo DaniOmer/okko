@@ -3,16 +3,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CampaignRepository } from '../../application/parcel/campaign.repository';
 import { CampaignSnapshot } from '../../domain/parcel/campaign';
 
-type Row = { id: string; organizationId: string; parcelId: string; cropId: string; varietyId: string | null; season: string; startDate: string | null; status: string; notes: string | null; createdAt: Date };
+type Row = { id: string; organizationId: string; parcelId: string; cropId: string | null; customCropName: string | null; windowId: string | null; varietyId: string | null; season: string; startDate: string | null; status: string; notes: string | null; createdAt: Date };
 
 @Injectable()
 export class PrismaCampaignRepository implements CampaignRepository {
   constructor(private readonly prisma: PrismaService) {}
   private toSnap(r: Row): CampaignSnapshot {
-    return { id: r.id, organizationId: r.organizationId, parcelId: r.parcelId, cropId: r.cropId, varietyId: r.varietyId ?? undefined, season: r.season, startDate: r.startDate ?? undefined, status: r.status as CampaignSnapshot['status'], notes: r.notes ?? undefined, createdAt: r.createdAt.toISOString() };
+    return { id: r.id, organizationId: r.organizationId, parcelId: r.parcelId, cropId: r.cropId ?? undefined, customCropName: r.customCropName ?? undefined, windowId: r.windowId ?? undefined, varietyId: r.varietyId ?? undefined, season: r.season, startDate: r.startDate ?? undefined, status: r.status as CampaignSnapshot['status'], notes: r.notes ?? undefined, createdAt: r.createdAt.toISOString() };
   }
   async save(c: CampaignSnapshot): Promise<void> {
-    const data = { id: c.id, organizationId: c.organizationId, parcelId: c.parcelId, cropId: c.cropId, varietyId: c.varietyId ?? null, season: c.season, startDate: c.startDate ?? null, status: c.status, notes: c.notes ?? null };
+    const data = { id: c.id, organizationId: c.organizationId, parcelId: c.parcelId, cropId: c.cropId ?? null, customCropName: c.customCropName ?? null, windowId: c.windowId ?? null, varietyId: c.varietyId ?? null, season: c.season, startDate: c.startDate ?? null, status: c.status, notes: c.notes ?? null };
     await this.prisma.campaign.upsert({ where: { id: c.id }, create: data, update: data });
   }
   async findById(id: string): Promise<CampaignSnapshot | null> {

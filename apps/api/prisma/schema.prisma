@@ -309,7 +309,9 @@ model Campaign {
   id             String   @id
   organizationId String
   parcelId       String
-  cropId         String
+  cropId         String?
+  customCropName String?
+  windowId       String?
   varietyId      String?
   season         String
   startDate      String?

@@ -2,16 +2,16 @@ import { CampaignRepository } from './campaign.repository';
 import { ParcelRepository } from './parcel.repository';
 import { OperationLogRepository } from './operation-log.repository';
 import { CampaignSnapshot } from '../../domain/parcel/campaign';
-import { CampaignNotFoundError, ParcelNotFoundError } from './errors';
+import { CampaignNotFoundError, ParcelNotFoundError, MissingCropError } from './errors';
 import { Clock } from '../shared/clock';
 import { IdGenerator } from '../shared/id-generator';
 
 export interface CreateCampaignInput {
-  organizationId: string; parcelId: string; cropId: string; varietyId?: string;
+  organizationId: string; parcelId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string;
   season: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string;
 }
 export interface UpdateCampaignInput {
-  id: string; organizationId: string; cropId?: string; varietyId?: string;
+  id: string; organizationId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string;
   season?: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string;
 }
 
@@ -22,9 +22,10 @@ export class CreateCampaignUseCase {
   async execute(input: CreateCampaignInput): Promise<CampaignSnapshot> {
     const parcel = await this.parcels.findById(input.parcelId);
     if (!parcel || parcel.organizationId !== input.organizationId) throw new ParcelNotFoundError(input.parcelId);
+    if (!input.cropId && !input.customCropName) throw new MissingCropError();
     const snap: CampaignSnapshot = {
       id: this.ids.next(), organizationId: input.organizationId, parcelId: input.parcelId,
-      cropId: input.cropId, varietyId: input.varietyId, season: input.season,
+      cropId: input.cropId, customCropName: input.customCropName, windowId: input.windowId, varietyId: input.varietyId, season: input.season,
       startDate: input.startDate, status: input.status ?? 'ACTIVE', notes: input.notes, createdAt: this.clock.nowIso(),
     };
     await this.repo.save(snap);
@@ -46,7 +47,8 @@ export class UpdateCampaignUseCase {
     if (!existing || existing.organizationId !== input.organizationId) throw new CampaignNotFoundError(input.id);
     const snap: CampaignSnapshot = {
       ...existing,
-      cropId: keep(input.cropId, existing.cropId), varietyId: keep(input.varietyId, existing.varietyId),
+      cropId: keep(input.cropId, existing.cropId), customCropName: keep(input.customCropName, existing.customCropName),
+      windowId: keep(input.windowId, existing.windowId), varietyId: keep(input.varietyId, existing.varietyId),
       season: keep(input.season, existing.season), startDate: keep(input.startDate, existing.startDate),
       status: keep(input.status, existing.status), notes: keep(input.notes, existing.notes),
     };
