@@ -1,6 +1,7 @@
 import { OperationLogRepository } from './operation-log.repository';
 import { CampaignRepository } from './campaign.repository';
 import { OperationLogSnapshot, OperationInput } from '../../domain/parcel/operation-log';
+import { MediaImageJSON } from '../../domain/media/media-image';
 import { OperationType } from '../../domain/window/operation-type';
 import { OperationLogNotFoundError, CampaignNotFoundError } from './errors';
 import { Clock } from '../shared/clock';
@@ -8,11 +9,14 @@ import { IdGenerator } from '../shared/id-generator';
 
 export interface CreateOperationLogInput {
   organizationId: string; campaignId: string; type: OperationType; date: string;
-  inputs?: OperationInput[]; laborCost?: number; notes?: string; recordedByUserId: string;
+  inputs?: OperationInput[]; laborCost?: number; notes?: string;
+  photos?: MediaImageJSON[]; gpsLat?: number; gpsLng?: number;
+  recordedByUserId: string;
 }
 export interface UpdateOperationLogInput {
   id: string; organizationId: string; type?: OperationType; date?: string;
   inputs?: OperationInput[]; laborCost?: number; notes?: string;
+  photos?: MediaImageJSON[]; gpsLat?: number; gpsLng?: number;
 }
 
 const keep = <T>(v: T | undefined, cur: T): T => (v !== undefined ? v : cur);
@@ -25,7 +29,8 @@ export class CreateOperationLogUseCase {
     const snap: OperationLogSnapshot = {
       id: this.ids.next(), organizationId: input.organizationId, campaignId: input.campaignId,
       type: input.type, date: input.date, inputs: input.inputs ?? [], laborCost: input.laborCost,
-      notes: input.notes, recordedByUserId: input.recordedByUserId, createdAt: this.clock.nowIso(),
+      notes: input.notes, photos: input.photos ?? [], gpsLat: input.gpsLat, gpsLng: input.gpsLng,
+      recordedByUserId: input.recordedByUserId, createdAt: this.clock.nowIso(),
     };
     await this.repo.save(snap);
     return snap;
@@ -49,6 +54,7 @@ export class UpdateOperationLogUseCase {
       type: keep(input.type, existing.type), date: keep(input.date, existing.date),
       inputs: keep(input.inputs, existing.inputs), laborCost: keep(input.laborCost, existing.laborCost),
       notes: keep(input.notes, existing.notes),
+      photos: keep(input.photos, existing.photos), gpsLat: keep(input.gpsLat, existing.gpsLat), gpsLng: keep(input.gpsLng, existing.gpsLng),
     };
     await this.repo.save(snap);
     return snap;

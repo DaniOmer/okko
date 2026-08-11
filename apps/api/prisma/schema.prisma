@@ -332,6 +332,9 @@ model OperationLog {
   inputs           Json
   laborCost        Float?
   notes            String?
+  photos           Json     @default("[]")
+  gpsLat           Float?
+  gpsLng           Float?
   recordedByUserId String
   createdAt        DateTime @default(now())
 

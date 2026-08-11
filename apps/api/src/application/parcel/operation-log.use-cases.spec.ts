@@ -47,4 +47,24 @@ describe('OperationLog use-cases — isolation + validation campagne', () => {
     await expect(update.execute({ id: op.id, organizationId: 'o2', notes: 'x' })).rejects.toBeInstanceOf(OperationLogNotFoundError);
     await expect(del.execute({ id: op.id, organizationId: 'o2' })).rejects.toBeInstanceOf(OperationLogNotFoundError);
   });
+
+  it('create persiste photos + gpsLat/gpsLng et se relit (round-trip)', async () => {
+    const { create, list, campaigns } = make();
+    await seedCampaign(campaigns, 'o1');
+    const op = await create.execute({ organizationId: 'o1', campaignId: 'c1', type: OperationType.PLANTING, date: '2026-05-01', recordedByUserId: 'u1', photos: [{ key: 'images/a.jpg', caption: 'plant' }], gpsLat: 6.37, gpsLng: 2.42 });
+    expect(op.photos).toEqual([{ key: 'images/a.jpg', caption: 'plant' }]);
+    expect(op.gpsLat).toBe(6.37);
+    expect(op.gpsLng).toBe(2.42);
+    const relu = await list.execute({ organizationId: 'o1', campaignId: 'c1' });
+    expect(relu[0].photos).toEqual([{ key: 'images/a.jpg', caption: 'plant' }]);
+    expect(relu[0].gpsLat).toBe(6.37);
+    expect(relu[0].gpsLng).toBe(2.42);
+  });
+
+  it('create sans photos → photos: []', async () => {
+    const { create, campaigns } = make();
+    await seedCampaign(campaigns, 'o1');
+    const op = await create.execute({ organizationId: 'o1', campaignId: 'c1', type: OperationType.WEEDING, date: '2026-05-01', recordedByUserId: 'u1' });
+    expect(op.photos).toEqual([]);
+  });
 });
