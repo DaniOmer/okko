@@ -30,4 +30,16 @@ describe('BrevoEmailNotificationSender', () => {
     const sender = new BrevoEmailNotificationSender();
     await expect(sender.send({ kind: 'invitation', to: 'x@y.z', organizationName: 'Coop', inviteUrl: 'u', expiresAt: new Date() })).rejects.toThrow();
   });
+
+  it('POST Brevo pour un rappel de suivi (campaign_reminder) — libellés + statut FR + lien journal', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true, status: 201 } as Response);
+    const sender = new BrevoEmailNotificationSender();
+    await sender.send({ kind: 'campaign_reminder', to: 'x@y.z', campaignLabel: 'Parcelle Nord — Saison 2026', items: [{ label: 'Sarclage', dueDate: '2026-05-01', status: 'OVERDUE' }, { label: 'Fumure', status: 'DUE_SOON' }], journalUrl: 'http://app/parcelles/p1/campagnes/c1' });
+    const [, init] = fetchMock.mock.calls[0];
+    const body = init!.body as string;
+    expect(body).toContain('Sarclage');
+    expect(body).toContain('En retard');
+    expect(body).toContain('http://app/parcelles/p1/campagnes/c1');
+    expect(body).toContain('Rappel de suivi');
+  });
 });
