@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { listCampaigns, listOperations, getCampaignRecommendations, CampaignRecommendations } from '@/lib/api';
+import { listCampaigns, listOperations, getCampaignRecommendations, CampaignRecommendations, listParcels } from '@/lib/api';
 import { getSession } from '@/lib/session';
 import { labelOf, OPERATION_TYPE_LABELS, RECO_STATUS_LABELS, MONTH_LABELS } from '@/lib/labels';
 import { Button } from '@/components/ui/button';
@@ -12,19 +12,22 @@ const WRITERS = ['ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT'];
 export default async function JournalPage({ params }: { params: { id: string; cid: string } }) {
   const session = getSession();
   const canWrite = session ? WRITERS.includes(session.role) : false;
-  const [campaigns, operations, reco] = await Promise.all([
+  const [campaigns, operations, reco, parcels] = await Promise.all([
     listCampaigns(params.id).catch(() => []), listOperations(params.cid).catch(() => []),
     getCampaignRecommendations(params.cid).catch((): CampaignRecommendations => ({ hasReference: false, items: [] })),
+    listParcels().catch(() => []),
   ]);
   const campaign = campaigns.find((c) => c.id === params.cid);
   if (!campaign) notFound();
+  const parcel = parcels.find((p) => p.id === params.id);
+  const parcelGps = { lat: parcel?.gpsLat, lng: parcel?.gpsLng };
   return (
     <main className="space-y-6">
       <div>
         <Link href={`/parcelles/${params.id}`} className="text-xs text-muted-foreground hover:underline">← Retour à la parcelle</Link>
         <div className="mt-2 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Journal — {campaign.season}</h1>
-          {canWrite && <OperationEditor campaignId={campaign.id} trigger={<Button>Nouvelle opération</Button>} />}
+          {canWrite && <OperationEditor campaignId={campaign.id} parcelGps={parcelGps} trigger={<Button>Nouvelle opération</Button>} />}
         </div>
       </div>
       <section className="rounded-lg border bg-card p-4">
@@ -68,6 +71,17 @@ export default async function JournalPage({ params }: { params: { id: string; ci
                   )}
                   {op.laborCost != null && <p className="text-xs text-muted-foreground">Main d&apos;œuvre : {op.laborCost}</p>}
                   {op.notes && <p className="text-sm">{op.notes}</p>}
+                  {op.photos.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {op.photos.map((img) => (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img key={img.key} src={img.url} alt={img.caption || ''} className="h-16 w-16 rounded object-cover" />
+                      ))}
+                    </div>
+                  )}
+                  {op.gpsLat != null && op.gpsLng != null && (
+                    <p className="mt-1 text-xs text-muted-foreground">📍 {op.gpsLat.toFixed(5)}, {op.gpsLng.toFixed(5)}</p>
+                  )}
                 </div>
                 {canWrite && <OperationRowActions op={op} />}
               </div>
