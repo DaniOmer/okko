@@ -80,7 +80,7 @@ export default async function JournalPage({ params }: { params: { id: string; ci
                     </div>
                   )}
                   {op.gpsLat != null && op.gpsLng != null && (
-                    <p className="mt-1 text-xs text-muted-foreground">📍 {op.gpsLat.toFixed(5)}, {op.gpsLng.toFixed(5)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground"><span aria-hidden="true">📍 </span>{op.gpsLat.toFixed(5)}, {op.gpsLng.toFixed(5)}</p>
                   )}
                 </div>
                 {canWrite && <OperationRowActions op={op} />}

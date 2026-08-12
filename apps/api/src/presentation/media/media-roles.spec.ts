@@ -13,5 +13,6 @@ describe('MediaController — upload ouvert aux rôles tenant (écriture)', () =
     expect(roles).toContain('ORG_ADMIN');
     expect(roles).toContain('AGRONOMIST');
     expect(roles).toContain('FIELD_AGENT');
+    expect(roles).not.toContain('VIEWER');
   });
 });

@@ -68,7 +68,7 @@ export function OperationFields({ value, onChange }: { value: OperationFormValue
         <div className="flex flex-wrap items-center gap-2">
           <Input className="w-32" placeholder="latitude" value={value.lat} onChange={(e) => set('lat', e.target.value)} />
           <Input className="w-32" placeholder="longitude" value={value.lng} onChange={(e) => set('lng', e.target.value)} />
-          <Button type="button" variant="outline" size="sm" onClick={capture}>📍 Capturer ma position</Button>
+          <Button type="button" variant="outline" size="sm" onClick={capture}><span aria-hidden="true">📍</span> Capturer ma position</Button>
         </div>
         {geoError && <p className="text-xs text-destructive">{geoError}</p>}
       </div>
