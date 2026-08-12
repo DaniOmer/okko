@@ -23,6 +23,8 @@ import { OperationLogController } from './presentation/parcel/operation-log.cont
 import { GetCampaignRecommendationsUseCase } from './application/parcel/get-campaign-recommendations.use-case';
 import { CROPPING_WINDOW_REPOSITORY } from './application/window/cropping-window.repository';
 import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-cropping-window.repository';
+import { STORAGE_PORT } from './application/media/storage.port';
+import { S3Storage } from './infrastructure/media/s3-storage';
 
 @Module({
   imports: [AuthModule],
@@ -47,6 +49,7 @@ import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-c
     { provide: UpdateCampaignUseCase, useFactory: (r) => new UpdateCampaignUseCase(r), inject: [CAMPAIGN_REPOSITORY] },
     { provide: DeleteCampaignUseCase, useFactory: (r, o) => new DeleteCampaignUseCase(r, o), inject: [CAMPAIGN_REPOSITORY, OPERATION_LOG_REPOSITORY] },
     { provide: OPERATION_LOG_REPOSITORY, useClass: PrismaOperationLogRepository },
+    { provide: STORAGE_PORT, useFactory: () => S3Storage.fromEnv() },
     { provide: CreateOperationLogUseCase, useFactory: (r, c, clk, ids) => new CreateOperationLogUseCase(r, c, clk, ids), inject: [OPERATION_LOG_REPOSITORY, CAMPAIGN_REPOSITORY, CLOCK, UuidIdGenerator] },
     { provide: ListOperationsByCampaignUseCase, useFactory: (r) => new ListOperationsByCampaignUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
     { provide: UpdateOperationLogUseCase, useFactory: (r) => new UpdateOperationLogUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },

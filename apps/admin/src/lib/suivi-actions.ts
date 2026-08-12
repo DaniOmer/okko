@@ -48,7 +48,7 @@ export async function deleteParcel(id: string): Promise<void> {
 }
 
 export type CampaignPayload = { parcelId?: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string; season?: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string };
-export type OperationPayload = { campaignId?: string; type?: string; date?: string; inputs?: OperationInput[]; laborCost?: number; notes?: string };
+export type OperationPayload = { campaignId?: string; type?: string; date?: string; inputs?: OperationInput[]; laborCost?: number; notes?: string; photos?: { key: string; caption?: string }[]; gpsLat?: number; gpsLng?: number };
 
 export async function createCampaign(input: CampaignPayload): Promise<Campaign> {
   const res = await authFetch('/campaigns', jsonInit('POST', input));
