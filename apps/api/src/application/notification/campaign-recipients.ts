@@ -7,14 +7,15 @@ export async function resolveCampaignRecipients(
   users: UserRepository,
   prefs: NotificationPreferenceRepository,
   organizationId: string,
-): Promise<string[]> {
+): Promise<{ userId: string; email: string; everyNDays: number }[]> {
   const members = await users.listByOrganization(organizationId);
   const eligible = members.filter((u) => FIELD_ROLES.has(u.role) && u.emailVerifiedAt != null);
-  const out: string[] = [];
+  const out: { userId: string; email: string; everyNDays: number }[] = [];
   for (const u of eligible) {
     const pref = await prefs.findByUserId(u.id);
-    if (pref && pref.remindersEnabled === false) continue;
-    out.push(u.email);
+    const everyNDays = pref ? pref.reminderEveryNDays : 1;
+    if (everyNDays === 0) continue;
+    out.push({ userId: u.id, email: u.email, everyNDays });
   }
   return out;
 }

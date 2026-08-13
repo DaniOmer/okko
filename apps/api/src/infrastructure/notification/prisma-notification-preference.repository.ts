@@ -8,9 +8,9 @@ export class PrismaNotificationPreferenceRepository implements NotificationPrefe
   constructor(private readonly prisma: PrismaService) {}
   async findByUserId(userId: string): Promise<NotificationPreferenceSnapshot | null> {
     const r = await this.prisma.notificationPreference.findUnique({ where: { userId } });
-    return r ? { userId: r.userId, remindersEnabled: r.remindersEnabled } : null;
+    return r ? { userId: r.userId, reminderEveryNDays: r.reminderEveryNDays } : null;
   }
-  async upsert(userId: string, remindersEnabled: boolean): Promise<void> {
-    await this.prisma.notificationPreference.upsert({ where: { userId }, create: { userId, remindersEnabled }, update: { remindersEnabled } });
+  async upsert(userId: string, reminderEveryNDays: number): Promise<void> {
+    await this.prisma.notificationPreference.upsert({ where: { userId }, create: { userId, reminderEveryNDays }, update: { reminderEveryNDays } });
   }
 }

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth.module';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { SystemClock } from './infrastructure/system-clock';
@@ -34,10 +35,12 @@ import { PrismaNotificationPreferenceRepository } from './infrastructure/notific
 import { NOTIFICATION_LOG_REPOSITORY } from './application/notification/notification-log.repository';
 import { PrismaNotificationLogRepository } from './infrastructure/notification/prisma-notification-log.repository';
 import { SendCampaignReminderDigestUseCase } from './application/notification/send-campaign-reminder-digest.use-case';
+import { RunDueRemindersUseCase } from './application/notification/run-due-reminders.use-case';
+import { RemindersScheduler } from './presentation/notification/reminders.scheduler';
 import { NotificationPreferenceController } from './presentation/notification/notification-preference.controller';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, ScheduleModule.forRoot()],
   controllers: [BeneficiaryController, ParcelController, CampaignController, OperationLogController, NotificationPreferenceController],
   providers: [
     PrismaService,
@@ -71,6 +74,8 @@ import { NotificationPreferenceController } from './presentation/notification/no
     { provide: NOTIFICATION_PREFERENCE_REPOSITORY, useClass: PrismaNotificationPreferenceRepository },
     { provide: NOTIFICATION_LOG_REPOSITORY, useClass: PrismaNotificationLogRepository },
     { provide: SendCampaignReminderDigestUseCase, useFactory: (c, p, reco, u, pref, log, notif, clk, ids) => new SendCampaignReminderDigestUseCase(c, p, reco, u, pref, log, notif, clk, ids), inject: [CAMPAIGN_REPOSITORY, PARCEL_REPOSITORY, GetCampaignRecommendationsUseCase, USER_REPOSITORY, NOTIFICATION_PREFERENCE_REPOSITORY, NOTIFICATION_LOG_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
+    { provide: RunDueRemindersUseCase, useFactory: (c, sender) => new RunDueRemindersUseCase(c, sender), inject: [CAMPAIGN_REPOSITORY, SendCampaignReminderDigestUseCase] },
+    RemindersScheduler,
   ],
 })
 export class SuiviModule {}

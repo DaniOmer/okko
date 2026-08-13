@@ -7,7 +7,7 @@ const mkUser = (over: Partial<User>): User => ({ id: 'u', email: 'u@x.z', firstN
 const userRepoOf = (users: User[]): UserRepository => ({ listByOrganization: async () => users } as unknown as UserRepository);
 
 describe('resolveCampaignRecipients', () => {
-  it('garde les rôles terrain à email confirmé ; exclut VIEWER et les non confirmés', async () => {
+  it('renvoie {userId,email,everyNDays} ; defaut 1 sans preference ; exclut VIEWER et non confirmes', async () => {
     const prefs = new InMemoryNotificationPreferenceRepository();
     const users = [
       mkUser({ id: '1', email: 'agro@x.z', role: 'AGRONOMIST' }),
@@ -17,13 +17,15 @@ describe('resolveCampaignRecipients', () => {
       mkUser({ id: '5', email: 'pending@x.z', role: 'AGRONOMIST', emailVerifiedAt: null }),
     ];
     const out = await resolveCampaignRecipients(userRepoOf(users), prefs, 'o1');
-    expect(out.sort()).toEqual(['admin@x.z', 'agent@x.z', 'agro@x.z']);
+    expect(out.map((r) => r.email).sort()).toEqual(['admin@x.z', 'agent@x.z', 'agro@x.z']);
+    expect(out.every((r) => r.everyNDays === 1)).toBe(true);
   });
-  it('exclut ceux dont la préférence est false ; garde ceux sans préférence', async () => {
+  it('exclut everyNDays === 0 (jamais) ; conserve la valeur choisie', async () => {
     const prefs = new InMemoryNotificationPreferenceRepository();
-    await prefs.upsert('1', false);
-    const users = [mkUser({ id: '1', email: 'off@x.z' }), mkUser({ id: '2', email: 'on@x.z' })];
+    await prefs.upsert('1', 0);
+    await prefs.upsert('2', 3);
+    const users = [mkUser({ id: '1', email: 'off@x.z' }), mkUser({ id: '2', email: 'every3@x.z' })];
     const out = await resolveCampaignRecipients(userRepoOf(users), prefs, 'o1');
-    expect(out).toEqual(['on@x.z']);
+    expect(out).toEqual([{ userId: '2', email: 'every3@x.z', everyNDays: 3 }]);
   });
 });

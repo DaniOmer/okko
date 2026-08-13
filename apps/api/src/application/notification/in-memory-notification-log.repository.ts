@@ -3,6 +3,12 @@ import { NotificationLogSnapshot } from '../../domain/notification/notification-
 
 export class InMemoryNotificationLogRepository implements NotificationLogRepository {
   public readonly entries: NotificationLogSnapshot[] = [];
-  async existsByDedupKey(dedupKey: string): Promise<boolean> { return this.entries.some((e) => e.dedupKey === dedupKey); }
-  async record(entry: NotificationLogSnapshot): Promise<void> { this.entries.push(entry); }
+  async lastSentAt(dedupKey: string): Promise<string | null> {
+    const e = this.entries.find((x) => x.dedupKey === dedupKey);
+    return e ? e.sentAt : null;
+  }
+  async recordSent(entry: NotificationLogSnapshot): Promise<void> {
+    const i = this.entries.findIndex((x) => x.dedupKey === entry.dedupKey);
+    if (i >= 0) this.entries[i] = entry; else this.entries.push(entry);
+  }
 }

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { notifyCampaignReminder } from '@/lib/suivi-actions';
 
 const SKIP_MSG: Record<string, string> = {
-  already_sent: "Rappel déjà envoyé aujourd'hui.",
   no_due_items: 'Aucune échéance due pour le moment.',
   no_recipients: 'Aucun destinataire éligible.',
 };
@@ -16,7 +15,7 @@ export function SendReminderButton({ campaignId }: { campaignId: string }) {
     setBusy(true); setMsg(null);
     try {
       const r = await notifyCampaignReminder(campaignId);
-      setMsg(r.sent > 0 ? `Rappel envoyé à ${r.sent} destinataire(s).` : (SKIP_MSG[r.skipped ?? ''] ?? 'Rien à envoyer.'));
+      setMsg(r.sent > 0 ? `Rappel envoyé à ${r.sent} destinataire(s).` : (SKIP_MSG[r.skipped ?? ''] ?? 'Aucun rappel dû aujourd’hui.'));
     } catch { setMsg("Échec de l'envoi."); }
     finally { setBusy(false); }
   }

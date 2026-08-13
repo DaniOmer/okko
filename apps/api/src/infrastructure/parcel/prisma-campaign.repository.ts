@@ -23,5 +23,9 @@ export class PrismaCampaignRepository implements CampaignRepository {
     const rows = await this.prisma.campaign.findMany({ where: { organizationId, parcelId }, orderBy: { createdAt: 'desc' } });
     return rows.map((r) => this.toSnap(r));
   }
+  async listActive(): Promise<CampaignSnapshot[]> {
+    const rows = await this.prisma.campaign.findMany({ where: { status: 'ACTIVE' } });
+    return rows.map((r) => this.toSnap(r));
+  }
   async delete(id: string): Promise<void> { await this.prisma.campaign.delete({ where: { id } }); }
 }

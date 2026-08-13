@@ -3,5 +3,5 @@ import { NotificationPreferenceSnapshot } from '../../domain/notification/notifi
 export const NOTIFICATION_PREFERENCE_REPOSITORY = Symbol('NOTIFICATION_PREFERENCE_REPOSITORY');
 export interface NotificationPreferenceRepository {
   findByUserId(userId: string): Promise<NotificationPreferenceSnapshot | null>;
-  upsert(userId: string, remindersEnabled: boolean): Promise<void>;
+  upsert(userId: string, reminderEveryNDays: number): Promise<void>;
 }

@@ -4,6 +4,8 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles, CurrentUser, AuthUser } from '../auth/decorators';
 import { NOTIFICATION_PREFERENCE_REPOSITORY, NotificationPreferenceRepository } from '../../application/notification/notification-preference.repository';
 
+const ALLOWED_FREQUENCIES = new Set([0, 1, 2, 3, 7]);
+
 @Controller('me/notification-preferences')
 @UseGuards(AuthGuard, RolesGuard)
 export class NotificationPreferenceController {
@@ -12,12 +14,13 @@ export class NotificationPreferenceController {
   @Get() @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
   async get(@CurrentUser() user: AuthUser) {
     const pref = await this.prefs.findByUserId(user.sub);
-    return { remindersEnabled: pref ? pref.remindersEnabled : true };
+    return { reminderEveryNDays: pref ? pref.reminderEveryNDays : 1 };
   }
 
   @Patch() @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
-  async patch(@CurrentUser() user: AuthUser, @Body() body: { remindersEnabled: boolean }) {
-    await this.prefs.upsert(user.sub, body.remindersEnabled === true);
-    return { remindersEnabled: body.remindersEnabled === true };
+  async patch(@CurrentUser() user: AuthUser, @Body() body: { reminderEveryNDays: number }) {
+    const value = ALLOWED_FREQUENCIES.has(body.reminderEveryNDays) ? body.reminderEveryNDays : 1;
+    await this.prefs.upsert(user.sub, value);
+    return { reminderEveryNDays: value };
   }
 }
