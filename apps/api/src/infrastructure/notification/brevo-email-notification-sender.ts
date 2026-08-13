@@ -41,6 +41,18 @@ export class BrevoEmailNotificationSender implements NotificationPort {
           + `<p>Ce lien expire le ${n.expiresAt.toISOString().slice(0, 10)}.</p>`;
         return { subject, html };
       }
+      case 'campaign_reminder': {
+        const rows = n.items.map((i) => {
+          const statusFr = i.status === 'OVERDUE' ? 'En retard' : 'Bientôt';
+          const due = i.dueDate ? ` (échéance ${this.escapeHtml(i.dueDate)})` : '';
+          return `<li>${this.escapeHtml(i.label)} — ${statusFr}${due}</li>`;
+        }).join('');
+        const subject = `Rappel de suivi — ${n.campaignLabel}`;
+        const html = `<p>Point de suivi pour <strong>${this.escapeHtml(n.campaignLabel)}</strong> :</p>`
+          + `<ul>${rows}</ul>`
+          + `<p><a href="${this.escapeHtml(n.journalUrl)}">Ouvrir le journal</a></p>`;
+        return { subject, html };
+      }
     }
   }
 }

@@ -341,3 +341,19 @@ model OperationLog {
   @@index([organizationId])
   @@index([campaignId])
 }
+
+model NotificationPreference {
+  userId           String   @id
+  remindersEnabled Boolean  @default(true)
+  updatedAt        DateTime @updatedAt
+}
+
+model NotificationLog {
+  id             String   @id
+  organizationId String
+  dedupKey       String   @unique
+  kind           String
+  sentAt         DateTime @default(now())
+
+  @@index([organizationId])
+}
