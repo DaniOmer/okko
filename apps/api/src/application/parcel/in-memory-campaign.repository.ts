@@ -8,5 +8,6 @@ export class InMemoryCampaignRepository implements CampaignRepository {
   async listByParcel(organizationId: string, parcelId: string): Promise<CampaignSnapshot[]> {
     return [...this.store.values()].filter((c) => c.organizationId === organizationId && c.parcelId === parcelId);
   }
+  async listActive(): Promise<CampaignSnapshot[]> { return [...this.store.values()].filter((c) => c.status === 'ACTIVE'); }
   async delete(id: string): Promise<void> { this.store.delete(id); }
 }
