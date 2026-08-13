@@ -4,6 +4,8 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@
 import { Badge } from '@/components/ui/badge';
 import { InviteForm } from './InviteForm';
 import { RevokeButton } from './RevokeButton';
+import { getNotificationPreference } from '@/lib/suivi-actions';
+import { NotificationPreferenceToggle } from './NotificationPreferenceToggle';
 
 const STATUS_LABELS: Record<Invitation['status'], string> = {
   pending: 'En attente', accepted: 'Acceptée', expired: 'Expirée', revoked: 'Révoquée',
@@ -20,6 +22,7 @@ const ROLE_OPTIONS_BY_INVITER: Record<string, string[]> = {
 export default async function MembresPage() {
   const session = getSession();
   const invitations = await apiListInvitations();
+  const pref = await getNotificationPreference().catch(() => ({ remindersEnabled: true }));
   const canInvite = session ? session.role in ROLE_OPTIONS_BY_INVITER : false;
   const roleOptions = session ? (ROLE_OPTIONS_BY_INVITER[session.role] ?? []).map((v) => ({ value: v, label: ROLE_LABELS[v] })) : [];
   return (
@@ -27,6 +30,11 @@ export default async function MembresPage() {
       <div>
         <h1 className="text-2xl font-bold">Membres</h1>
         <p className="text-sm text-muted-foreground">Invitez des collaborateurs et gérez leurs invitations.</p>
+      </div>
+
+      <div className="rounded-lg border bg-card p-4">
+        <h2 className="mb-3 text-sm font-semibold">Mes préférences</h2>
+        <NotificationPreferenceToggle initial={pref.remindersEnabled} />
       </div>
 
       {canInvite && (

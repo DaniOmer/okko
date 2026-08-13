@@ -6,6 +6,7 @@ import { labelOf, OPERATION_TYPE_LABELS, RECO_STATUS_LABELS, MONTH_LABELS } from
 import { Button } from '@/components/ui/button';
 import { OperationEditor } from './OperationEditor.client';
 import { OperationRowActions } from './OperationRowActions';
+import { SendReminderButton } from './SendReminderButton.client';
 
 const WRITERS = ['ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT'];
 
@@ -27,7 +28,12 @@ export default async function JournalPage({ params }: { params: { id: string; ci
         <Link href={`/parcelles/${params.id}`} className="text-xs text-muted-foreground hover:underline">← Retour à la parcelle</Link>
         <div className="mt-2 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Journal — {campaign.season}</h1>
-          {canWrite && <OperationEditor campaignId={campaign.id} parcelGps={parcelGps} trigger={<Button>Nouvelle opération</Button>} />}
+          {canWrite && (
+            <div className="flex items-center gap-2">
+              <SendReminderButton campaignId={campaign.id} />
+              <OperationEditor campaignId={campaign.id} parcelGps={parcelGps} trigger={<Button>Nouvelle opération</Button>} />
+            </div>
+          )}
         </div>
       </div>
       <section className="rounded-lg border bg-card p-4">

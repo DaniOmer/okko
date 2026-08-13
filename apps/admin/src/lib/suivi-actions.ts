@@ -72,3 +72,15 @@ export async function updateOperation(id: string, input: OperationPayload): Prom
 export async function deleteOperation(id: string): Promise<void> {
   await authFetch(`/operations/${id}`, { method: 'DELETE' });
 }
+export async function notifyCampaignReminder(campaignId: string): Promise<{ sent: number; skipped?: 'already_sent' | 'no_due_items' | 'no_recipients' }> {
+  const res = await authFetch(`/campaigns/${campaignId}/notify-reminder`, { method: 'POST' });
+  return res.json();
+}
+export async function getNotificationPreference(): Promise<{ remindersEnabled: boolean }> {
+  const res = await authFetch('/me/notification-preferences');
+  return res.json();
+}
+export async function setNotificationPreference(remindersEnabled: boolean): Promise<{ remindersEnabled: boolean }> {
+  const res = await authFetch('/me/notification-preferences', jsonInit('PATCH', { remindersEnabled }));
+  return res.json();
+}
