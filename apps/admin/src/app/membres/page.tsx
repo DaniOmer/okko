@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { InviteForm } from './InviteForm';
 import { RevokeButton } from './RevokeButton';
 import { getNotificationPreference } from '@/lib/suivi-actions';
-import { NotificationPreferenceToggle } from './NotificationPreferenceToggle';
+import { NotificationFrequencySelect } from './NotificationFrequencySelect';
 
 const STATUS_LABELS: Record<Invitation['status'], string> = {
   pending: 'En attente', accepted: 'Acceptée', expired: 'Expirée', revoked: 'Révoquée',
@@ -22,7 +22,7 @@ const ROLE_OPTIONS_BY_INVITER: Record<string, string[]> = {
 export default async function MembresPage() {
   const session = getSession();
   const invitations = await apiListInvitations();
-  const pref = await getNotificationPreference().catch(() => ({ remindersEnabled: true }));
+  const pref = await getNotificationPreference().catch(() => ({ reminderEveryNDays: 1 }));
   const canInvite = session ? session.role in ROLE_OPTIONS_BY_INVITER : false;
   const roleOptions = session ? (ROLE_OPTIONS_BY_INVITER[session.role] ?? []).map((v) => ({ value: v, label: ROLE_LABELS[v] })) : [];
   return (
@@ -34,7 +34,7 @@ export default async function MembresPage() {
 
       <div className="rounded-lg border bg-card p-4">
         <h2 className="mb-3 text-sm font-semibold">Mes préférences</h2>
-        <NotificationPreferenceToggle initial={pref.remindersEnabled} />
+        <NotificationFrequencySelect initial={pref.reminderEveryNDays} />
       </div>
 
       {canInvite && (
