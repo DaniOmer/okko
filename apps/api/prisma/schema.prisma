@@ -343,9 +343,9 @@ model OperationLog {
 }
 
 model NotificationPreference {
-  userId           String   @id
-  remindersEnabled Boolean  @default(true)
-  updatedAt        DateTime @updatedAt
+  userId             String   @id
+  reminderEveryNDays Int      @default(1)
+  updatedAt          DateTime @updatedAt
 }
 
 model NotificationLog {

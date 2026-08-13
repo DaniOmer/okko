@@ -1,1 +1,1 @@
-export interface NotificationPreferenceSnapshot { userId: string; remindersEnabled: boolean; }
+export interface NotificationPreferenceSnapshot { userId: string; reminderEveryNDays: number; }

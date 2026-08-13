@@ -42,8 +42,8 @@ export class SendCampaignReminderDigestUseCase {
     const base = process.env.INVITE_BASE_URL ?? 'http://localhost:3000';
     const journalUrl = `${base}/parcelles/${campaign.parcelId}/campagnes/${input.campaignId}`;
     const payloadItems = items.map((i) => ({ label: i.label, dueDate: i.dueDate, status: i.status as 'OVERDUE' | 'DUE_SOON' }));
-    for (const to of recipients) {
-      await this.notifier.send({ kind: 'campaign_reminder', to, campaignLabel, items: payloadItems, journalUrl });
+    for (const r of recipients) {
+      await this.notifier.send({ kind: 'campaign_reminder', to: r.email, campaignLabel, items: payloadItems, journalUrl });
     }
     await this.log.record({ id: this.ids.next(), organizationId: input.organizationId, dedupKey, kind: 'campaign_reminder', sentAt: this.clock.nowIso() });
     return { sent: recipients.length };
