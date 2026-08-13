@@ -25,10 +25,20 @@ import { CROPPING_WINDOW_REPOSITORY } from './application/window/cropping-window
 import { PrismaCroppingWindowRepository } from './infrastructure/window/prisma-cropping-window.repository';
 import { STORAGE_PORT } from './application/media/storage.port';
 import { S3Storage } from './infrastructure/media/s3-storage';
+import { USER_REPOSITORY } from './application/auth/repositories';
+import { PrismaUserRepository } from './infrastructure/auth/prisma-user.repository';
+import { NOTIFICATION_PORT } from './application/notification/notification-port';
+import { BrevoEmailNotificationSender } from './infrastructure/notification/brevo-email-notification-sender';
+import { NOTIFICATION_PREFERENCE_REPOSITORY } from './application/notification/notification-preference.repository';
+import { PrismaNotificationPreferenceRepository } from './infrastructure/notification/prisma-notification-preference.repository';
+import { NOTIFICATION_LOG_REPOSITORY } from './application/notification/notification-log.repository';
+import { PrismaNotificationLogRepository } from './infrastructure/notification/prisma-notification-log.repository';
+import { SendCampaignReminderDigestUseCase } from './application/notification/send-campaign-reminder-digest.use-case';
+import { NotificationPreferenceController } from './presentation/notification/notification-preference.controller';
 
 @Module({
   imports: [AuthModule],
-  controllers: [BeneficiaryController, ParcelController, CampaignController, OperationLogController],
+  controllers: [BeneficiaryController, ParcelController, CampaignController, OperationLogController, NotificationPreferenceController],
   providers: [
     PrismaService,
     { provide: CLOCK, useClass: SystemClock },
@@ -56,6 +66,11 @@ import { S3Storage } from './infrastructure/media/s3-storage';
     { provide: DeleteOperationLogUseCase, useFactory: (r) => new DeleteOperationLogUseCase(r), inject: [OPERATION_LOG_REPOSITORY] },
     { provide: CROPPING_WINDOW_REPOSITORY, useClass: PrismaCroppingWindowRepository },
     { provide: GetCampaignRecommendationsUseCase, useFactory: (c, o, w, clk) => new GetCampaignRecommendationsUseCase(c, o, w, clk), inject: [CAMPAIGN_REPOSITORY, OPERATION_LOG_REPOSITORY, CROPPING_WINDOW_REPOSITORY, CLOCK] },
+    { provide: USER_REPOSITORY, useClass: PrismaUserRepository },
+    { provide: NOTIFICATION_PORT, useClass: BrevoEmailNotificationSender },
+    { provide: NOTIFICATION_PREFERENCE_REPOSITORY, useClass: PrismaNotificationPreferenceRepository },
+    { provide: NOTIFICATION_LOG_REPOSITORY, useClass: PrismaNotificationLogRepository },
+    { provide: SendCampaignReminderDigestUseCase, useFactory: (c, p, reco, u, pref, log, notif, clk, ids) => new SendCampaignReminderDigestUseCase(c, p, reco, u, pref, log, notif, clk, ids), inject: [CAMPAIGN_REPOSITORY, PARCEL_REPOSITORY, GetCampaignRecommendationsUseCase, USER_REPOSITORY, NOTIFICATION_PREFERENCE_REPOSITORY, NOTIFICATION_LOG_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
   ],
 })
 export class SuiviModule {}

@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, HttpCode, Inject } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles, CurrentUser, AuthUser } from '../auth/decorators';
 import { CreateCampaignUseCase, ListCampaignsByParcelUseCase, UpdateCampaignUseCase, DeleteCampaignUseCase } from '../../application/parcel/campaign.use-cases';
 import { GetCampaignRecommendationsUseCase } from '../../application/parcel/get-campaign-recommendations.use-case';
 import { CampaignNotFoundError, ParcelNotFoundError, MissingCropError } from '../../application/parcel/errors';
+import { SendCampaignReminderDigestUseCase } from '../../application/notification/send-campaign-reminder-digest.use-case';
+import { CLOCK, Clock } from '../../application/shared/clock';
 
 type CampaignBody = { parcelId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string; season: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string };
 
@@ -17,6 +19,8 @@ export class CampaignController {
     private readonly updateUC: UpdateCampaignUseCase,
     private readonly deleteUC: DeleteCampaignUseCase,
     private readonly recoUC: GetCampaignRecommendationsUseCase,
+    private readonly reminderUC: SendCampaignReminderDigestUseCase,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
   private org(user: AuthUser): string { if (!user.organizationId) throw new ForbiddenException(); return user.organizationId; }
@@ -24,6 +28,12 @@ export class CampaignController {
   @Get(':id/recommendations') @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
   async recommendations(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     try { return await this.recoUC.execute({ campaignId: id, organizationId: this.org(user) }); }
+    catch (e) { if (e instanceof CampaignNotFoundError) throw new NotFoundException(); throw e; }
+  }
+
+  @Post(':id/notify-reminder') @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT')
+  async notifyReminder(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    try { return await this.reminderUC.execute({ campaignId: id, organizationId: this.org(user), today: this.clock.nowIso() }); }
     catch (e) { if (e instanceof CampaignNotFoundError) throw new NotFoundException(); throw e; }
   }
 
