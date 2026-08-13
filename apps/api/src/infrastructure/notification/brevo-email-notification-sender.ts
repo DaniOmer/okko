@@ -53,6 +53,13 @@ export class BrevoEmailNotificationSender implements NotificationPort {
           + `<p><a href="${this.escapeHtml(n.journalUrl)}">Ouvrir le journal</a></p>`;
         return { subject, html };
       }
+      case 'campaign_advice': {
+        const subject = `Conseil de culture — ${n.campaignLabel}`;
+        const html = `<p>Conseil pour <strong>${this.escapeHtml(n.campaignLabel)}</strong> — stade <strong>${this.escapeHtml(n.stageName)}</strong> :</p>`
+          + `<p>${this.escapeHtml(n.advice)}</p>`
+          + `<p><a href="${this.escapeHtml(n.journalUrl)}">Ouvrir le journal</a></p>`;
+        return { subject, html };
+      }
     }
   }
 }

@@ -8,15 +8,12 @@ import { resolveCampaignRecipients } from './campaign-recipients';
 import { CampaignNotFoundError } from '../parcel/errors';
 import { Clock } from '../shared/clock';
 import { IdGenerator } from '../shared/id-generator';
+import { daysBetween } from '../shared/days';
 
 export interface CampaignRecommendationsReader {
   execute(input: { campaignId: string; organizationId: string }): Promise<{ items: { label: string; dueDate?: string; status: string }[] }>;
 }
 export interface SendReminderResult { sent: number; skipped?: 'no_due_items' | 'no_recipients'; }
-
-function daysBetween(aIso: string, bIso: string): number {
-  return Math.floor((Date.parse(bIso.slice(0, 10)) - Date.parse(aIso.slice(0, 10))) / 86400000);
-}
 
 export class SendCampaignReminderDigestUseCase {
   constructor(
