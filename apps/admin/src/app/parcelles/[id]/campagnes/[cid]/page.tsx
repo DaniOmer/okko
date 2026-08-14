@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { listCampaigns, listOperations, getCampaignRecommendations, CampaignRecommendations, listParcels } from '@/lib/api';
+import { listCampaigns, listOperations, getCampaignRecommendations, CampaignRecommendations, listParcels, getCampaignStageAdvice } from '@/lib/api';
 import { getSession } from '@/lib/session';
 import { labelOf, OPERATION_TYPE_LABELS, RECO_STATUS_LABELS, MONTH_LABELS } from '@/lib/labels';
 import { Button } from '@/components/ui/button';
@@ -13,10 +13,11 @@ const WRITERS = ['ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT'];
 export default async function JournalPage({ params }: { params: { id: string; cid: string } }) {
   const session = getSession();
   const canWrite = session ? WRITERS.includes(session.role) : false;
-  const [campaigns, operations, reco, parcels] = await Promise.all([
+  const [campaigns, operations, reco, parcels, stageAdvice] = await Promise.all([
     listCampaigns(params.id).catch(() => []), listOperations(params.cid).catch(() => []),
     getCampaignRecommendations(params.cid).catch((): CampaignRecommendations => ({ hasReference: false, items: [] })),
     listParcels().catch(() => []),
+    getCampaignStageAdvice(params.cid).catch(() => null),
   ]);
   const campaign = campaigns.find((c) => c.id === params.cid);
   if (!campaign) notFound();
@@ -62,6 +63,12 @@ export default async function JournalPage({ params }: { params: { id: string; ci
           </div>
         )}
       </section>
+      {stageAdvice && (
+        <section className="rounded-lg border bg-card p-4">
+          <h2 className="mb-2 text-sm font-semibold">Conseil du stade — {stageAdvice.stageName}</h2>
+          <p className="text-sm">{stageAdvice.advice}</p>
+        </section>
+      )}
       {operations.length === 0 ? (
         <p className="text-sm text-muted-foreground">Aucune opération journalisée.</p>
       ) : (
