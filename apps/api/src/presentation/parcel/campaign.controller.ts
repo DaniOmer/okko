@@ -6,6 +6,7 @@ import { CreateCampaignUseCase, ListCampaignsByParcelUseCase, UpdateCampaignUseC
 import { GetCampaignRecommendationsUseCase } from '../../application/parcel/get-campaign-recommendations.use-case';
 import { CampaignNotFoundError, ParcelNotFoundError, MissingCropError } from '../../application/parcel/errors';
 import { SendCampaignReminderDigestUseCase } from '../../application/notification/send-campaign-reminder-digest.use-case';
+import { GetCampaignStageAdviceUseCase } from '../../application/notification/get-campaign-stage-advice.use-case';
 import { CLOCK, Clock } from '../../application/shared/clock';
 
 type CampaignBody = { parcelId: string; cropId?: string; customCropName?: string; windowId?: string; varietyId?: string; season: string; startDate?: string; status?: 'ACTIVE' | 'CLOSED'; notes?: string };
@@ -20,6 +21,7 @@ export class CampaignController {
     private readonly deleteUC: DeleteCampaignUseCase,
     private readonly recoUC: GetCampaignRecommendationsUseCase,
     private readonly reminderUC: SendCampaignReminderDigestUseCase,
+    private readonly stageAdviceUC: GetCampaignStageAdviceUseCase,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
@@ -28,6 +30,12 @@ export class CampaignController {
   @Get(':id/recommendations') @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
   async recommendations(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     try { return await this.recoUC.execute({ campaignId: id, organizationId: this.org(user) }); }
+    catch (e) { if (e instanceof CampaignNotFoundError) throw new NotFoundException(); throw e; }
+  }
+
+  @Get(':id/stage-advice') @Roles('ORG_ADMIN', 'AGRONOMIST', 'FIELD_AGENT', 'VIEWER')
+  async stageAdvice(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    try { return await this.stageAdviceUC.execute({ campaignId: id, organizationId: this.org(user) }); }
     catch (e) { if (e instanceof CampaignNotFoundError) throw new NotFoundException(); throw e; }
   }
 
