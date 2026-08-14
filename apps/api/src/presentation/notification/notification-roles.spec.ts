@@ -14,4 +14,8 @@ describe('Roles notifications de suivi', () => {
     expect(reflector.get<string[]>(ROLES_KEY, NotificationPreferenceController.prototype.get)).toContain('VIEWER');
     expect(reflector.get<string[]>(ROLES_KEY, NotificationPreferenceController.prototype.patch)).toContain('VIEWER');
   });
+  it('GET /campaigns/:id/stage-advice = 4 rôles tenant (VIEWER inclus)', () => {
+    const roles = reflector.get<string[]>(ROLES_KEY, CampaignController.prototype.stageAdvice);
+    expect(roles).toContain('VIEWER');
+  });
 });

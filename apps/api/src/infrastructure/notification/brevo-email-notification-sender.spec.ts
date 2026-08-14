@@ -42,4 +42,16 @@ describe('BrevoEmailNotificationSender', () => {
     expect(body).toContain('http://app/parcelles/p1/campagnes/c1');
     expect(body).toContain('Rappel de suivi');
   });
+
+  it('POST Brevo pour un conseil de stade (campaign_advice) — stade + conseil + lien', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true, status: 201 } as Response);
+    const sender = new BrevoEmailNotificationSender();
+    await sender.send({ kind: 'campaign_advice', to: 'x@y.z', campaignLabel: 'Parcelle Nord — Saison 2026', stageName: 'Floraison', advice: 'Surveiller les pucerons.', journalUrl: 'http://app/parcelles/p1/campagnes/c1' });
+    const [, init] = fetchMock.mock.calls[0];
+    const body = init!.body as string;
+    expect(body).toContain('Floraison');
+    expect(body).toContain('Surveiller les pucerons.');
+    expect(body).toContain('http://app/parcelles/p1/campagnes/c1');
+    expect(body).toContain('Conseil de culture');
+  });
 });

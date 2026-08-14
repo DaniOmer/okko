@@ -38,6 +38,11 @@ import { SendCampaignReminderDigestUseCase } from './application/notification/se
 import { RunDueRemindersUseCase } from './application/notification/run-due-reminders.use-case';
 import { RemindersScheduler } from './presentation/notification/reminders.scheduler';
 import { NotificationPreferenceController } from './presentation/notification/notification-preference.controller';
+import { PUBLISHED_CROP_REPOSITORY } from './application/crop/published-crop.repository';
+import { PrismaPublishedCropRepository } from './infrastructure/crop/prisma-published-crop.repository';
+import { SendCampaignStageAdviceUseCase } from './application/notification/send-campaign-stage-advice.use-case';
+import { GetCampaignStageAdviceUseCase } from './application/notification/get-campaign-stage-advice.use-case';
+import { RunDueStageAdviceUseCase } from './application/notification/run-due-stage-advice.use-case';
 
 @Module({
   imports: [AuthModule, ScheduleModule.forRoot()],
@@ -76,6 +81,10 @@ import { NotificationPreferenceController } from './presentation/notification/no
     { provide: SendCampaignReminderDigestUseCase, useFactory: (c, p, reco, u, pref, log, notif, clk, ids) => new SendCampaignReminderDigestUseCase(c, p, reco, u, pref, log, notif, clk, ids), inject: [CAMPAIGN_REPOSITORY, PARCEL_REPOSITORY, GetCampaignRecommendationsUseCase, USER_REPOSITORY, NOTIFICATION_PREFERENCE_REPOSITORY, NOTIFICATION_LOG_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
     { provide: RunDueRemindersUseCase, useFactory: (c, sender) => new RunDueRemindersUseCase(c, sender), inject: [CAMPAIGN_REPOSITORY, SendCampaignReminderDigestUseCase] },
     RemindersScheduler,
+    { provide: PUBLISHED_CROP_REPOSITORY, useClass: PrismaPublishedCropRepository },
+    { provide: SendCampaignStageAdviceUseCase, useFactory: (c, p, pub, ops, u, pref, log, notif, clk, ids) => new SendCampaignStageAdviceUseCase(c, p, pub, ops, u, pref, log, notif, clk, ids), inject: [CAMPAIGN_REPOSITORY, PARCEL_REPOSITORY, PUBLISHED_CROP_REPOSITORY, OPERATION_LOG_REPOSITORY, USER_REPOSITORY, NOTIFICATION_PREFERENCE_REPOSITORY, NOTIFICATION_LOG_REPOSITORY, NOTIFICATION_PORT, CLOCK, UuidIdGenerator] },
+    { provide: GetCampaignStageAdviceUseCase, useFactory: (c, pub, ops, clk) => new GetCampaignStageAdviceUseCase(c, pub, ops, clk), inject: [CAMPAIGN_REPOSITORY, PUBLISHED_CROP_REPOSITORY, OPERATION_LOG_REPOSITORY, CLOCK] },
+    { provide: RunDueStageAdviceUseCase, useFactory: (c, sender) => new RunDueStageAdviceUseCase(c, sender), inject: [CAMPAIGN_REPOSITORY, SendCampaignStageAdviceUseCase] },
   ],
 })
 export class SuiviModule {}

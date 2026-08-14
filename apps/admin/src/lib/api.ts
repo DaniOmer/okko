@@ -166,6 +166,11 @@ export async function getCampaignRecommendations(campaignId: string): Promise<Ca
   return res.json();
 }
 
+export async function getCampaignStageAdvice(campaignId: string): Promise<{ stageName: string; advice: string } | null> {
+  const res = await authFetch(`/campaigns/${campaignId}/stage-advice`, { cache: 'no-store' });
+  return res.json();
+}
+
 export async function listCampaigns(parcelId: string): Promise<Campaign[]> {
   const res = await authFetch(`/campaigns?parcelId=${encodeURIComponent(parcelId)}`, { cache: 'no-store' });
   return res.json();
